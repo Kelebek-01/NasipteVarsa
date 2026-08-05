@@ -78,6 +78,39 @@ Hiç incelenmemiş, ayrı bir ajanın yazdığı 100 soruluk sette:
 Arzu ekseni zayıf halkadır ve öyle raporlanmalıdır. Ayrıntı, karışıklık matrisleri,
 ablasyonlar ve dağılım testleri: `eval/RAPOR.md`.
 
+## 3b. Arayüz özellikleri (v3.1)
+
+**Ciltler.** Defterin kabuğu her devirde değişir: `Kader.ciltSec(dönem, veri.ciltler)`.
+Beş cilt var (Gece Defteri, Kahve Falı, Ferman, Neon Kısmet, Kâğıt ve Mürekkep) ve her
+biri yalnızca CSS token'larını ezer — yapı tek. `#cilt=kahve` ile elle denenebilir.
+Her cilt `color-scheme` de ayarlar, böylece kaydırma çubuğu ve form denetimleri uyar.
+Yeni cilt eklerken **kontrast testini çalıştır**: `test/test-arayuz.mjs` her cilt için
+ana metin ve ikincil metinde ≥4.5, vurgu ve mühürde ≥3 arıyor.
+
+**Sekmeler.** Kader / İki Kişilik / Burç sayfaları View Transitions API ile geçiyor
+(`document.startViewTransition`, özellik denetimli). Geçişten sonra odak hedef panele
+taşınıyor — bu erişilebilirlik için zorunlu, kaldırma.
+
+**Animasyonlar.** Hüküm kelime kelime "mürekkeple" oturuyor, mühür basılırken kart
+sarsılıyor ve halka yayılıyor, kayıt numarası sayaç gibi dönüp duruyor, kartta kendi
+ürettiğimiz SVG gürültüsüyle kâğıt dokusu var. Hepsi `prefers-reduced-motion` ile kapanıyor.
+**Test yazarken dikkat:** kayıt numarası ~700 ms boyunca değişir; testler numarayı
+okumadan önce kararlı hâle gelmesini beklemeli (`test/test-tarayici.mjs` içindeki
+`kartAl` bunu yapıyor).
+
+**Fal kartı (PNG).** `kartCiz()` 1080×1350 bir kart çiziyor, `toBlob` ile PNG üretiyor;
+paylaşım için `navigator.canShare({files})`, yoksa indirme. Yerleşim **ölç-sonra-çiz**:
+satırlar önce ölçülüp içerik dikeyde ortalanıyor, yoksa uzun cevaplarda çerçeveye biniyor.
+Renkler cilt token'larından okunuyor, yani kart hangi cilt açıksa ona uyuyor.
+
+**Oyunlaştırma.** Mühür sesi WebAudio ile **sentezleniyor** (ses dosyası yok, sıfır bayt)
+ve varsayılan **kapalı** — kimseyi habersiz ses çalarak rahatsız etmiyoruz. Sallama
+DeviceMotion ile; iOS'ta izin gerektiği için önce bir düğmeye basılıyor. Devir geri sayımı
+30 saniyede bir güncelleniyor.
+
+**CSP notu:** `img-src` artık `data:` ve `blob:` de kabul ediyor — sırasıyla kâğıt dokusu
+(gömülü SVG) ve fal kartı (canvas blob) için. Başka gevşetme yok.
+
 ## 4. kader.json şeması (v3)
 
 | Alan | İşlevi |
@@ -100,6 +133,11 @@ ablasyonlar ve dağılım testleri: `eval/RAPOR.md`.
 | `tavsiye[ton]` | Şerhin ikinci cümlesi — kapanış, tona göre. |
 | `ozel` | Birebir eşleşen sorular. Anahtar ASCII katlanmış ve noktalamasız yazılır. |
 | `gunluk` | Günün Nasibi havuzu (takvim gününe bağlı, herkeste aynı). |
+| `ciltler` | Cilt listesi; sıra önemlidir, dönem bu diziye göre döner. Eklersen CSS'te de `body[data-cilt="..."]` tanımla. |
+| `burclar` | 12 burç: id, ad, simge, element (ates/toprak/hava/su), tarih aralığı. |
+| `burcOkuma.element[x]` / `.genel` | Haftalık okuma = element cümlesi + genel cümle. |
+| `ikili.hukum[bant]` | İki kişilik nasip, yüzde bandına göre: dusuk/orta/yuksek/cok. **Hiçbiri aşağılayıcı olamaz** — bu kural bilinçlidir, bozma. |
+| `ikili.serh` | İkili kartın alt cümlesi; sonucu şakaya bağlar. |
 
 Yeni cümle yazarken tek kural: **her satır noktasıyla biten, tek başına ayakta duran
 bir cümle olsun.** Türkçe eklemeli olduğu için yuvaya isim/çekim sokulmaz; şablonlar

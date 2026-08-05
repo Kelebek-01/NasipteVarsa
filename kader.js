@@ -695,6 +695,101 @@
     return liste[(simdi.getFullYear() * 366 + gunNo) % liste.length];
   }
 
+
+  /* ═══════════ 12. Cilt (tema) — devre bağlı ═══════════ */
+
+  /** Defterin cildi her devirde değişir; herkes aynı cildi görür. */
+  function ciltSec(donem, ciltler) {
+    if (!ciltler || !ciltler.length) return null;
+    var n = ciltler.length;
+    var i = ((donem % n) + n) % n;                 /* negatif dönemde de doğru */
+    return ciltler[i];
+  }
+
+  /* ═══════════ 13. Burç nasibi ═══════════ */
+
+  function ayGunNo(mmdd) {
+    var p = String(mmdd).split("-");
+    return parseInt(p[0], 10) * 100 + parseInt(p[1], 10);
+  }
+
+  /** Verilen tarihin hangi burç mevsiminde olduğunu döndürür. */
+  function bugununBurcu(veri, tarih) {
+    var liste = veri.burclar || [];
+    var d = tarih || new Date();
+    var no = (d.getMonth() + 1) * 100 + d.getDate();
+    for (var i = 0; i < liste.length; i++) {
+      var b = liste[i], bas = ayGunNo(b.bas), bit = ayGunNo(b.bit);
+      if (bas <= bit ? (no >= bas && no <= bit) : (no >= bas || no <= bit)) return b;
+    }
+    return liste[0] || null;
+  }
+
+  function burcBul(veri, id) {
+    var liste = veri.burclar || [];
+    for (var i = 0; i < liste.length; i++) if (liste[i].id === id) return liste[i];
+    return null;
+  }
+
+  /**
+   * Haftalık burç okuması. Tohum = burç ⊕ dönem, yani aynı devirde aynı burca
+   * herkes aynı metni görür; devir dönünce değişir. Seçim yine ES anahtarıyla,
+   * böylece havuza cümle eklemek diğer burçların okumasını bozmaz.
+   */
+  function burcNasibi(veri, burcId, donem) {
+    hazirla(veri);
+    var b = burcBul(veri, burcId);
+    if (!b) return null;
+    var okuma = veri.burcOkuma || {};
+    var tohum = karistir((hashle("burc:" + b.id) ^ karistir(((donem | 0) * 2654435761) | 0)) >>> 0);
+    var elListe = (okuma.element || {})[b.element] || [];
+    var el = kararliSec(altTohum(tohum, "burc-element"), adaylastir([{ liste: elListe, agirlik: 1 }]));
+    var gn = kararliSec(altTohum(tohum, "burc-genel"), adaylastir([{ liste: okuma.genel || [], agirlik: 1 }]));
+    return {
+      burc: b,
+      metin: [(el ? el.deger : ""), (gn ? gn.deger : "")].filter(Boolean).join(" "),
+      no: 1000 + (tohum % 9000),
+      donem: donem
+    };
+  }
+
+  /* ═══════════ 14. İki kişilik nasip ═══════════ */
+
+  var IKILI_BANT = [
+    { ad: "dusuk", alt: 30, ust: 54 },
+    { ad: "orta", alt: 55, ust: 74 },
+    { ad: "yuksek", alt: 75, ust: 89 },
+    { ad: "cok", alt: 90, ust: 99 }
+  ];
+
+  /**
+   * İki isimden ortak kader. İsimler sıralanarak tohumlanır: A+B ile B+A aynı
+   * sonucu verir. Yüzde 30–99 aralığına sıkıştırılır — kimse %3 görmesin diye.
+   * Havuzlar kasten şefkatlidir; düşük bantta bile aşağılayıcı cümle yoktur.
+   */
+  function ikiliNasip(veri, ad1, ad2, donem) {
+    hazirla(veri);
+    var a = anahtarla(ad1 || "").slice(0, 40), b = anahtarla(ad2 || "").slice(0, 40);
+    if (!a || !b) return null;
+    var cekirdek = [a, b].sort().join("+");
+    var tohum = karistir((hashle("ikili:" + cekirdek) ^ karistir(((donem | 0) * 2654435761) | 0)) >>> 0);
+    var yuzde = 30 + (karistir(tohum ^ 0x9e3779b9) % 70);
+    var bant = IKILI_BANT[0];
+    for (var i = 0; i < IKILI_BANT.length; i++) {
+      if (yuzde >= IKILI_BANT[i].alt && yuzde <= IKILI_BANT[i].ust) { bant = IKILI_BANT[i]; break; }
+    }
+    var ik = veri.ikili || {};
+    var h = kararliSec(altTohum(tohum, "ikili-hukum"),
+                       adaylastir([{ liste: (ik.hukum || {})[bant.ad] || [], agirlik: 1 }]));
+    var s = kararliSec(altTohum(tohum, "ikili-serh"),
+                       adaylastir([{ liste: ik.serh || [], agirlik: 1 }]));
+    return {
+      yuzde: yuzde, bant: bant.ad,
+      yanit: h ? h.deger : "", serh: s ? s.deger : "",
+      no: 1000 + (tohum % 9000), donem: donem
+    };
+  }
+
   var API = {
     surum: 3,
     katla: katla, duzle: duzle, anahtarla: anahtarla, bol: bol,
@@ -703,7 +798,9 @@
     donemHesapla: donemHesapla, donemAraligi: donemAraligi,
     hashle: hashle, karistir: karistir, altTohum: altTohum,
     esAnahtar: esAnahtar, kararliSec: kararliSec, adaylastir: adaylastir,
-    tonBul: tonBul, MUHUR_TON: MUHUR_TON
+    tonBul: tonBul, MUHUR_TON: MUHUR_TON,
+    ciltSec: ciltSec, bugununBurcu: bugununBurcu, burcBul: burcBul,
+    burcNasibi: burcNasibi, ikiliNasip: ikiliNasip
   };
 
   if (typeof module === "object" && module.exports) module.exports = API;

@@ -103,6 +103,136 @@
     "gündem", "haber", "trafik", "mevsim", "sıcaklık", "rüya", "burç", "yıldız"
   ],
 
+  "_ciltNotu": "Defterin cildi her devirde değişir; herkes aynı cildi görür. Elle denemek için #cilt=kahve gibi.",
+  "ciltler": [
+    { "id": "gece",   "ad": "Gece Defteri" },
+    { "id": "kahve",  "ad": "Kahve Falı" },
+    { "id": "ferman", "ad": "Ferman" },
+    { "id": "neon",   "ad": "Neon Kısmet" },
+    { "id": "kagit",  "ad": "Kâğıt ve Mürekkep" }
+  ],
+
+  "_burcNotu": "Haftalık burç okuması: tohum = burç ⊕ dönem. Okuma = element cümlesi + genel cümle. Element havuzları burcun mizacını, genel havuz haftanın gidişatını taşır.",
+  "burclar": [
+    { "id": "koc",     "ad": "Koç",     "simge": "♈", "element": "ates",   "bas": "03-21", "bit": "04-19" },
+    { "id": "boga",    "ad": "Boğa",    "simge": "♉", "element": "toprak", "bas": "04-20", "bit": "05-20" },
+    { "id": "ikizler", "ad": "İkizler", "simge": "♊", "element": "hava",   "bas": "05-21", "bit": "06-21" },
+    { "id": "yengec",  "ad": "Yengeç",  "simge": "♋", "element": "su",     "bas": "06-22", "bit": "07-22" },
+    { "id": "aslan",   "ad": "Aslan",   "simge": "♌", "element": "ates",   "bas": "07-23", "bit": "08-22" },
+    { "id": "basak",   "ad": "Başak",   "simge": "♍", "element": "toprak", "bas": "08-23", "bit": "09-22" },
+    { "id": "terazi",  "ad": "Terazi",  "simge": "♎", "element": "hava",   "bas": "09-23", "bit": "10-22" },
+    { "id": "akrep",   "ad": "Akrep",   "simge": "♏", "element": "su",     "bas": "10-23", "bit": "11-21" },
+    { "id": "yay",     "ad": "Yay",     "simge": "♐", "element": "ates",   "bas": "11-22", "bit": "12-21" },
+    { "id": "oglak",   "ad": "Oğlak",   "simge": "♑", "element": "toprak", "bas": "12-22", "bit": "01-19" },
+    { "id": "kova",    "ad": "Kova",    "simge": "♒", "element": "hava",   "bas": "01-20", "bit": "02-18" },
+    { "id": "balik",   "ad": "Balık",   "simge": "♓", "element": "su",     "bas": "02-19", "bit": "03-20" }
+  ],
+
+  "burcOkuma": {
+    "element": {
+      "ates": [
+        "İçindeki ateş bu hafta erken yanıyor; tutuşturmadan önce nereyi yakacağına bak.",
+        "Hızın bu devirde avantajın, ama frenini de yanına al.",
+        "Bir işe girişme isteğin haklı; sadece ilk hamleyi sessiz yap.",
+        "Öfken bu hafta haklı olduğun yerde bile pahalıya patlar.",
+        "Cesaretin görülüyor; gösteriş yapmana gerek kalmayacak.",
+        "Sabırsızlığın bir kapıyı erken açabilir — arkasında ne var, önce bak.",
+        "Bu devirde ilk sen konuşma; ikinci konuşan haklı çıkacak.",
+        "Ateş ısıtır da yakar da; bu hafta ısıtan tarafında dur."
+      ],
+      "toprak": [
+        "Kökün sağlam; bu hafta sallanan şey sen değilsin, etraf.",
+        "Yavaş gidiyorsun diye üzülme, varacağın yer duruyor.",
+        "Bu devirde biriktirdiğin şey karşılık verecek — sabır dahil.",
+        "Bir düzen kurma isteğin var; kur, bu hafta tutar.",
+        "Elin işe değsin bu hafta; akıl sonra yetişir.",
+        "Sağlamcılığın seni bir hatadan döndürecek. Şükret.",
+        "Toprak acele sevmez; sen de sevme.",
+        "Bu hafta somut olana güven, söze değil."
+      ],
+      "hava": [
+        "Aklın bu hafta çok yerde; birini seç, gerisi bekler.",
+        "Bir sohbet, ummadığın bir kapıyı aralayacak.",
+        "Fikrin güzel ama anlatımın daha güzel olacak; anlat.",
+        "Bu devirde kararsızlığın seni koruyor, suçlama kendini.",
+        "Kulağına gelen her şeyi taşıma; bazı sözler seninle kalsın.",
+        "Bu hafta yazmak konuşmaktan iyi gelecek.",
+        "Rüzgâr yön değiştiriyor; sen de değiştir, ayıp değil.",
+        "Bir bağlantı kurulacak — insan ya da fikir, ikisi de olur."
+      ],
+      "su": [
+        "Sezgin bu hafta senden hızlı; ona yetiş.",
+        "İçine attığın şey bu devirde su yüzüne çıkacak. Hazır ol.",
+        "Duyguna güven ama kararı sabah ver.",
+        "Bu hafta birinin derdini taşıyorsun; kendininkini de bırakma.",
+        "Suya benzersin: engeli aşmıyorsun, etrafından dolaşıyorsun. Bu da yol.",
+        "Kırgınlığın haklı, ama bu devirde yorucu.",
+        "Bu hafta yalnız kalmak istemen huysuzluk değil, ihtiyaç.",
+        "İçine doğan doğru; tarihi biraz kaydır."
+      ]
+    },
+    "genel": [
+      "Hafta ortasında bir haber gelir; iki kere okuman gerekecek.",
+      "Beklediğin cevap gecikiyor ama yolda.",
+      "Küçük bir kayıp, büyük bir dertten koruyacak.",
+      "Bu devirde para değil, zaman kıymetli.",
+      "Bir eski tanıdık gündeme gelecek. Kapıyı çarpma.",
+      "Uykunu düzelt; bu haftanın yarısı orada çözülüyor.",
+      "Sana danışacaklar. Sözünü tart.",
+      "Bu hafta hayır demeyi öğrenirsen devir sana çalışır.",
+      "Bir işi yarım bırakmışsın; onu bitirmeden yenisi açılmıyor.",
+      "Cebini değil, defterini kontrol et.",
+      "Beklenmedik bir davet var. Git.",
+      "Bu devirde en iyi hamlen beklemek olacak.",
+      "Bir özrün sırası geldi; sen mi dilersin sana mı dilenir, orası belirsiz.",
+      "Kalabalıkta yorulacaksın; bir günü kendine ayır.",
+      "Ay sonuna doğru bir kapı aralanıyor, şimdiden hazırlan.",
+      "Bu hafta şansın detayda; acele edersen kaçırırsın."
+    ]
+  },
+
+  "_ikiliNotu": "İki kişilik nasip. Tohum iki ismin SIRALANMIŞ hâlinden üretilir, yani A+B ile B+A aynıdır. Havuzlar kasten şefkatlidir: düşük yüzdede bile hiçbir cümle aşağılayıcı olamaz. Bu kural bozulmamalı.",
+  "ikili": {
+    "hukum": {
+      "dusuk": [
+        "Bu ikili kolay anlaşmaz ama kolay da vazgeçmez.",
+        "Farklı defterlerden geliyorsunuz; okumaya sabır ister.",
+        "Zıt kutup değilsiniz, sadece farklı hızlarda yürüyorsunuz.",
+        "Bu bağ zahmetli — zahmetsizi kim istemiş ki?",
+        "Aynı şeyi isteyip ayrı yollardan gidiyorsunuz."
+      ],
+      "orta": [
+        "Bu ikilide iş var; biraz sabır, biraz şaka.",
+        "Ortak bir dil kurulur, biraz vakit ister.",
+        "Fena değil: tartışırsınız, sonra beraber gülersiniz.",
+        "Bu bağ ateşte değil, ocakta pişer.",
+        "İkiniz de biraz inatçısınız; iyi ki öylesiniz."
+      ],
+      "yuksek": [
+        "Bu ikili birbirini kolay buluyor.",
+        "Aynı defterin iki komşu satırısınız.",
+        "Anlaşmanız için konuşmanıza bile gerek yok.",
+        "Bu bağ sağlam; kıymetini bilin yeter.",
+        "Denk düşmüşsünüz — nadir iştir."
+      ],
+      "cok": [
+        "Bu ikiliyi kader özenerek yazmış.",
+        "Aynı satırda iki isim; mürekkep bile şaşırmış.",
+        "Bu kadarı nazar ister; söyleyin ama az söyleyin.",
+        "İkiniz için ayrı sayfa açılmış.",
+        "Bu denklik tesadüf değil."
+      ]
+    },
+    "serh": [
+      "Nasip yüzdesi bir söz değil, bir şaka. Gerisi ikinizin işi.",
+      "Rakama değil, birbirinizi güldürme sıklığınıza bakın.",
+      "Defter tahmin eder, karar sizde kalır.",
+      "Bu sayı bugünün keyfi; yarın başka yazar.",
+      "Kader yazar, insan yaşar. Sıra sizde.",
+      "Yüzde ne olursa olsun, sormak bile bir yakınlık işareti."
+    ]
+  },
+
   "hukum": {
     "ton": {
       "mujde": [
