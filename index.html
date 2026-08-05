@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Savunma derinliği: sayfa hiçbir dış kaynak yüklemez ve innerHTML kullanmaz.
+     CSP, ileride bir enjeksiyon olsa bile dış script yüklenmesini, base-tag
+     kaçırmayı ve form ile veri sızdırmayı engeller. frame-ancestors meta ile
+     çalışmadığı için (GitHub Pages başlık koyduramaz) bilinçli olarak yok. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'">
 <title>Nasipte Varsa — Sorunu sor, kader cevaplasın.</title>
 <meta name="description" content="Olacak mı, olmayacak mı? Sorunu yaz, cevabı kader versin. Kader haftada bir yeniden yazılır — bu devrin cevabı burada. Günün nasibini de almadan gitme.">
 <link rel="canonical" href="https://nasiptevarsa.com/">
@@ -313,16 +318,22 @@ var giris = $("giris"), form = $("form"), soruEl = $("soru"),
     sorBtn = $("sor"), cevapEl = $("cevap"), hataEl = $("hata");
 var azHareket = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+var AZAMI_SORU = 140;    /* input'taki maxlength ile aynı; link yolu da buna uyar */
 var VERI = null, HAZIR = false, DONEM = 0, YEDEKTE = false;
-var oturumBellek = {};   /* aynı oturumda aynı soru → aynı cevap, depolama yok */
+/* Object.create(null): anahtarlar kullanıcı girdisi; "constructor" gibi
+   kelimelerin Object.prototype'tan sızmaması için düz nesne kullanılmıyor. */
+var oturumBellek = Object.create(null);
 var bekleyen = null;
 
-/* paylaşılan link: #q=<soru>&d=<dönem> */
+/* paylaşılan link: #q=<soru>&d=<dönem> — ikisi ayrı ayrı çözülür ki
+   bozuk bir q parametresi d'yi de düşürmesin. */
 var paylasilan = null, paylasilanDonem = null;
 try {
   var mq = location.hash.match(/[#&]q=([^&]*)/);
-  if (mq) paylasilan = decodeURIComponent(mq[1]);
-  var md = location.hash.match(/[#&]d=(-?\d+)/);
+  if (mq) paylasilan = decodeURIComponent(mq[1]).slice(0, AZAMI_SORU);
+} catch(e){}
+try {
+  var md = location.hash.match(/[#&]d=(-?\d{1,9})(?!\d)/);
   if (md) paylasilanDonem = parseInt(md[1], 10);
 } catch(e){}
 
@@ -330,9 +341,14 @@ try {
 function veriyiKur(v, yedekMi){
   VERI = Kader.hazirla(v);
   YEDEKTE = !!yedekMi;
-  DONEM = (paylasilanDonem !== null && !isNaN(paylasilanDonem))
+  /* Linkten gelen dönem yalnızca güncel ya da bir önceki devirse kabul edilir.
+     Aksi hâlde motor deterministik olduğu için link yazan kişi cevabı
+     seçebilirdi ("X hırsız mı?" → NASİP VAR). Eski link güncel kaderi gösterir. */
+  var simdikiDonem = Kader.donemHesapla(VERI.ayar, Date.now());
+  DONEM = (paylasilanDonem !== null && isFinite(paylasilanDonem) &&
+           paylasilanDonem <= simdikiDonem && paylasilanDonem >= simdikiDonem - 1)
     ? paylasilanDonem
-    : Kader.donemHesapla(VERI.ayar, Date.now());
+    : simdikiDonem;
   HAZIR = true;
   sorBtn.disabled = false;
   sorBtn.textContent = "Kadere Danış";
@@ -400,7 +416,7 @@ function gunuYaz(){
 var mesgul = false;
 function sor(soru, hizli){
   if (mesgul) return;
-  var temiz = soru.trim();
+  var temiz = String(soru).trim().slice(0, AZAMI_SORU);
   if (!temiz){
     hataEl.textContent = "Sormadan nasip olmaz.";
     if (!azHareket){
@@ -425,7 +441,8 @@ function sor(soru, hizli){
     sonuc = Kader.cevapla(temiz, VERI, DONEM);
     oturumBellek[anahtar] = sonuc;
   }
-  history.replaceState(null, "", baglanti(temiz));
+  /* Soru bilerek adres çubuğuna yazılmaz: yazsaydık tarayıcı geçmişine ve
+     hesap senkronuna düşerdi. Link yalnızca "Linki Kopyala"/"Paylaş" ile üretilir. */
 
   var dusunceler = (VERI.dusunceler && VERI.dusunceler.length) ? VERI.dusunceler : YEDEK.dusunceler;
   var dus = document.createElement("p");
@@ -458,8 +475,9 @@ function tamBaglanti(soru){
 
 function devirNotu(){
   try {
-    var bitis = new Date(Kader.donemAraligi(VERI.ayar, DONEM).bitisMs);
-    var g = new Intl.DateTimeFormat("tr-TR", {day:"numeric", month:"long"}).format(bitis);
+    var aralik = Kader.donemAraligi(VERI.ayar, DONEM);
+    if (!aralik) throw new Error("dönem aralığı hesaplanamadı");
+    var g = new Intl.DateTimeFormat("tr-TR", {day:"numeric", month:"long"}).format(new Date(aralik.bitisMs));
     return "Bu kayıt " + g + " tarihine kadar geçerli; sonra kader yeniden yazılır.";
   } catch(e){
     return "Bu kayıt bu devre aittir; devir dönünce kader yeniden yazılır.";

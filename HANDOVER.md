@@ -61,7 +61,9 @@ Tohuma bulunulan **dönem** (varsayılan 7 gün) karışır. Sonuç:
 `localStorage` bilinçli olarak **kullanılmadı**: (a) sıfır depolama duruşunu bozardı,
 (b) her cihazda farklı kader olurdu, (c) `#q=` paylaşım linki arkadaşına senin gördüğünden
 başka cevap gösterirdi. Dönem tohumu üçünü de çözer. Paylaşım linki `#q=<soru>&d=<dönem>`
-biçiminde dönemi de taşır, böylece link kalıcıdır.
+biçiminde dönemi de taşır, böylece **aynı devir içinde** paylaşılan link herkese aynı
+kaydı gösterir. Daha eski bir `d` değeri güvenlik gereği yok sayılır (bkz. §6) ve link
+güncel kaderi gösterir — kader zaten değiştiği için doğru davranış budur.
 
 ## 4. kader.json şeması
 
@@ -89,8 +91,15 @@ biçiminde dönemi de taşır, böylece link kalıcıdır.
 
 ```bash
 node test-motor.mjs        # 64 test: gövdeleme, tip, konu, determinizm, dağılım, uç durumlar
-node test-tarayici.mjs     # 28 test: Playwright ile akış, paylaşım linki, mobil, yedek veri, 404
+node test-guvenlik.mjs     # prototip anahtarları, enjeksiyon yükleri, dönem sınırları, CPU
+node test-tarayici.mjs     # 41 test: akış, paylaşım linki, dönem güvenliği, fragment saldırıları,
+                           #          mobil, yedek veri, 404
 ```
+
+**Tarayıcı testi tuzağı:** yalnızca hash değiştiren `goto` sayfayı yeniden yüklemez ve
+inline script tekrar çalışmaz — test bayat kartı ölçer ve sahte "geçti" verir. Bu yüzden
+`git(sayfa, hash)` yardımcı fonksiyonu her gezinmeye benzersiz bir sorgu ekler. Yeni
+fragment testi yazarken bunu kullan.
 
 Test dosyaları repoda değil, oturum çalışma alanındaydı. Kalıcı hâle getirmek istersen
 repoya `test/` altına taşı. `test-tarayici.mjs` `playwright-core` ister ve kendi statik
@@ -99,7 +108,42 @@ sunucusunu 8099'da ayağa kaldırır.
 İçerik değişikliğinden sonra en azından şunu doğrula: `node test-motor.mjs` sıfır hata
 vermeli — bozuk çıktı, boş yuva, çift boşluk, noktasız cümle ve kutup dengesi orada denetlenir.
 
-## 6. Bilinenler ve sınırlar
+## 6. Güvenlik duruşu
+
+Bağımsız bir inceleme yapıldı ve bulgular giderildi. Bozulmaması gerekenler:
+
+* **`innerHTML` / `document.write` / `eval` / `new Function` kullanılmıyor.** Kullanıcı
+  girdisi DOM'a yalnızca `textContent` üzerinden gider. Bu kuralı bozma; XSS'e karşı
+  tek gerçek savunma bu.
+* **Kullanıcı girdisinin anahtar olduğu her sözlük `Object.create(null)`.**
+  (`oturumBellek`, `_durak`, `_ozel`.) Düz `{}` kullanılırsa "constructor" yazan
+  ziyaretçi `Object.prototype`'ı yakalar ve kart "undefined" gösterir.
+* **Linkten gelen dönem yalnızca güncel ya da bir önceki devirse kabul edilir.**
+  Motor deterministik olduğu için sınırsız `d` seçimi, link yazan kişiye cevabı
+  seçtiriyordu: `#q=X hırsız mı&d=3` → gerçek alan adında "NASİP VAR" mührü.
+  Sınırı gevşetirsen bu karalama vektörü geri gelir.
+* **Soru 140 karaktere kırpılır** (`AZAMI_SORU`) — `maxlength` yalnızca klavyeyi
+  sınırlar, paylaşım linki sınırsızdır.
+* **Gövde tekilleştirmesi sözlükle yapılır, `indexOf` ile değil.** `indexOf` O(n²) idi;
+  ~1 MB'lık bir `#q` linki sekmeyi 5,5 saniye donduruyordu (düzeltmeden sonra 0,4 sn).
+* **Soru adres çubuğuna yazılmaz.** `history.replaceState` bilinçli olarak kaldırıldı;
+  yoksa sorular tarayıcı geçmişine ve tarayıcı hesabı senkronuna düşüyordu. Link
+  yalnızca "Linki Kopyala"/"Paylaş" ile üretilir.
+* **CSP meta etiketi** `index.html` head'inde. `'unsafe-inline'` var çünkü stil ve
+  script gömülü; sıkılaştırmak istersen bloklara SHA-256 hash'i verip `'unsafe-inline'`ı
+  kaldır — ama her düzenlemede hash'i güncellemen gerekir. `frame-ancestors` meta ile
+  çalışmaz; GitHub Pages başlık koyduramadığı için clickjacking'e karşı koruma yoktur
+  (sitede oturum/işlem olmadığı için kabul edilmiş kalıntı risk).
+
+Kapatılmayan, bilinen kalıntılar:
+
+* `project/` klasörü `https://nasiptevarsa.com/project/` altında yayında. Sır içermiyor
+  ama gereksiz yüzey ve eski bağımlılık listesini ifşa ediyor. Silinmesi öneriliyor;
+  içerik zaten `eski-site` dalında ve git geçmişinde duruyor.
+* Sorunun kendisi paylaşım linkinde açık metin taşınır. Fragment sunucuya gitmez ve
+  `Referer`'a girmez, ama linki alan kişi soruyu görür — tasarım gereği.
+
+## 7. Bilinenler ve sınırlar
 
 * **Gövdeleme sözlüksüz.** Yüksek frekanslı çekim ekleri elle listelenmiştir; nadir
   kelimelerde yanlış soyabilir. Türetim ekleri (`li/lu/ci/cu/gi/gu/si/su`) bilerek listede
@@ -113,20 +157,20 @@ vermeli — bozuk çıktı, boş yuva, çift boşluk, noktasız cümle ve kutup 
 * Dönem sınırı UTC gece yarısında döner; sınırı geçerken sayfayı yenileyen kullanıcı
   cevabın değiştiğini görebilir. Kabul edilmiş davranış.
 
-## 7. Sürüm ve geri dönüş
+## 8. Sürüm ve geri dönüş
 
 * `eski-site` dalı = 2019–2022 arası eski Vue sitesi (commit `2fdc1e3`). Bozulmadan duruyor.
 * Geri dönmek: `git push origin eski-site:master --force` (ya da GitHub'dan revert).
 * v2 öncesi (yeni tasarım, eski basit motor) hâli: `00f6f1b`…`141203e` aralığı.
 
-## 8. Push notu
+## 9. Push notu
 
 Bu repo Cowork bulut oturumundan `git push` ile **itilemedi**: oturumun git proxy'si
 `Kelebek-01/NasipteVarsa`'yı yetkili repo listesinde görmediği için 403 döndü. Token gömmek
 de API de çalışmıyor. Claude Code yerelden normal şekilde push edebilir; bu bir Cowork
 sandbox kısıtı, repo ayarı değil.
 
-## 9. Sıradaki işler (öneri)
+## 10. Sıradaki işler (öneri)
 
 1. İçerik büyütme: `konuHukum` ve `tavsiye` havuzları en çok görülen yerler, en çok onlar
    büyümeli. Kutup oranını (~33/30/35) koru.
