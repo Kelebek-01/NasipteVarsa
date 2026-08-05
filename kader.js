@@ -546,6 +546,15 @@
     var kat = katla(turkce);
     var hamJeton = bol(turkce), katJeton = bol(kat);
 
+    /* Motor bir kütüphane: arayüz girdiyi 140 karaktere kırpsa da burada da
+       kendi sınırı olmalı. Gerçek sorular 20 jetonu geçmez; 400 fazlasıyla
+       geniş bir tavan ve girdi boyutundan bağımsız üst sınır sağlar. */
+    var AZAMI_JETON = 400;
+    if (hamJeton.length > AZAMI_JETON) {
+      hamJeton = hamJeton.slice(0, AZAMI_JETON);
+      katJeton = katJeton.slice(0, AZAMI_JETON);
+      kat = katJeton.join(" ");
+    }
     var tip = tipBul(kat, katJeton, veri.tipDesen || {});
     var soruEkiVar = false, birinciSahis = false, olumsuz = false, soruEkiSayi = 0;
 
