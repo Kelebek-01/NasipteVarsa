@@ -259,14 +259,15 @@ node test/test-motor.mjs        # 132 test: sesbilim, gövdeleme, morfotaktik, t
                                 #           kura (ES kararlılığı), ebced, eski sayfalar
 node test/test-guvenlik.mjs     # prototip anahtarları, enjeksiyon yükleri (kader + kura +
                                 #           ebced kapılarından), dönem sınırları, CPU, tavanlar
-node test/test-arayuz.mjs       # 134 test: ciltler (renk VE biçim), 5 sekme, kura, ebced,
-                                #           eski sayfalar, PNG kart, taşma, kontrast, animasyon
+node test/test-arayuz.mjs       # 159 test: ciltler (renk VE biçim), cilt seçici, 5 sekme,
+                                #           kura, ebced, eski sayfalar, PNG kart, taşma,
+                                #           kontrast, gerçek görünürlük, animasyon
 node test/test-tarayici.mjs     # 41 test: akış, paylaşım linki, dönem güvenliği,
                                 #          fragment saldırıları, mobil, yedek veri, 404
 node eval/degerlendir.mjs       # ölçüm koşusu → eval/RAPOR.md
 ```
 
-Son tam koşu: **motor 132/132, arayüz 134/134, tarayıcı 41/41, güvenlik 0 bulgu.**
+Son tam koşu (`2a4d9b0`): **motor 132/132, arayüz 159/159, tarayıcı 41/41, güvenlik 0 bulgu.**
 CI (`.github/workflows/testler.yml`) bunlardan tarayıcı gerektirmeyenleri + veri
 bütünlüğü, cümle biçimi, kura şablonu ve cilt biçim token'ı denetimlerini koşar;
 hepsi bağımlılıksız, yalnızca Node çekirdeği.
