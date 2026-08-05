@@ -91,6 +91,96 @@ console.log("\n[1b] Ciltler biçimi de değiştiriyor");
   await ctx.close();
 }
 
+/* 1c. Cilt seçici — ciltler artık gezilebiliyor */
+console.log("\n[1c] Cilt seçici");
+{
+  const {ctx,p,konsol} = await sayfaAc({reducedMotion:"reduce"});
+  await git(p);
+  ok("seçici varsayılan kapalı", await p.evaluate(()=>document.getElementById("cilt-secici").hidden));
+  ok("etiket düğme ve katlanabilir",
+     await p.evaluate(()=>{ const e=document.getElementById("cilt-etiket");
+       return e.tagName==="BUTTON" && e.getAttribute("aria-expanded")==="false"; }));
+  const devrin = await p.textContent("#cilt-etiket");
+  ok("başta devrin cildi yazıyor", /Bu devrin cildi ·/.test(devrin), devrin.trim());
+
+  await p.click("#cilt-etiket"); await p.waitForTimeout(200);
+  ok("açıldı", !(await p.evaluate(()=>document.getElementById("cilt-secici").hidden)) &&
+               (await p.getAttribute("#cilt-etiket","aria-expanded"))==="true");
+  ok("5 cilt düğmesi", (await p.locator("#cilt-secici button[data-cilt]").count())===5);
+  ok("devre-dön başta gizli", !(await p.isVisible("#cilt-secici button.devre")));
+
+  await p.click('#cilt-secici button[data-cilt="ferman"]'); await p.waitForTimeout(300);
+  const secili = await p.evaluate(()=>({
+    cilt: document.body.getAttribute("data-cilt"),
+    etiket: document.getElementById("cilt-etiket").textContent,
+    basili: document.querySelector('#cilt-secici button[data-cilt="ferman"]').getAttribute("aria-pressed"),
+    tema: document.querySelector('meta[name="theme-color"]').content,
+    hash: location.hash }));
+  ok("ferman uygulandı", secili.cilt==="ferman", JSON.stringify(secili));
+  ok("önizleme etiketi", /^Cilt ·/.test(secili.etiket.trim()), secili.etiket.trim());
+  ok("seçili düğme işaretli", secili.basili==="true");
+  ok("theme-color güncellendi", secili.tema.toLowerCase()==="#e4d6b3", secili.tema);
+  ok("URL paylaşılabilir", secili.hash==="#cilt=ferman", secili.hash);
+  ok("devre-dön göründü", await p.isVisible("#cilt-secici button.devre"));
+  /* Geçmiş kirletilmemeli: replaceState kullanılıyor, tek adım geri repoya değil testin
+     kendi başlangıcına dönmeli. Burada yalnızca giriş sayısını denetliyoruz. */
+  ok("geçmişe yeni giriş eklenmedi", (await p.evaluate(()=>history.length))<=3, await p.evaluate(()=>history.length));
+
+  await p.click("#cilt-secici button.devre"); await p.waitForTimeout(300);
+  const geri = await p.evaluate(()=>({ cilt:document.body.getAttribute("data-cilt"),
+    etiket:document.getElementById("cilt-etiket").textContent, hash:location.hash }));
+  ok("devre dönüldü", /Bu devrin cildi ·/.test(geri.etiket) && geri.hash==="", JSON.stringify(geri));
+  ok("devre-dön yeniden gizlendi", !(await p.isVisible("#cilt-secici button.devre")));
+
+  /* #cilt= linkiyle gelince seçici o cildi işaretli göstermeli */
+  await git(p,"#cilt=neon");
+  await p.click("#cilt-etiket"); await p.waitForTimeout(200);
+  ok("link ile gelen cilt işaretli",
+     (await p.evaluate(()=>document.body.getAttribute("data-cilt")))==="neon" &&
+     (await p.getAttribute('#cilt-secici button[data-cilt="neon"]',"aria-pressed"))==="true");
+  ok("hiçbir şey saklanmadı", await p.evaluate(()=>{ try{return localStorage.length===0;}catch(e){return true;} }));
+  ok("konsol temiz", konsol.length===0, konsol.join(" | "));
+  await ctx.close();
+}
+
+/* 1d. "Sallayınca sor" yalnızca dokunmatik cihazda
+   Masaüstü Chrome'da da `DeviceMotionEvent` tanımlıdır; tek başına varlık
+   denetimi düğmeyi masaüstünde de gösteriyordu.
+   SINIR: "dokunmatik ekranlı ama fareyle kullanılan dizüstü" durumu burada
+   sınanamıyor — Playwright'ın hasTouch emülasyonu pointer'ı zorla `coarse`
+   yapıyor. O senaryodaki davranış ölçülmedi, yalnızca CSS sorgusunun anlamına
+   dayanıyor. */
+console.log("\n[1d] Sallayınca sor yalnızca dokunmatikte");
+{
+  const {ctx,p} = await sayfaAc({viewport:{width:1200,height:900}, reducedMotion:"reduce"});
+  await git(p);
+  /* `el.hidden` OKUMAK YETMEZ. Tarayıcının `[hidden]{display:none}` kuralı en
+     düşük öncelikliktir; bileşene `display:inline-flex` yazmak onu sessizce ezer
+     ve öğe `hidden` iken bile çizilir. Bu hata tam böyle kaçtı: özellik true'ydu,
+     düğme ekrandaydı. Artık GERÇEK GÖRÜNÜRLÜK ölçülüyor. */
+  const masa = await p.evaluate(()=>{ const e=document.getElementById("salla");
+    return { ozellik:e.hidden, cizilmis:!!e.offsetParent, goster:getComputedStyle(e).display }; });
+  ok("masaüstünde hidden özelliği true", masa.ozellik, JSON.stringify(masa));
+  ok("masaüstünde GERÇEKTEN çizilmiyor", !masa.cizilmis && masa.goster==="none", JSON.stringify(masa));
+  ok("Playwright de görmüyor", !(await p.isVisible("#salla")));
+  ok("masaüstünde DeviceMotionEvent yine de tanımlı (denetim buna dayanmamalı)",
+     await p.evaluate(()=>"DeviceMotionEvent" in window));
+  /* Aynı tuzak başka gizli öğelerde de olmasın */
+  const gizliler = await p.evaluate(()=>[...document.querySelectorAll("[hidden]")]
+    .filter(e=>e.id!=="giris")
+    .filter(e=>getComputedStyle(e).display!=="none")
+    .map(e=>e.tagName+"#"+(e.id||"")+"."+(e.className||"")));
+  ok("hiçbir [hidden] öğe çizilmiyor", gizliler.length===0, gizliler.join(", "));
+  await ctx.close();
+  const m = await sayfaAc({viewport:{width:390,height:844}, isMobile:true, hasTouch:true, reducedMotion:"reduce"});
+  await git(m.p);
+  ok("dokunmatikte görünür", await m.p.isVisible("#salla"));
+  ok("dokunmatikte başlangıçta kapalı",
+     (await m.p.getAttribute("#salla","aria-pressed"))==="false" &&
+     (await m.p.textContent("#salla-durum"))==="kapalı");
+  await m.ctx.close();
+}
+
 /* 2. Sekmeler */
 console.log("\n[2] Defter sekmeleri");
 {
