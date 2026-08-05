@@ -36,6 +36,17 @@ jobs:
           for (const k in v.tipHukum) for (const d of ['olur','olmaz','belirsiz'])
             if (!(v.tipHukum[k][d] || []).length) eksik.push('tipHukum.' + k + '.' + d);
           if (!(v.okumaKonu.genel || []).length) eksik.push('okumaKonu.genel');
+          for (const b of ['dusuk','orta','yuksek','cok'])
+            if (!((v.ikili && v.ikili.hukum && v.ikili.hukum[b]) || []).length) eksik.push('ikili.hukum.' + b);
+          if (!((v.ikili && v.ikili.serh) || []).length) eksik.push('ikili.serh');
+          for (const e of ['ates','toprak','hava','su'])
+            if (!((v.burcOkuma && v.burcOkuma.element && v.burcOkuma.element[e]) || []).length) eksik.push('burcOkuma.element.' + e);
+          for (const alan of ['hukum','serh'])
+            if (!((v.kura && v.kura[alan]) || []).length) eksik.push('kura.' + alan);
+          for (let h = 1; h <= 9; h++)
+            if (!((v.ebced && v.ebced.hane && v.ebced.hane[String(h)]) || []).length) eksik.push('ebced.hane.' + h);
+          if (!((v.ebced && v.ebced.serh) || []).length) eksik.push('ebced.serh');
+          if (!(v.ciltler || []).length) eksik.push('ciltler');
           if (eksik.length) { console.error('Boş havuz:\n  ' + eksik.join('\n  ')); process.exit(1); }
           console.log('Tüm havuzlar dolu');
           "
@@ -57,9 +68,29 @@ jobs:
           for (const k in v.okumaKonu) bak('okumaKonu.' + k, v.okumaKonu[k]);
           for (const k in v.okumaTip) bak('okumaTip.' + k, v.okumaTip[k]);
           bak('gunluk', v.gunluk);
+          for (const b in (v.ikili && v.ikili.hukum) || {}) bak('ikili.hukum.' + b, v.ikili.hukum[b]);
+          bak('ikili.serh', v.ikili && v.ikili.serh);
+          for (const e in (v.burcOkuma && v.burcOkuma.element) || {}) bak('burcOkuma.element.' + e, v.burcOkuma.element[e]);
+          bak('burcOkuma.genel', v.burcOkuma && v.burcOkuma.genel);
+          bak('kura.hukum', v.kura && v.kura.hukum);
+          bak('kura.serh', v.kura && v.kura.serh);
+          for (const h in (v.ebced && v.ebced.hane) || {}) bak('ebced.hane.' + h, v.ebced.hane[h]);
+          bak('ebced.serh', v.ebced && v.ebced.serh);
           if (kotu.length) { console.error('Biçim hatası:\n  ' + kotu.join('\n  ')); process.exit(1); }
           console.log('Cümle biçimi temiz');
           "
+
+      - name: Kura şablonu — {secilen} yer tutucusu her cümlede tam bir kez
+        run: |
+          node -e "
+          const v = JSON.parse(require('fs').readFileSync('kader.json','utf8'));
+          const kotu = (v.kura.hukum || []).filter(c => (c.match(/\{secilen\}/g) || []).length !== 1);
+          if (kotu.length) { console.error('Yer tutucusu bozuk:\n  ' + kotu.join('\n  ')); process.exit(1); }
+          console.log('Kura şablonları temiz');
+          "
+
+      - name: Cilt biçim token'ları — her cilt renk DIŞINDA da bir şey eziyor mu
+        run: node .github/cilt-denetimi.mjs
 
       - name: Motor regresyon testleri
         run: node test/test-motor.mjs
