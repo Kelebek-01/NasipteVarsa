@@ -182,17 +182,58 @@ console.log("\n[7] Araç düğmeleri");
   await ctx.close();
 }
 
-/* 8. Mobil + taşma, tüm ciltlerde */
-console.log("\n[8] Mobil 390px, tüm ciltler");
+/* 8. Mobil taşma — TÜM sekmeler ve dar genişlikler
+   Not: önceki sürüm yalnızca Kader sekmesini ölçüyordu; İkili sekmesindeki
+   ızgara taşması bu yüzden kaçtı. Artık üç sekme de ölçülüyor. */
+console.log("\n[8] Mobil taşma (320/360/390px, üç sekme)");
 {
-  const {ctx,p} = await sayfaAc({viewport:{width:390,height:800}, reducedMotion:"reduce"});
+  for (const w of [320, 360, 390]){
+    const {ctx,p} = await sayfaAc({viewport:{width:w,height:820}, reducedMotion:"reduce"});
+    await git(p);
+    const tasmaOlc = () => p.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
+
+    await p.fill("#soru","Yurtdışına taşınıp orada evlenebilecek miyim acaba diye çok düşünüyorum");
+    await p.click("#sor"); await p.waitForSelector("#cevap .kayit",{timeout:8000});
+    ok("kader sekmesi taşmıyor ("+w+"px)", (await tasmaOlc())<=0, (await tasmaOlc())+"px");
+
+    await p.click("#t-ikili"); await p.waitForTimeout(250);
+    await p.fill("#ad1","Abdurrahman"); await p.fill("#ad2","Zeynepnur");
+    await p.click("#ikili-form button"); await p.waitForSelector("#ikili-cevap .kayit",{timeout:8000});
+    ok("ikili sekmesi taşmıyor ("+w+"px)", (await tasmaOlc())<=0, (await tasmaOlc())+"px");
+
+    await p.click("#t-burc"); await p.waitForTimeout(250);
+    await p.click('#burc-izgara button[data-burc="basak"]');
+    await p.waitForSelector("#burc-cevap .kayit",{timeout:8000});
+    ok("burç sekmesi taşmıyor ("+w+"px)", (await tasmaOlc())<=0, (await tasmaOlc())+"px");
+    await ctx.close();
+  }
+  /* ciltlerin hepsinde de bir kez bak */
+  const {ctx,p} = await sayfaAc({viewport:{width:390,height:820}, reducedMotion:"reduce"});
   for (const c of ["gece","kahve","ferman","neon","kagit"]){
     await git(p,"#cilt="+c);
     await p.fill("#soru","Yurtdışına taşınıp orada evlenebilecek miyim acaba diye çok düşünüyorum");
     await p.click("#sor"); await p.waitForSelector(".kayit",{timeout:8000});
-    const tasma = await p.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
-    ok("taşma yok ("+c+")", tasma<=0, tasma+"px");
+    const t = await p.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
+    ok("taşma yok ("+c+")", t<=0, t+"px");
   }
+  await ctx.close();
+}
+
+/* 8b. Uzun kesintisiz metin kartı taşırmasın */
+console.log("\n[8b] Kartta uzun kelime");
+{
+  const {ctx,p} = await sayfaAc({reducedMotion:"reduce"});
+  await git(p);
+  const uzun = "a".repeat(130);
+  await p.fill("#soru", uzun);
+  await p.click("#sor"); await p.waitForSelector(".kayit",{timeout:8000});
+  const r = await p.evaluate(async ()=>{
+    const blob = await kartCiz();
+    return blob ? blob.size : 0;
+  });
+  ok("uzun kelimede kart üretiliyor", r>10000, r+" bayt");
+  const tasma = await p.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
+  ok("uzun kelime sayfayı taşırmıyor", tasma<=0, tasma+"px");
   await ctx.close();
 }
 
