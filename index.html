@@ -660,9 +660,13 @@ function murekkeple(el, metin){
   for (var i = 0; i < kelimeler.length; i++){
     var s = document.createElement("span");
     s.className = "kel";
-    s.textContent = kelimeler[i] + (i < kelimeler.length - 1 ? " " : "");
+    s.textContent = kelimeler[i];
     s.style.animationDelay = (i * 55) + "ms";
     el.appendChild(s);
+    /* Boşluk span'ın DIŞINDA, düz metin düğümü olarak eklenir. İçine konursa
+       display:inline-block kutusunun sonundaki boşluk CSS tarafından kırpılır
+       ve bütün kelimeler bitişik görünür. */
+    if (i < kelimeler.length - 1) el.appendChild(document.createTextNode(" "));
   }
 }
 

@@ -94,9 +94,15 @@ taşınıyor — bu erişilebilirlik için zorunlu, kaldırma.
 **Animasyonlar.** Hüküm kelime kelime "mürekkeple" oturuyor, mühür basılırken kart
 sarsılıyor ve halka yayılıyor, kayıt numarası sayaç gibi dönüp duruyor, kartta kendi
 ürettiğimiz SVG gürültüsüyle kâğıt dokusu var. Hepsi `prefers-reduced-motion` ile kapanıyor.
-**Test yazarken dikkat:** kayıt numarası ~700 ms boyunca değişir; testler numarayı
-okumadan önce kararlı hâle gelmesini beklemeli (`test/test-tarayici.mjs` içindeki
-`kartAl` bunu yapıyor).
+**Test yazarken iki tuzak:**
+1. Kayıt numarası ~700 ms boyunca değişir; testler numarayı okumadan önce kararlı hâle
+   gelmesini beklemeli (`test/test-tarayici.mjs` içindeki `kartAl` bunu yapıyor).
+2. **Testlerin hepsini `reducedMotion:"reduce"` ile koşma.** O kipte mürekkep animasyonu
+   hiç çalışmaz, DOM düz metne düşer ve animasyonlu yoldaki hatalar görünmez. Nitekim
+   "kelimeler bitişik çıkıyor" hatası tam bu yüzden kaçtı: boşluk `display:inline-block`
+   olan span'ın içindeydi ve CSS satır sonundaki boşluğu kırpıyordu. Artık boşluk span'ın
+   dışında düz metin düğümü. `test/test-arayuz.mjs` §10b animasyon AÇIKKEN koşup
+   `innerText` ile `textContent`'i karşılaştırıyor; bu bloğu silme.
 
 **Fal kartı (PNG).** `kartCiz()` 1080×1350 bir kart çiziyor, `toBlob` ile PNG üretiyor;
 paylaşım için `navigator.canShare({files})`, yoksa indirme. Yerleşim **ölç-sonra-çiz**:
