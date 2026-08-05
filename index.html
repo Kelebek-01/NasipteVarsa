@@ -32,9 +32,17 @@
 <link rel="stylesheet" href="/fonts/fonts.css">
 <style>
 /* ═══════════ Ciltler ═══════════
-   Defterin cildi her devirde değişir. Her cilt yalnızca token'ları ezer;
-   yapı tek. color-scheme, tarayıcı arayüzünü (kaydırma çubuğu, form
-   denetimleri) cilde uydurur. */
+   Defterin cildi her devirde değişir. Cilt yalnızca RENK değil BİÇİM de ezer:
+   köşe yarıçapı, kenarlık üslubu, yazı tipi yığını, harf aralığı, doku ve
+   süsleme birer token. Böylece "Ferman" ile "Neon Kısmet" aynı sayfanın iki
+   boyası değil, iki ayrı sayfa olur.
+   Yeni yazı tipi İNDİRİLMEZ: elimizde Fraunces ve Poppins var, gerisi sistem
+   yığını (monospace, Georgia). CSP font-src 'self' olduğu için zaten dışarıdan
+   yazı tipi çekemeyiz; ciltler farkı ağırlık, aralık, büyütme ve yığın
+   değişimiyle kurar.
+   color-scheme, tarayıcı arayüzünü (kaydırma çubuğu, form denetimleri) cilde
+   uydurur. */
+
 :root, body[data-cilt="gece"]{
   color-scheme:dark;
   --gece:#202330; --gece2:#191c27; --cizgi:#363b4e;
@@ -42,6 +50,12 @@
   --muhur:#d4695b; --muhur-acik:#e08575;
   --isik:radial-gradient(1100px 600px at 50% -10%, #262a3a 0%, var(--gece) 62%);
   --doku:.05; --kart-golge:none;
+  /* biçim */
+  --kart-yuvarlak:18px; --dugme-yuvarlak:14px; --cip-yuvarlak:999px;
+  --muhur-yuvarlak:8px; --kart-kenar:1px solid var(--cizgi); --kart-ic:26px;
+  --baslik-yazi:"Fraunces","Georgia",serif; --govde-yazi:"Poppins",-apple-system,"Segoe UI",Arial,sans-serif;
+  --baslik-agirlik:600; --baslik-aralik:0em; --baslik-donusum:none; --baslik-hiza:center;
+  --doku-frekans:.85; --sus:none; --kenar-cizgi:none;
 }
 body[data-cilt="kahve"]{
   color-scheme:light;
@@ -49,15 +63,29 @@ body[data-cilt="kahve"]{
   --sut:#33261a; --duman:#6d5943; --altin:#8a4f22;
   --muhur:#9a3628; --muhur-acik:#8d3225;
   --isik:radial-gradient(900px 520px at 50% -8%, #f7efdf 0%, var(--gece) 70%);
-  --doku:.11; --kart-golge:0 1px 2px rgba(80,55,25,.12);
+  --doku:.13; --kart-golge:0 1px 2px rgba(80,55,25,.12);
+  /* fincan dibi: köşeler eşit değil, telve gibi dağılmış */
+  --kart-yuvarlak:34px 20px 38px 22px; --dugme-yuvarlak:22px 14px 24px 16px;
+  --cip-yuvarlak:999px; --muhur-yuvarlak:50% 46% 52% 44%;
+  --kart-kenar:1px solid var(--cizgi); --kart-ic:28px;
+  --baslik-yazi:"Fraunces","Georgia",serif; --govde-yazi:"Poppins",-apple-system,"Segoe UI",Arial,sans-serif;
+  --baslik-agirlik:600; --baslik-aralik:0em; --baslik-donusum:none; --baslik-hiza:center;
+  --doku-frekans:.55; --sus:none; --kenar-cizgi:none;
 }
 body[data-cilt="ferman"]{
   color-scheme:light;
-  --gece:#e4d6b3; --gece2:#f0e6c8; --cizgi:#c2a978;
+  --gece:#e4d6b3; --gece2:#f0e6c8; --cizgi:#a6864a;
   --sut:#33240f; --duman:#6b5527; --altin:#8a6210;
   --muhur:#8c1f19; --muhur-acik:#821d17;
   --isik:radial-gradient(900px 520px at 50% -8%, #f2e8ca 0%, var(--gece) 70%);
-  --doku:.15; --kart-golge:0 2px 3px rgba(90,65,20,.18);
+  --doku:.17; --kart-golge:0 2px 3px rgba(90,65,20,.18);
+  /* ferman yuvarlak köşe tanımaz: keskin kenar, çift çerçeve, seyrek harf */
+  --kart-yuvarlak:0; --dugme-yuvarlak:0; --cip-yuvarlak:0; --muhur-yuvarlak:0;
+  --kart-kenar:3px double var(--cizgi); --kart-ic:32px;
+  --baslik-yazi:"Fraunces","Georgia","Times New Roman",serif;
+  --govde-yazi:"Fraunces","Georgia",serif;
+  --baslik-agirlik:700; --baslik-aralik:.06em; --baslik-donusum:none; --baslik-hiza:center;
+  --doku-frekans:.4; --sus:block; --kenar-cizgi:none;
 }
 body[data-cilt="neon"]{
   color-scheme:dark;
@@ -65,7 +93,14 @@ body[data-cilt="neon"]{
   --sut:#e9e9ff; --duman:#9a9ad0; --altin:#2ad4ee;
   --muhur:#f472b6; --muhur-acik:#f78ac5;
   --isik:radial-gradient(900px 520px at 50% -10%, #17173a 0%, var(--gece) 65%);
-  --doku:.06; --kart-golge:0 0 24px rgba(42,212,238,.10);
+  --doku:.05; --kart-golge:0 0 24px rgba(42,212,238,.10);
+  /* terminal: köşeler kırpık, yazı monospace, başlıklar büyük harf */
+  --kart-yuvarlak:3px; --dugme-yuvarlak:3px; --cip-yuvarlak:3px; --muhur-yuvarlak:2px;
+  --kart-kenar:1px solid var(--cizgi); --kart-ic:24px;
+  --baslik-yazi:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+  --govde-yazi:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+  --baslik-agirlik:700; --baslik-aralik:-.02em; --baslik-donusum:uppercase; --baslik-hiza:left;
+  --doku-frekans:.85; --sus:none; --kenar-cizgi:none;
 }
 body[data-cilt="kagit"]{
   color-scheme:light;
@@ -73,19 +108,40 @@ body[data-cilt="kagit"]{
   --sut:#141417; --duman:#63636b; --altin:#1c6b47;
   --muhur:#a81f1a; --muhur-acik:#9c1d18;
   --isik:none; --doku:.03; --kart-golge:0 1px 2px rgba(0,0,0,.06);
+  /* defter kâğıdı: köşe yok denecek kadar az, solda kırmızı marj çizgisi,
+     baştan sona serifli dizgi */
+  --kart-yuvarlak:2px; --dugme-yuvarlak:4px; --cip-yuvarlak:4px; --muhur-yuvarlak:3px;
+  --kart-kenar:1px solid var(--cizgi); --kart-ic:30px;
+  --baslik-yazi:"Fraunces","Georgia",serif; --govde-yazi:"Fraunces","Georgia",serif;
+  --baslik-agirlik:600; --baslik-aralik:0em; --baslik-donusum:none; --baslik-hiza:center;
+  --doku-frekans:1.1; --sus:none; --kenar-cizgi:2px solid color-mix(in srgb,var(--muhur) 45%,transparent);
+}
+
+/* ═══════════ Tipografi ölçeği ═══════════
+   1.22 oranlı modüler ölçek. Önceden sayfada gerçekte iki punto vardı;
+   kademeler artık tek yerden tanımlı ve bileşenler bunları kullanıyor. */
+:root{
+  --ol-0:.74rem;    /* üst etiket, cilt adı */
+  --ol-1:.85rem;    /* kayıt no, dipnot, alt bilgi */
+  --ol-2:.95rem;    /* araç düğmeleri */
+  --ol-3:1.02rem;   /* gövde metni, şerh */
+  --ol-4:1.16rem;   /* soru ekosu, günün nasibi */
+  --ol-5:clamp(1.5rem,4.6vw,1.95rem);   /* hüküm */
+  --ol-6:clamp(1.85rem,6vw,2.6rem);     /* h1 */
+  --ol-7:clamp(2.6rem,12vw,3.6rem);     /* yüzde */
 }
 
 *,*::before,*::after{box-sizing:border-box}
 body{
   margin:0; background:var(--gece); background-image:var(--isik);
-  color:var(--sut); font-family:"Poppins",-apple-system,"Segoe UI",Arial,sans-serif;
+  color:var(--sut); font-family:var(--govde-yazi);
   line-height:1.6; min-height:100svh; -webkit-tap-highlight-color:transparent;
   touch-action:manipulation; overflow-x:hidden;
   transition:background-color .5s ease, color .5s ease;
 }
 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 a{color:var(--altin)}
-a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--altin);outline-offset:3px;border-radius:6px}
+a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visible,summary:focus-visible{outline:2px solid var(--altin);outline-offset:3px;border-radius:6px}
 
 /* ——— açılış ——— */
 #giris{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
@@ -106,111 +162,219 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 header.ust{text-align:center;padding-top:8px}
 .marka{font-weight:700;font-size:1.05rem;letter-spacing:.02em;color:var(--sut);text-decoration:none;display:inline-block}
 .marka .nokta{color:var(--altin)}
-.cilt-etiket{margin:6px 0 0;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--duman)}
+.cilt-etiket{margin:6px 0 0;font-size:var(--ol-0);letter-spacing:.18em;text-transform:uppercase;color:var(--duman)}
 
 /* ——— defter sekmeleri ——— */
 .defter-nav{display:flex;gap:6px;justify-content:center;margin:22px 0 4px;flex-wrap:wrap}
 .defter-nav button{
   border:1px solid var(--cizgi);background:transparent;color:var(--duman);
-  font:inherit;font-size:.9rem;padding:8px 16px;min-height:40px;border-radius:999px;cursor:pointer;
+  font:inherit;font-family:var(--govde-yazi);font-size:.88rem;padding:8px 14px;min-height:40px;
+  border-radius:var(--cip-yuvarlak);cursor:pointer;
   transition:color .18s ease,border-color .18s ease,background-color .18s ease}
 .defter-nav button:hover{color:var(--sut)}
 .defter-nav button[aria-selected="true"]{color:var(--altin);border-color:var(--altin);background:color-mix(in srgb, var(--altin) 10%, transparent)}
 section[role="tabpanel"]:focus{outline:none}
 
 .kapak{text-align:center;margin:5vh 0 26px}
-.kapak h1{font-family:"Fraunces","Georgia",serif;font-weight:600;font-size:clamp(1.8rem,6vw,2.6rem);
+.kapak h1{font-family:var(--baslik-yazi);font-weight:var(--baslik-agirlik);font-size:var(--ol-6);
+  letter-spacing:var(--baslik-aralik);text-transform:var(--baslik-donusum);
   line-height:1.2;margin:0 0 12px;text-wrap:balance}
-.kapak p{color:var(--duman);margin:0 auto;max-width:42ch;font-size:.97rem;text-wrap:pretty}
+.kapak p{color:var(--duman);margin:0 auto;max-width:42ch;font-size:var(--ol-3);text-wrap:pretty}
+body[data-cilt="neon"] .kapak,body[data-cilt="neon"] .kapak p{text-align:left;margin-left:0;margin-right:0}
 
 /* form */
 .sorgu{display:flex;gap:10px;margin:22px 0 8px;flex-wrap:wrap}
-.sorgu input{flex:1 1 240px;min-width:0;min-height:52px;padding:12px 18px;font:inherit;font-size:1.05rem;
-  color:var(--sut);background:var(--gece2);border:1px solid var(--cizgi);border-radius:14px}
+.sorgu input{flex:1 1 240px;min-width:0;min-height:52px;padding:12px 18px;font:inherit;font-size:var(--ol-4);
+  color:var(--sut);background:var(--gece2);border:1px solid var(--cizgi);border-radius:var(--dugme-yuvarlak)}
 .sorgu input::placeholder{color:var(--duman);opacity:.75}
-.sorgu button{flex:1 1 auto;min-height:52px;padding:12px 26px;border:0;border-radius:14px;
-  background:var(--altin);color:var(--gece);font:inherit;font-weight:700;font-size:1rem;cursor:pointer;
+.sorgu button{flex:1 1 auto;min-height:52px;padding:12px 26px;border:0;border-radius:var(--dugme-yuvarlak);
+  background:var(--altin);color:var(--gece);font:inherit;font-weight:700;font-size:var(--ol-3);cursor:pointer;
+  letter-spacing:var(--baslik-aralik);text-transform:var(--baslik-donusum);
   transition:transform .15s ease,box-shadow .15s ease}
 .sorgu button:hover{transform:translateY(-1px);box-shadow:0 6px 18px color-mix(in srgb,var(--altin) 30%,transparent)}
 .sorgu button:active{transform:translateY(0)}
 .sorgu button[disabled]{opacity:.6;cursor:wait;transform:none;box-shadow:none}
-#hata{color:var(--muhur-acik);font-size:.9rem;min-height:1.4em;margin:2px 4px 0}
+#hata,.hata{color:var(--muhur-acik);font-size:var(--ol-2);min-height:1.4em;margin:2px 4px 0}
 .titre{animation:titre .3s ease}
 @keyframes titre{25%{transform:translateX(-5px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}}
 
-/* küçük araç düğmeleri */
-.araclar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0}
-.cip{border:1px dashed var(--cizgi);background:transparent;color:var(--duman);font:inherit;font-size:.82rem;
-  padding:6px 13px;min-height:36px;border-radius:999px;cursor:pointer;transition:color .18s,border-color .18s}
-.cip:hover{color:var(--altin);border-color:var(--altin)}
-.cip[aria-pressed="true"]{color:var(--altin);border-style:solid;border-color:var(--altin)}
+/* ——— araçlar: eylem / ayar ayrımı ———
+   Eskiden üçü de aynı kesik çizgili çipti; "sen sor" bir EYLEM, ötekiler
+   AÇIK-KAPALI birer AYAR. Artık farklı görünüyorlar. */
+.araclar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:12px 0 0}
+.eylem{
+  display:inline-flex;align-items:center;gap:7px;border:0;background:transparent;
+  color:var(--altin);font:inherit;font-family:var(--govde-yazi);font-size:var(--ol-2);
+  padding:6px 2px;min-height:40px;cursor:pointer;border-bottom:1px solid color-mix(in srgb,var(--altin) 40%,transparent);
+  border-radius:0;transition:color .15s ease,border-color .15s ease}
+.eylem:hover{border-bottom-color:var(--altin)}
+.eylem .im{font-size:1.05em;line-height:1}
+.ayarlar{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+.anahtar{
+  display:inline-flex;align-items:center;gap:8px;border:1px solid var(--cizgi);background:transparent;
+  color:var(--duman);font:inherit;font-family:var(--govde-yazi);font-size:.82rem;padding:5px 6px 5px 12px;
+  min-height:36px;border-radius:var(--cip-yuvarlak);cursor:pointer;
+  transition:color .18s,border-color .18s}
+.anahtar:hover{color:var(--sut);border-color:var(--duman)}
+.anahtar .durum{
+  font-size:.74rem;letter-spacing:.04em;padding:2px 9px;border-radius:var(--cip-yuvarlak);
+  background:color-mix(in srgb,var(--cizgi) 55%,transparent);color:var(--duman)}
+.anahtar[aria-pressed="true"]{color:var(--altin);border-color:var(--altin)}
+.anahtar[aria-pressed="true"] .durum{background:color-mix(in srgb,var(--altin) 18%,transparent);color:var(--altin)}
+@media (max-width:520px){ .ayarlar{margin-left:0} }
 
 /* ——— kayıt kartı ——— */
-#cevap,#ikili-cevap,#burc-cevap{min-height:10px}
-.dusunce{color:var(--duman);font-style:italic;font-family:"Fraunces",serif;text-align:center;padding:26px 0;font-size:1.1rem}
+#cevap,#ikili-cevap,#burc-cevap,#kura-cevap,#ebced-cevap{min-height:10px}
+.dusunce{color:var(--duman);font-style:italic;font-family:var(--baslik-yazi);text-align:center;padding:26px 0;font-size:var(--ol-4)}
 .kayit{
-  position:relative;background:var(--gece2);border:1px solid var(--cizgi);border-radius:18px;
-  padding:26px 26px 20px;margin-top:18px;animation:gel .45s ease;overflow-wrap:break-word;
+  position:relative;background:var(--gece2);border:var(--kart-kenar);border-radius:var(--kart-yuvarlak);
+  padding:var(--kart-ic) var(--kart-ic) calc(var(--kart-ic) - 6px);margin-top:18px;
+  animation:gel .45s ease;overflow-wrap:break-word;
   box-shadow:var(--kart-golge);isolation:isolate;
 }
-/* kâğıt dokusu: kendi ürettiğimiz SVG gürültüsü, ağ isteği yok */
+/* kâğıt dokusu: kendi ürettiğimiz SVG gürültüsü, ağ isteği yok.
+   baseFrequency cilde göre değişir → her cildin dokusu farklı iriliktedir. */
 .kayit::before{
   content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
   opacity:var(--doku);mix-blend-mode:multiply;
   background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:calc(140px * var(--doku-frekans)) auto;
 }
 body[data-cilt="gece"] .kayit::before,body[data-cilt="neon"] .kayit::before{mix-blend-mode:screen}
+/* Kâğıt cildi: defter kâğıdının sol marj çizgisi */
+body[data-cilt="kagit"] .kayit{border-left:var(--kenar-cizgi);padding-left:calc(var(--kart-ic) + 8px)}
+/* Ferman cildi: üstte klasik ayraç süslemesi */
+.kayit::after{content:"";display:var(--sus);height:14px;margin:16px 0 -4px;
+  background:no-repeat center/auto 100% url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='14' fill='none' stroke='%238a6210' stroke-width='1.5'%3E%3Cpath d='M0 7h86M134 7h86'/%3E%3Cpath d='M110 1l7 6-7 6-7-6z'/%3E%3Cpath d='M96 7h6M118 7h6'/%3E%3C/svg%3E")}
+/* Neon cildi: HUD köşe ayraçları */
+body[data-cilt="neon"] .kayit{
+  background-image:
+    linear-gradient(var(--altin),var(--altin)),linear-gradient(var(--altin),var(--altin)),
+    linear-gradient(var(--altin),var(--altin)),linear-gradient(var(--altin),var(--altin));
+  background-repeat:no-repeat;
+  background-size:14px 2px,2px 14px,14px 2px,2px 14px;
+  background-position:left top,left top,right bottom,right bottom}
 .kayit.sars{animation:gel .45s ease, sars .34s ease .12s}
 @keyframes gel{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes sars{20%{transform:translate(-2px,1px) rotate(-.25deg)}45%{transform:translate(2px,-1px) rotate(.2deg)}70%{transform:translate(-1px,0) rotate(-.1deg)}}
-.kayit .soru-eko{color:var(--duman);font-size:1rem;margin:0 0 10px;font-family:"Fraunces","Georgia",serif;font-style:italic}
-.kayit .yanit{font-family:"Fraunces","Georgia",serif;font-weight:500;font-size:clamp(1.45rem,4.6vw,1.9rem);
-  line-height:1.35;margin:0 0 14px;text-wrap:pretty}
+.kayit .soru-eko{color:var(--duman);font-size:var(--ol-4);margin:0 0 10px;font-family:var(--baslik-yazi);font-style:italic}
+body[data-cilt="neon"] .kayit .soru-eko{font-style:normal}
+.kayit .yanit{font-family:var(--baslik-yazi);font-weight:500;font-size:var(--ol-5);
+  letter-spacing:var(--baslik-aralik);line-height:1.35;margin:0 0 14px;text-wrap:pretty}
 /* mürekkep: kelimeler sırayla oturur */
 .yanit .kel{display:inline-block;opacity:0;filter:blur(6px);transform:translateY(.12em);
   animation:murekkep .5s cubic-bezier(.2,.7,.3,1) forwards}
 @keyframes murekkep{to{opacity:1;filter:blur(0);transform:none}}
 .kayit .serh{margin:0 0 18px;padding-left:14px;border-left:2px solid var(--cizgi);
-  color:var(--sut);opacity:.84;font-size:.97rem;line-height:1.62;text-wrap:pretty}
-.muhur-satir{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
-.muhur{position:relative;display:inline-block;padding:.28em .7em;border:3px solid var(--altin);border-radius:8px;
-  color:var(--altin);font-weight:700;font-size:.95rem;letter-spacing:.14em;transform:rotate(-4deg);
-  animation:bas .35s cubic-bezier(.2,1.4,.4,1)}
-.muhur::after{content:"";position:absolute;inset:-6px;border-radius:12px;border:2px solid currentColor;
-  opacity:0;animation:halka .55s ease-out .05s}
-@keyframes halka{0%{opacity:.55;transform:scale(.8)}100%{opacity:0;transform:scale(1.35)}}
-.muhur.yok{border-color:var(--muhur);color:var(--muhur)}
-.muhur.bekle{border-style:dashed;border-color:var(--duman);color:var(--duman)}
-.muhur.kapandi{border-color:var(--muhur);color:var(--muhur);border-style:double;border-width:4px}
-@keyframes bas{from{opacity:0;transform:rotate(-4deg) scale(1.5)}to{opacity:1;transform:rotate(-4deg) scale(1)}}
-.kayit-no{color:var(--duman);font-size:.85rem;letter-spacing:.05em;font-variant-numeric:tabular-nums}
-.kayit .not{color:var(--duman);font-size:.85rem;margin:0 0 16px}
+  color:var(--sut);opacity:.84;font-size:var(--ol-3);line-height:1.62;text-wrap:pretty}
+
+/* ——— mühür ———
+   Sayfanın duygusal doruğu burası. Yukarıdan iner, oturur, kâğıdı sarsar;
+   mürekkebi maskeyle aşındırılmış olduğu için kenarları düz değil. */
+.muhur-satir{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:22px 0 16px}
+.muhur{
+  position:relative;display:inline-block;padding:.44em .95em;
+  border:0;                                   /* çerçeve ::before'da çizilir */
+  color:var(--altin);font-family:var(--govde-yazi);font-weight:700;font-size:1.02rem;
+  letter-spacing:.16em;transform:rotate(-5.5deg);transform-origin:50% 60%;
+  /* Metne yalnızca YUMUŞAK bir doku uygulanır: mürekkep eşit basılmamış gibi
+     görünsün ama yazı okunaklı kalsın. Sert aşınma çerçeveye ayrılmıştır. */
+  -webkit-mask-image:var(--muhur-doku);mask-image:var(--muhur-doku);
+  -webkit-mask-size:260px 130px;mask-size:260px 130px;
+  animation:muhurBas .5s cubic-bezier(.18,1.5,.4,1) backwards}
+.muhur::before{
+  content:"";position:absolute;inset:0;border:3px solid currentColor;
+  border-radius:var(--muhur-yuvarlak);
+  /* çerçeve gerçekten aşınır: lastik mühür kenarı hiçbir zaman düz basmaz */
+  -webkit-mask-image:var(--muhur-maske);mask-image:var(--muhur-maske);
+  -webkit-mask-size:190px 95px;mask-size:190px 95px}
+:root{
+  --muhur-maske:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='190' height='95'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.22' numOctaves='3' seed='7'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 0 0 0 0.05'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='0 1 1 1 1 1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='190' height='95' filter='url(%23m)'/%3E%3C/svg%3E");
+  --muhur-doku:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='130'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.06' numOctaves='2' seed='3'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.45 0 0 0 0.72'/%3E%3C/filter%3E%3Crect width='260' height='130' filter='url(%23d)'/%3E%3C/svg%3E")}
+.muhur::after{content:"";position:absolute;inset:-9px;border-radius:calc(var(--muhur-yuvarlak) + 5px);
+  border:2px solid currentColor;opacity:0;animation:halka .6s ease-out .16s}
+@keyframes halka{0%{opacity:.5;transform:scale(.72)}100%{opacity:0;transform:scale(1.5)}}
+@keyframes muhurBas{
+  0%{opacity:0;transform:rotate(-13deg) scale(2.4) translateY(-26px);filter:blur(4px)}
+  62%{opacity:1;filter:blur(0)}
+  78%{transform:rotate(-4.4deg) scale(.955)}
+  100%{opacity:1;transform:rotate(-5.5deg) scale(1);filter:blur(0)}}
+.muhur.yok{color:var(--muhur)}
+.muhur.bekle{color:var(--duman)}
+.muhur.bekle::before{border-style:dashed}
+.muhur.kapandi{color:var(--muhur)}
+.muhur.kapandi::before{border-style:double;border-width:5px}
+.kayit-no{color:var(--duman);font-size:var(--ol-1);letter-spacing:.05em;font-variant-numeric:tabular-nums}
+.kayit .not{color:var(--duman);font-size:var(--ol-1);margin:0 0 16px}
 .paylas{display:flex;gap:10px;flex-wrap:wrap}
-.paylas button{min-height:44px;padding:9px 18px;border-radius:12px;border:1px solid var(--cizgi);
-  background:transparent;color:var(--sut);font:inherit;font-size:.92rem;cursor:pointer;
+.paylas button{min-height:44px;padding:9px 18px;border-radius:var(--dugme-yuvarlak);border:1px solid var(--cizgi);
+  background:transparent;color:var(--sut);font:inherit;font-family:var(--govde-yazi);font-size:var(--ol-2);cursor:pointer;
   transition:border-color .15s ease,color .15s ease}
 .paylas button:hover{border-color:var(--altin);color:var(--altin)}
 
-/* ——— ikili nasip ——— */
-.ikili-form{display:grid;gap:10px;grid-template-columns:1fr 1fr;margin:20px 0 8px}
+/* ——— defterin eski sayfaları ——— */
+.eski{margin:18px 0 0;border:1px solid var(--cizgi);border-radius:var(--kart-yuvarlak);background:transparent}
+.eski>summary{list-style:none;cursor:pointer;padding:13px 18px;color:var(--duman);font-size:var(--ol-2);
+  display:flex;align-items:center;gap:9px;border-radius:inherit}
+.eski>summary::-webkit-details-marker{display:none}
+.eski>summary::before{content:"›";display:inline-block;transition:transform .2s ease;font-size:1.15em;line-height:1}
+.eski[open]>summary::before{transform:rotate(90deg)}
+.eski>summary:hover{color:var(--sut)}
+.eski-liste{margin:0;padding:2px 18px 16px;list-style:none;border-top:1px dashed var(--cizgi)}
+.eski-liste li{display:grid;grid-template-columns:auto auto 1fr;gap:6px 12px;align-items:baseline;
+  padding:11px 0;border-bottom:1px dashed color-mix(in srgb,var(--cizgi) 55%,transparent);
+  animation:gel .35s ease backwards}
+.eski-liste li:last-child{border-bottom:0}
+.eski-tarih{color:var(--duman);font-size:var(--ol-1);font-variant-numeric:tabular-nums;white-space:nowrap}
+.eski-rozet{font-size:.68rem;letter-spacing:.1em;padding:2px 8px;border-radius:var(--cip-yuvarlak);
+  border:1px solid currentColor;white-space:nowrap}
+.eski-rozet.var{color:var(--altin)} .eski-rozet.yok,.eski-rozet.kapandi{color:var(--muhur)}
+.eski-rozet.bekle{color:var(--duman);border-style:dashed}
+.eski-metin{grid-column:1/-1;font-family:var(--baslik-yazi);font-size:var(--ol-3);line-height:1.45;color:var(--sut);opacity:.9}
+@media (min-width:520px){ .eski-liste li{grid-template-columns:auto auto 1fr} .eski-metin{grid-column:3} }
+
+/* ——— iki kişilik ——— */
+.ikili-form,.kura-form,.ebced-form{display:grid;gap:10px;grid-template-columns:1fr 1fr;margin:20px 0 8px}
 /* min-width:0 şart: ızgara/esnek öğelerin varsayılan min-width'i auto'dur ve
    input'un içsel genişliği (~20 karakter) sütunu 1fr'den taşırır. */
-.ikili-form input{min-width:0;width:100%;min-height:52px;padding:12px 16px;font:inherit;font-size:1rem;
-  color:var(--sut);background:var(--gece2);border:1px solid var(--cizgi);border-radius:14px}
-@media (max-width:560px){ .ikili-form{grid-template-columns:1fr} }
-.ikili-form button{grid-column:1/-1;min-height:52px;border:0;border-radius:14px;background:var(--altin);
-  color:var(--gece);font:inherit;font-weight:700;cursor:pointer}
-.yuzde{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(2.6rem,12vw,3.6rem);line-height:1;
+.ikili-form input,.kura-form input,.ebced-form input{min-width:0;width:100%;min-height:52px;padding:12px 16px;
+  font:inherit;font-family:var(--govde-yazi);font-size:var(--ol-3);
+  color:var(--sut);background:var(--gece2);border:1px solid var(--cizgi);border-radius:var(--dugme-yuvarlak)}
+@media (max-width:560px){ .ikili-form,.kura-form,.ebced-form{grid-template-columns:1fr} }
+.ikili-form button,.kura-form button[type="submit"],.ebced-form button{grid-column:1/-1;min-height:52px;border:0;
+  border-radius:var(--dugme-yuvarlak);background:var(--altin);color:var(--gece);font:inherit;
+  font-family:var(--govde-yazi);font-weight:700;font-size:var(--ol-3);cursor:pointer;
+  letter-spacing:var(--baslik-aralik);text-transform:var(--baslik-donusum)}
+.ebced-form{grid-template-columns:1fr}
+.yuzde{font-family:var(--baslik-yazi);font-weight:600;font-size:var(--ol-7);line-height:1;
   color:var(--altin);font-variant-numeric:tabular-nums;margin:0 0 6px}
 .olcek{height:8px;border-radius:99px;background:color-mix(in srgb,var(--cizgi) 70%,transparent);overflow:hidden;margin:0 0 16px}
 .olcek i{display:block;height:100%;width:0;border-radius:99px;background:var(--altin);animation:dolus .9s cubic-bezier(.2,.8,.3,1) forwards}
 @keyframes dolus{to{width:var(--hedef)}}
 
+/* ——— kura ——— */
+.kura-form .sik-ekle{grid-column:1/-1;justify-self:start}
+.kura-liste{display:grid;gap:8px;margin:14px 0 18px;padding:0;list-style:none}
+.kura-liste li{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px dashed var(--cizgi);
+  border-radius:var(--dugme-yuvarlak);color:var(--duman);font-size:var(--ol-3);overflow-wrap:anywhere}
+.kura-liste li.kazanan{border-style:solid;border-color:var(--altin);color:var(--sut);
+  background:color-mix(in srgb,var(--altin) 9%,transparent)}
+.kura-liste .isaret{flex:0 0 auto;width:1.4em;text-align:center;color:var(--altin)}
+
+/* ——— ebced ——— */
+.ebced-sayi{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:0 0 8px}
+.ebced-sayi b{font-family:var(--baslik-yazi);font-weight:600;font-size:var(--ol-7);line-height:1;
+  color:var(--altin);font-variant-numeric:tabular-nums}
+.ebced-sayi span{color:var(--duman);font-size:var(--ol-2)}
+.ebced-hane{display:inline-block;margin:0 0 14px;padding:3px 12px;border:1px solid var(--cizgi);
+  border-radius:var(--cip-yuvarlak);color:var(--duman);font-size:var(--ol-1);letter-spacing:.08em}
+
 /* ——— burç ——— */
 .burc-izgara{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:8px;margin:20px 0 6px}
 .burc-izgara button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;min-height:64px;
-  border:1px solid var(--cizgi);border-radius:14px;background:transparent;color:var(--duman);font:inherit;
-  font-size:.78rem;cursor:pointer;transition:color .18s,border-color .18s,transform .18s}
+  border:1px solid var(--cizgi);border-radius:var(--dugme-yuvarlak);background:transparent;color:var(--duman);
+  font:inherit;font-family:var(--govde-yazi);font-size:.78rem;cursor:pointer;
+  transition:color .18s,border-color .18s,transform .18s}
 .burc-izgara button:hover{color:var(--sut);transform:translateY(-2px)}
 .burc-izgara button .sim{font-size:1.35rem;line-height:1.1;font-variant-emoji:text;
   font-family:"Segoe UI Symbol","Noto Sans Symbols 2","DejaVu Sans",serif}
@@ -221,14 +385,14 @@ body[data-cilt="gece"] .kayit::before,body[data-cilt="neon"] .kayit::before{mix-
 .ayrac{position:relative;border:0;padding:0;margin:40px 0 24px;height:1px;background:var(--cizgi);overflow:visible}
 .ayrac::after{content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;border-radius:50%;
   background:var(--altin);transform:translate(-50%,-50%);box-shadow:0 0 0 10px var(--gece)}
-.gunluk{border:1px solid var(--cizgi);border-radius:18px;padding:22px 26px;
+.gunluk{border:var(--kart-kenar);border-radius:var(--kart-yuvarlak);padding:22px 26px;
   background:linear-gradient(180deg,color-mix(in srgb,var(--altin) 6%,transparent),transparent 55%),var(--gece2)}
-.gunluk .etiket{color:var(--altin);font-size:.78rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
-.gunluk .nasip{font-family:"Fraunces","Georgia",serif;font-size:1.18rem;line-height:1.5;margin:0;text-wrap:pretty}
-.gerisayim{text-align:center;color:var(--duman);font-size:.82rem;margin:16px 0 0;font-variant-numeric:tabular-nums}
+.gunluk .etiket{color:var(--altin);font-size:var(--ol-0);font-weight:600;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+.gunluk .nasip{font-family:var(--baslik-yazi);font-size:var(--ol-4);line-height:1.5;margin:0;text-wrap:pretty}
+.gerisayim{text-align:center;color:var(--duman);font-size:var(--ol-1);margin:16px 0 0;font-variant-numeric:tabular-nums}
 footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--cizgi);display:flex;justify-content:space-between;
-  align-items:center;gap:14px;flex-wrap:wrap;color:var(--duman);font-size:.82rem}
-footer .replay{background:none;border:0;padding:4px 0;color:var(--duman);font:inherit;font-size:.82rem;cursor:pointer;font-style:italic}
+  align-items:center;gap:14px;flex-wrap:wrap;color:var(--duman);font-size:var(--ol-1)}
+footer .replay{background:none;border:0;padding:4px 0;color:var(--duman);font:inherit;font-family:var(--govde-yazi);font-size:var(--ol-1);cursor:pointer;font-style:italic}
 footer .replay:hover{color:var(--sut)}
 footer a{color:var(--duman);text-decoration:none}
 footer a:hover{color:var(--sut)}
@@ -247,6 +411,7 @@ body[data-cilt="neon"]::after{
   *,*::before,*::after{animation:none !important;transition:none !important}
   .yanit .kel{opacity:1;filter:none;transform:none}
   .olcek i{width:var(--hedef)}
+  .muhur{transform:rotate(-5.5deg);opacity:1}
   ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none !important}
 }
 </style>
@@ -282,6 +447,8 @@ body[data-cilt="neon"]::after{
     <button role="tab" id="t-kader" data-sayfa="kader" aria-selected="true" aria-controls="s-kader">Kader</button>
     <button role="tab" id="t-ikili" data-sayfa="ikili" aria-selected="false" aria-controls="s-ikili">İki Kişilik</button>
     <button role="tab" id="t-burc"  data-sayfa="burc"  aria-selected="false" aria-controls="s-burc">Burç</button>
+    <button role="tab" id="t-kura"  data-sayfa="kura"  aria-selected="false" aria-controls="s-kura">Kura</button>
+    <button role="tab" id="t-ebced" data-sayfa="ebced" aria-selected="false" aria-controls="s-ebced">İsim Falı</button>
   </nav>
 
   <main>
@@ -299,9 +466,11 @@ body[data-cilt="neon"]::after{
       </form>
       <p id="hata" role="status"></p>
       <div class="araclar">
-        <button type="button" class="cip" id="rastgele">Ben soramıyorum, sen sor</button>
-        <button type="button" class="cip" id="ses" aria-pressed="false">Mühür sesi: kapalı</button>
-        <button type="button" class="cip" id="salla" hidden>Telefonu salla</button>
+        <button type="button" class="eylem" id="rastgele"><span class="im" aria-hidden="true">↻</span>Ben soramıyorum, sen sor</button>
+        <div class="ayarlar">
+          <button type="button" class="anahtar" id="ses" aria-pressed="false">Mühür sesi<span class="durum" id="ses-durum">kapalı</span></button>
+          <button type="button" class="anahtar" id="salla" aria-pressed="false" hidden>Sallayınca sor<span class="durum" id="salla-durum">kapalı</span></button>
+        </div>
       </div>
 
       <section id="cevap" aria-live="polite"></section>
@@ -330,6 +499,41 @@ body[data-cilt="neon"]::after{
       </div>
       <div class="burc-izgara" id="burc-izgara"></div>
       <section id="burc-cevap" aria-live="polite"></section>
+    </section>
+
+    <section id="s-kura" role="tabpanel" aria-labelledby="t-kura" tabindex="-1" hidden>
+      <div class="kapak">
+        <h1>Kura</h1>
+        <p>Karar veremediğin şıkları yaz, kader birini seçsin. Sıra fark etmez; aynı şıklar bu devir boyunca aynı cevabı verir.</p>
+      </div>
+      <form class="kura-form" id="kura-form" novalidate>
+        <label class="sr-only" for="sik1">Birinci şık</label>
+        <input id="sik1" type="text" maxlength="60" autocomplete="off" placeholder="Birinci şık">
+        <label class="sr-only" for="sik2">İkinci şık</label>
+        <input id="sik2" type="text" maxlength="60" autocomplete="off" placeholder="İkinci şık">
+        <label class="sr-only" for="sik3">Üçüncü şık (isteğe bağlı)</label>
+        <input id="sik3" type="text" maxlength="60" autocomplete="off" placeholder="Üçüncü şık (isteğe bağlı)" hidden>
+        <label class="sr-only" for="sik4">Dördüncü şık (isteğe bağlı)</label>
+        <input id="sik4" type="text" maxlength="60" autocomplete="off" placeholder="Dördüncü şık (isteğe bağlı)" hidden>
+        <button type="button" class="eylem sik-ekle" id="sik-ekle"><span class="im" aria-hidden="true">+</span>Şık ekle</button>
+        <button type="submit">Kurayı Çek</button>
+      </form>
+      <p id="kura-hata" class="hata" role="status"></p>
+      <section id="kura-cevap" aria-live="polite"></section>
+    </section>
+
+    <section id="s-ebced" role="tabpanel" aria-labelledby="t-ebced" tabindex="-1" hidden>
+      <div class="kapak">
+        <h1>İsim falı</h1>
+        <p>İsmini yaz, harflerinin ebced değeri toplansın. Sayı değişmez; okuması her devir yeniden yazılır.</p>
+      </div>
+      <form class="ebced-form" id="ebced-form" novalidate>
+        <label class="sr-only" for="ebced-ad">İsim</label>
+        <input id="ebced-ad" type="text" maxlength="40" autocomplete="off" placeholder="İsmin">
+        <button type="submit">Harfleri Say</button>
+      </form>
+      <p id="ebced-hata" class="hata" role="status"></p>
+      <section id="ebced-cevap" aria-live="polite"></section>
     </section>
 
     <hr class="ayrac" aria-hidden="true">
@@ -429,6 +633,7 @@ function veriyiKur(v, yedekMi){
   geriSayimBaslat();
   ornekleriBaslat();
   burclariKur();
+  sekmeleriDenetle();
   if (bekleyen){ var b = bekleyen; bekleyen = null; sor(b.soru, b.hizli); }
 }
 sorBtn.disabled = true;
@@ -496,12 +701,21 @@ function sayfaAc(ad){
 sekmeler.forEach(function(t){
   t.addEventListener("click", function(){ sayfaAc(t.getAttribute("data-sayfa")); });
   t.addEventListener("keydown", function(e){
-    var i = sekmeler.indexOf(t), j = -1;
-    if (e.key === "ArrowRight") j = (i + 1) % sekmeler.length;
-    if (e.key === "ArrowLeft") j = (i - 1 + sekmeler.length) % sekmeler.length;
-    if (j >= 0){ e.preventDefault(); sekmeler[j].focus(); sayfaAc(sekmeler[j].getAttribute("data-sayfa")); }
+    /* Gizlenmiş sekmeler (verisi olmayanlar) ok tuşuyla da atlanır. */
+    var acik = sekmeler.filter(function(s){ return !s.hidden; });
+    var i = acik.indexOf(t), j = -1;
+    if (i < 0 || acik.length < 2) return;
+    if (e.key === "ArrowRight") j = (i + 1) % acik.length;
+    if (e.key === "ArrowLeft") j = (i - 1 + acik.length) % acik.length;
+    if (j >= 0){ e.preventDefault(); acik[j].focus(); sayfaAc(acik[j].getAttribute("data-sayfa")); }
   });
 });
+/* Verisi olmayan sekme gösterilmez: yedek veriyle açıldığında boş sayfa çıkmasın. */
+function sekmeleriDenetle(){
+  var ku = VERI.kura || {}, eb = VERI.ebced || {};
+  $("t-kura").hidden = !(ku.hukum && ku.hukum.length);
+  $("t-ebced").hidden = !(eb.hane && Object.keys(eb.hane).length);
+}
 
 /* ═════════ ses: WebAudio ile sentezlenmiş mühür sesi (dosya yok) ═════════ */
 var sesBaglam = null;
@@ -556,7 +770,8 @@ function carpmaSesi(){
 $("ses").addEventListener("click", function(){
   sesAcik = !sesAcik;
   this.setAttribute("aria-pressed", sesAcik ? "true" : "false");
-  this.textContent = "Mühür sesi: " + (sesAcik ? "açık" : "kapalı");
+  /* Etiket sabit, yalnızca durum rozeti değişir: düğme bir AYAR, eylem değil. */
+  $("ses-durum").textContent = sesAcik ? "açık" : "kapalı";
   if (sesAcik) muhurSesi();
 });
 
@@ -578,17 +793,18 @@ $("ses").addEventListener("click", function(){
       if (!soruEl.value.trim()) rastgeleSor(); else sor(soruEl.value, false);
     }
   }
+  function durum(metin){ var d = $("salla-durum"); if (d) d.textContent = metin; }
   function ac(){
     if (acik) return;
     window.addEventListener("devicemotion", hareket);
     acik = true;
-    btn.textContent = "Salla, sorulsun ✓ (kapat)";
+    durum("açık");
     btn.setAttribute("aria-pressed", "true");
   }
   function kapat(){
     window.removeEventListener("devicemotion", hareket);
     acik = false;
-    btn.textContent = "Telefonu salla";
+    durum("kapalı");
     btn.setAttribute("aria-pressed", "false");
   }
   btn.addEventListener("click", function(){
@@ -597,8 +813,8 @@ $("ses").addEventListener("click", function(){
     if (typeof DeviceMotionEvent.requestPermission === "function"){
       DeviceMotionEvent.requestPermission().then(function(izin){
         if (izin === "granted"){ izinli = true; ac(); }
-        else btn.textContent = "Sallama izni yok";
-      }).catch(function(){ btn.textContent = "Sallama açılamadı"; });
+        else durum("izin yok");
+      }).catch(function(){ durum("açılamadı"); });
     } else { izinli = true; ac(); }
   });
 })();
@@ -694,6 +910,46 @@ function devirNotu(){
   } catch(e){ return "Bu kayıt bu devre aittir; devir dönünce kader yeniden yazılır."; }
 }
 
+/* ═════════ defterin eski sayfaları ═════════
+   Hiçbir şey saklanmaz. Kader saf fonksiyon olduğu ve dönem dışarıdan
+   verildiği için geçmiş devirlerin cevabı her seferinde yeniden hesaplanır. */
+var ROZET = {var:"NASİP VAR", yok:"NASİP YOK", bekle:"BEKLEMEDE", kapandi:"KAPANDI"};
+function kisaTarih(ms){
+  try { return new Intl.DateTimeFormat("tr-TR", {day:"numeric", month:"short"}).format(new Date(ms)); }
+  catch(e){ return ""; }
+}
+function eskiSayfalar(soru){
+  var sayfalar;
+  try { sayfalar = Kader.gecmisSayfalar(soru, VERI, DONEM, 8); } catch(e){ return null; }
+  if (!sayfalar || !sayfalar.length) return null;
+
+  var d = document.createElement("details"); d.className = "eski";
+  var s = document.createElement("summary");
+  s.textContent = "Defterin eski sayfaları — aynı soru, geçmiş " + sayfalar.length + " devir";
+  d.appendChild(s);
+
+  var ul = document.createElement("ul"); ul.className = "eski-liste";
+  for (var i = sayfalar.length - 1; i >= 0; i--){       /* en yeniden eskiye */
+    var p = sayfalar[i];
+    var li = document.createElement("li");
+    li.style.animationDelay = ((sayfalar.length - 1 - i) * 45) + "ms";
+
+    var t = document.createElement("span"); t.className = "eski-tarih";
+    t.textContent = p.baslangicMs ? kisaTarih(p.baslangicMs) : ("№" + p.no);
+
+    var r = document.createElement("span"); r.className = "eski-rozet " + p.kutup;
+    r.textContent = ROZET[p.kutup] || "KAYIT";
+
+    var m = document.createElement("span"); m.className = "eski-metin";
+    m.textContent = p.yanit;
+
+    li.appendChild(t); li.appendChild(r); li.appendChild(m);
+    ul.appendChild(li);
+  }
+  d.appendChild(ul);
+  return d;
+}
+
 /* metni kelimelere bölüp mürekkep animasyonuyla yazar */
 function murekkeple(el, metin){
   el.textContent = "";
@@ -766,6 +1022,8 @@ function goster(soru, sonuc){
   if (sonuc.serh) kart.appendChild(serh);
   kart.appendChild(satir); kart.appendChild(not); kart.appendChild(paylas);
   cevapEl.textContent = ""; cevapEl.appendChild(kart);
+  var eski = eskiSayfalar(soru);
+  if (eski) cevapEl.appendChild(eski);
 
   murekkeple(yanit, sonuc.yanit);
   sayacaBas(no, sonuc.no);
@@ -992,6 +1250,93 @@ function burcGoster(id){
   murekkeple(yanit, r.metin);
   muhurSesi();
 }
+
+/* ═════════ kura ═════════ */
+(function(){
+  var gizli = ["sik3", "sik4"];
+  $("sik-ekle").addEventListener("click", function(){
+    for (var i = 0; i < gizli.length; i++){
+      var el = $(gizli[i]);
+      if (el.hidden){ el.hidden = false; el.focus(); if (i === gizli.length - 1) this.hidden = true; return; }
+    }
+    this.hidden = true;
+  });
+  $("kura-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    var h = $("kura-hata"), c = $("kura-cevap");
+    if (!HAZIR){ h.textContent = "Defter henüz açılmadı, bir saniye."; return; }
+    var siklar = ["sik1","sik2","sik3","sik4"].map(function(id){ return $(id).value; });
+    var r = Kader.kuraSec(VERI, siklar, DONEM);
+    if (!r){ h.textContent = "Kura için birbirinden farklı en az iki şık lazım."; return; }
+    h.textContent = "";
+
+    var kart = document.createElement("div"); kart.className = "kayit" + (azHareket ? "" : " sars");
+    var eko = document.createElement("p"); eko.className = "soru-eko";
+    eko.textContent = r.secenekler.length + " şık arasından";
+    var yanit = document.createElement("p"); yanit.className = "yanit";
+
+    var ul = document.createElement("ul"); ul.className = "kura-liste";
+    r.secenekler.forEach(function(s, i){
+      var li = document.createElement("li");
+      if (i === r.sira) li.className = "kazanan";
+      var im = document.createElement("span"); im.className = "isaret";
+      im.textContent = i === r.sira ? "✓" : "·";
+      var ad = document.createElement("span"); ad.textContent = s;
+      li.appendChild(im); li.appendChild(ad); ul.appendChild(li);
+    });
+
+    var serh = document.createElement("p"); serh.className = "serh"; serh.textContent = r.serh;
+    var satir = document.createElement("div"); satir.className = "muhur-satir";
+    var no = document.createElement("span"); no.className = "kayit-no"; no.textContent = "Kayıt №" + r.no;
+    satir.appendChild(no);
+    var not = document.createElement("p"); not.className = "not"; not.textContent = devirNotu();
+
+    kart.appendChild(eko); kart.appendChild(yanit); kart.appendChild(ul);
+    kart.appendChild(serh); kart.appendChild(satir); kart.appendChild(not);
+    c.textContent = ""; c.appendChild(kart);
+    murekkeple(yanit, r.yanit);
+    muhurSesi();
+  });
+})();
+
+/* ═════════ ebced / isim falı ═════════ */
+$("ebced-form").addEventListener("submit", function(e){
+  e.preventDefault();
+  var h = $("ebced-hata"), c = $("ebced-cevap");
+  if (!HAZIR){ h.textContent = "Defter henüz açılmadı, bir saniye."; return; }
+  var ad = $("ebced-ad").value.trim();
+  if (!ad){ h.textContent = "Bir isim yaz."; return; }
+  var r = Kader.ebcedNasip(VERI, ad, DONEM);
+  if (!r){ h.textContent = "Bu isimde okunacak harf bulamadım."; return; }
+  h.textContent = "";
+
+  var kart = document.createElement("div"); kart.className = "kayit" + (azHareket ? "" : " sars");
+  var eko = document.createElement("p"); eko.className = "soru-eko"; eko.textContent = ad;
+
+  var sayi = document.createElement("p"); sayi.className = "ebced-sayi";
+  var b = document.createElement("b"); b.textContent = String(r.toplam);
+  var et = document.createElement("span");
+  et.textContent = "ebced değeri · " + r.harf + " harf" +
+                   (r.okunmayan ? " (" + r.okunmayan + " işaret okunmadı)" : "");
+  /* Boşluk ayrı bir metin düğümü: esnek kutunun gap'i görsel boşluğu verir ama
+     textContent/kopyala-yapıştır ve ekran okuyucu "641ebced" diye birleştirir. */
+  sayi.appendChild(b); sayi.appendChild(document.createTextNode(" ")); sayi.appendChild(et);
+
+  var hane = document.createElement("p"); hane.className = "ebced-hane";
+  hane.textContent = r.hane + ". hane";
+
+  var yanit = document.createElement("p"); yanit.className = "yanit";
+  var serh = document.createElement("p"); serh.className = "serh"; serh.textContent = r.serh;
+  var satir = document.createElement("div"); satir.className = "muhur-satir";
+  var no = document.createElement("span"); no.className = "kayit-no"; no.textContent = "Kayıt №" + r.no;
+  satir.appendChild(no);
+
+  kart.appendChild(eko); kart.appendChild(sayi); kart.appendChild(hane);
+  kart.appendChild(yanit); kart.appendChild(serh); kart.appendChild(satir);
+  c.textContent = ""; c.appendChild(kart);
+  murekkeple(yanit, r.yanit);
+  muhurSesi();
+});
 
 /* ═════════ paylaşılan link ═════════ */
 if (paylasilan){ soruEl.value = paylasilan; sor(paylasilan, true); }

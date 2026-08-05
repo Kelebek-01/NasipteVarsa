@@ -790,6 +790,136 @@
     };
   }
 
+  /* ═══════════ 15. Kura — şıklardan birini kader seçer ═══════════
+     İKİ AYRI TOHUM kullanılır ve bu bilinçlidir:
+
+     · Kazananı seçen tohum YALNIZCA döneme bağlıdır. Her şık kendi
+       anahtarıyla Efraimidis–Spirakis yarışına girer, yani seçim rendezvous
+       (HRW) hashing'e denk düşer: listeye üçüncü bir şık eklendiğinde ilk
+       ikisi arasındaki karar 1/3 olasılıkla değişir, 2/3 olasılıkla aynı
+       kalır. Tohumu şık kümesinden türetirsek bu özellik KAYBOLUR — ölçtük:
+       o hâlde eski karar yalnızca ~%38 oranında korunuyordu, yani her yeni
+       şık kurayı baştan atıyordu.
+     · Hükmün ve şerhin metnini seçen tohum ise şık kümesine bağlıdır; farklı
+       kuralar farklı cümlelerle anlatılsın diye.
+
+     Sıra bağımsızlığı her iki tohumda da korunur: anahtarlar sıralanır. */
+
+  var KURA_AZAMI = 6;            /* şık sayısı tavanı */
+  var KURA_UZUNLUK = 60;         /* tek şıkta karakter tavanı */
+
+  function kuraSec(veri, secenekler, donem) {
+    hazirla(veri);
+    if (!secenekler || !secenekler.length) return null;
+    var temiz = [], anahtarlar = [], gorulen = Object.create(null), i;
+    for (i = 0; i < secenekler.length && temiz.length < KURA_AZAMI; i++) {
+      var ham = String(secenekler[i] == null ? "" : secenekler[i]).trim().slice(0, KURA_UZUNLUK);
+      if (!ham) continue;
+      var an = anahtarla(ham);
+      if (!an || gorulen[an]) continue;          /* aynı şık iki kez yarışmaz */
+      gorulen[an] = 1;
+      temiz.push(ham); anahtarlar.push(an);
+    }
+    if (temiz.length < 2) return null;           /* kura iki şıktan az olmaz */
+
+    var cekirdek = anahtarlar.slice().sort().join("|");
+    var tohum = karistir((hashle("kura:" + cekirdek) ^ karistir(((donem | 0) * 2654435761) | 0)) >>> 0);
+    /* Seçim tohumu şık kümesinden BAĞIMSIZ — rendezvous kararlılığı bunu ister. */
+    var devirTohum = karistir((hashle("kura") ^ karistir(((donem | 0) * 2654435761) | 0)) >>> 0);
+
+    var alt = altTohum(devirTohum, "kura-sec"), enIyi = -Infinity, kazanan = 0;
+    for (i = 0; i < anahtarlar.length; i++) {
+      var k = esAnahtar(alt, anahtarlar[i], 1);
+      if (k > enIyi) { enIyi = k; kazanan = i; }
+    }
+
+    var ku = veri.kura || {};
+    var h = kararliSec(altTohum(tohum, "kura-hukum"), adaylastir([{ liste: ku.hukum || [], agirlik: 1 }]));
+    var s = kararliSec(altTohum(tohum, "kura-serh"), adaylastir([{ liste: ku.serh || [], agirlik: 1 }]));
+    return {
+      secilen: temiz[kazanan], sira: kazanan, secenekler: temiz,
+      yanit: h ? h.deger.replace(/\{secilen\}/g, temiz[kazanan]) : temiz[kazanan],
+      serh: s ? s.deger : "",
+      no: 1000 + (tohum % 9000), donem: donem
+    };
+  }
+
+  /* ═══════════ 16. Ebced — isim falı ═══════════
+     Ebced, Arap alfabesinde her harfe bir sayı verir (elif 1, be 2, cim 3 …
+     gayn 1000). Latin harfli bir Türkçe ismi ebcede çevirmek KAYIPLI bir
+     iştir: "s" Arapçada sin(60), sad(90) veya se(500) olabilir; hangisi
+     olduğu ismin aslına bakılmadan bilinemez. Aşağıdaki tablo her Latin
+     harfi için en yaygın karşılığı alır — yani ürettiği sayı "yaklaşık
+     ebced"tir, klasik bir ebced hesabının yerine geçmez. Arayüz bunu
+     kullanıcıya da böyle söyler.
+     Hane, ebced toplamının rakam kökü (digit root): sayı bilimi geleneğinden
+     gelir, ebcedin kendisinden değil. İkisini ayrı adlandırıyoruz. */
+
+  var EBCED = {
+    "a": 1, "b": 2, "c": 3, "ç": 3, "d": 4, "e": 1, "f": 80, "g": 20,
+    "ğ": 1000, "h": 5, "ı": 10, "i": 10, "j": 3, "k": 20, "l": 30, "m": 40,
+    "n": 50, "o": 6, "ö": 6, "p": 2, "r": 200, "s": 60, "ş": 300, "t": 400,
+    "u": 6, "ü": 6, "v": 6, "y": 10, "z": 7
+  };
+  var EBCED_AZAMI = 40;
+
+  function ebcedDeger(ad) {
+    var s = duzle(String(ad == null ? "" : ad)).slice(0, EBCED_AZAMI);
+    var toplam = 0, harf = 0, okunmayan = 0;
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charAt(i);
+      if (c === " ") continue;
+      if (Object.prototype.hasOwnProperty.call(EBCED, c)) { toplam += EBCED[c]; harf++; }
+      else okunmayan++;                       /* tabloda yoksa sessizce yutmayız */
+    }
+    if (!harf) return null;
+    var kok = toplam % 9; if (kok === 0) kok = 9;   /* rakam kökü: 1..9 */
+    return { toplam: toplam, hane: kok, harf: harf, okunmayan: okunmayan, metin: s };
+  }
+
+  function ebcedNasip(veri, ad, donem) {
+    hazirla(veri);
+    var d = ebcedDeger(ad);
+    if (!d) return null;
+    var eb = veri.ebced || {};
+    /* Tohum SAYIDAN üretilir, isimden değil: ebcedde belirleyici olan sayıdır,
+       aynı toplamı veren iki isim aynı sayfayı açar. */
+    var tohum = karistir((hashle("ebced:" + d.toplam) ^ karistir(((donem | 0) * 2654435761) | 0)) >>> 0);
+    var hn = kararliSec(altTohum(tohum, "ebced-hane"),
+                        adaylastir([{ liste: (eb.hane || {})[String(d.hane)] || [], agirlik: 1 }]));
+    var s = kararliSec(altTohum(tohum, "ebced-serh"),
+                       adaylastir([{ liste: eb.serh || [], agirlik: 1 }]));
+    return {
+      toplam: d.toplam, hane: d.hane, harf: d.harf, okunmayan: d.okunmayan,
+      yanit: hn ? hn.deger : "", serh: s ? s.deger : "",
+      no: 1000 + (tohum % 9000), donem: donem
+    };
+  }
+
+  /* ═══════════ 17. Defterin eski sayfaları ═══════════
+     Kader saf fonksiyon ve dönem parametresi dışarıdan verildiği için geçmiş
+     devirlerin cevabı hâlâ hesaplanabilir. Hiçbir şey saklanmaz; sayfalar
+     her seferinde yeniden üretilir. */
+
+  var GECMIS_AZAMI = 24;
+
+  function gecmisSayfalar(soru, veri, donem, adet) {
+    hazirla(veri);
+    var n = adet | 0; if (!n) n = 8;
+    n = Math.max(1, Math.min(GECMIS_AZAMI, n));
+    var simdi = donem | 0, out = [];
+    for (var i = n; i >= 1; i--) {
+      var d = simdi - i;
+      var c = cevapla(soru, veri, d);
+      var ar = donemAraligi(veri.ayar, d);
+      out.push({
+        donem: d, yanit: c.yanit, kutup: c.kutup, ton: c.ton, no: c.no,
+        baslangicMs: ar ? ar.bitisMs - ((veri.ayar && veri.ayar.donemGun) || 7) * 86400000 : null
+      });
+    }
+    return out;
+  }
+
   var API = {
     surum: 3,
     katla: katla, duzle: duzle, anahtarla: anahtarla, bol: bol,
@@ -800,7 +930,9 @@
     esAnahtar: esAnahtar, kararliSec: kararliSec, adaylastir: adaylastir,
     tonBul: tonBul, MUHUR_TON: MUHUR_TON,
     ciltSec: ciltSec, bugununBurcu: bugununBurcu, burcBul: burcBul,
-    burcNasibi: burcNasibi, ikiliNasip: ikiliNasip
+    burcNasibi: burcNasibi, ikiliNasip: ikiliNasip,
+    kuraSec: kuraSec, ebcedDeger: ebcedDeger, ebcedNasip: ebcedNasip,
+    gecmisSayfalar: gecmisSayfalar
   };
 
   if (typeof module === "object" && module.exports) module.exports = API;

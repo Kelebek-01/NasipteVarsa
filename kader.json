@@ -233,6 +233,91 @@
     ]
   },
 
+  "_kuraNotu": "Kura: şıklardan birini kader seçer. hukum içindeki {secilen} yerine seçilen şık konur; şık ismine EK GETİRME (ünlü uyumu tutmaz), yalın hâlde bırak.",
+  "kura": {
+    "hukum": [
+      "Kura döndü, {secilen} çıktı.",
+      "Defter açıldı: {secilen}.",
+      "Bu devirde kader {secilen} diyor.",
+      "Kalem durdu: {secilen}.",
+      "Sayfada {secilen} yazıyor; gerisi bahane.",
+      "İkisi de olurdu, ama bu devrin cevabı {secilen}.",
+      "Nasip {secilen} demiş.",
+      "Tereddüdün burada bitiyor: {secilen}.",
+      "{secilen}. Kader böyle yazmış.",
+      "{secilen}. Uzatma, yürü.",
+      "Çekilen kâğıtta {secilen} yazıyor.",
+      "Terazi {secilen} yönüne eğildi."
+    ],
+    "serh": [
+      "Kura aynı şıklara aynı cevabı verir; sırayı değiştirmen bir şey değiştirmez.",
+      "Çıkan şıkka içerlediysen kararını zaten vermişsin demektir.",
+      "Defter seçti diye sorumluluk defterin olmuyor; yürüyecek olan sensin.",
+      "Devir dönünce kura yeniden atılır.",
+      "Yeni bir şık eklersen kura baştan dönmez, sadece biraz kayar.",
+      "Aynı şıkları bu devir boyunca kaç kez yazarsan yaz, aynı cevap çıkar.",
+      "Kader seçmesini bilir; taşımasını sen bileceksin."
+    ]
+  },
+
+  "_ebcedNotu": "Ebced: Latin harfli isimden YAKLAŞIK ebced değeri. Latin→Arap harf eşlemesi kayıplıdır (s = sin/sad/se), tablo en yaygın karşılığı alır. hane = toplamın rakam kökü (1..9), bu sayı bilimi geleneğinden gelir, ebcedin kendisinden değil. Metinler sayıya göre seçilir: aynı toplamı veren iki isim aynı sayfayı açar.",
+  "ebced": {
+    "hane": {
+      "1": [
+        "Sayın teklikte duruyor: bu isim başlamayı bilir, beklemeyi zor öğrenir.",
+        "Bir rakamı öncülük rakamıdır; kalabalıkta bile tek başına yürürsün.",
+        "İlk adımı atan sensin — arkana bakma alışkanlığın da oradan."
+      ],
+      "2": [
+        "Sayın ikilikte: bu isim tek başına değil, karşısındakiyle tamamlanır.",
+        "İki rakamı terazi rakamıdır; kararların hep bir başkasına değiyor.",
+        "Denge arıyorsun, bulduğunda da bozulmasın diye nefes almıyorsun."
+      ],
+      "3": [
+        "Sayın bereket hanesinde: söz senin elinde, sözün de bir bereketi var.",
+        "Üç rakamı çoğalma rakamıdır; verdiğin geri geliyor, verdiğin kadar.",
+        "Anlatmayı seviyorsun; anlatınca hafiflediğini de biliyorsun."
+      ],
+      "4": [
+        "Sayın dört köşe: temel atmayı bilirsin, temeli bırakmayı bilmezsin.",
+        "Dört rakamı sağlamlık rakamıdır; sabrın taştan, aceleciliğin yok.",
+        "Ev kurarsın, kurduğun yerde kalırsın — bu bazen erdem, bazen zincir."
+      ],
+      "5": [
+        "Sayın yol hanesinde: bu isim bir yerde uzun durmaz.",
+        "Beş rakamı hareket rakamıdır; değişim seni yormaz, durgunluk yorar.",
+        "Kapı çalınmadan açılıyor sana; hangisinden gireceğin ayrı mesele."
+      ],
+      "6": [
+        "Sayın uyum hanesinde: gönül işlerinde eli yüzü düzgün bir sayı bu.",
+        "Altı rakamı ev rakamıdır; sığınacak yeri olmayanı sen sığdırırsın.",
+        "Güzelliği fark ediyorsun; fark ettiğin şeye de bağlanıyorsun."
+      ],
+      "7": [
+        "Sayın sır hanesinde: bu isim çabuk açılmaz, açılınca da geri kapanmaz.",
+        "Yedi rakamı arayış rakamıdır; cevabı bulunca yeni bir soru buluyorsun.",
+        "İçine dönmeyi biliyorsun; dışarıya dönmeyi biraz zor."
+      ],
+      "8": [
+        "Sayın hesap hanesinde: bu isim aldığını da verdiğini de sayar.",
+        "Sekiz rakamı kudret rakamıdır; yükü kaldırırsın, kaldırdığını söylemezsin.",
+        "Terazi elinde; ama tartarken kendini de tartmayı unutma."
+      ],
+      "9": [
+        "Sayın tamamlanma hanesinde: bu isim bitirmeyi bilir, bırakmayı öğrenir.",
+        "Dokuz rakamı dönüş rakamıdır; her kapanan kapı sende bir şey bırakıyor.",
+        "Sonuna kadar gidiyorsun; sonun sonrası olduğunu da görüyorsun."
+      ]
+    },
+    "serh": [
+      "Bu sayı Latin harflerinden çıkarılmış yaklaşık bir ebceddir; klasik hesabın yerine geçmez.",
+      "Ebcedde belirleyici olan sayıdır: aynı toplamı veren başka bir isim aynı sayfayı açar.",
+      "Sayı değişmez, okuması devir döndükçe değişir.",
+      "Harflerin sayı değeri sabittir; ona ne yüklediğin sana kalmış.",
+      "Bu bir hesap, bir hüküm değil."
+    ]
+  },
+
   "hukum": {
     "ton": {
       "mujde": [
