@@ -55,6 +55,42 @@ console.log("\n[1] Cilt sistemi");
   await ctx.close();
 }
 
+/* 1b. Ciltler YAPIYI da değiştiriyor mu?
+   Regresyon koruması: bir zamanlar beş cilt aynı sayfanın beş boyasıydı —
+   ölçüldüğünde 49 görünür öğenin 49'unda renk farkı, 0'ında yapı farkı vardı.
+   Cilt sistemi biçim token'ı da ezmeli; bu test onun geri kaymasını engeller. */
+console.log("\n[1b] Ciltler biçimi de değiştiriyor");
+{
+  const parmakIzi = async (p, c) => {
+    await git(p, "#cilt="+c);
+    await p.fill("#soru","Bu yıl işimi değiştirmeli miyim?");
+    await p.click("#sor");
+    await p.waitForSelector("#cevap .kayit",{timeout:9000});
+    await p.waitForTimeout(250);
+    return p.evaluate(()=>[...document.body.querySelectorAll("*")]
+      .filter(e=>{const r=e.getBoundingClientRect(); return r.width>0&&r.height>0;})
+      .map(e=>{ const r=e.getBoundingClientRect(), g=getComputedStyle(e);
+        return { yapi:[Math.round(r.x),Math.round(r.y),Math.round(r.width),Math.round(r.height),
+                       g.fontFamily.split(",")[0].replace(/["']/g,""),g.fontSize,g.fontWeight,
+                       g.letterSpacing,g.borderRadius,g.borderWidth,g.textTransform].join("|"),
+                 renk:[g.color,g.backgroundColor,g.borderColor].join("|") }; }));
+  };
+  const {ctx,p} = await sayfaAc({viewport:{width:1100,height:900}, reducedMotion:"reduce"});
+  const temel = await parmakIzi(p, "gece");
+  for (const c of ["kahve","ferman","neon","kagit"]){
+    const su = await parmakIzi(p, c);
+    const n = Math.min(temel.length, su.length);
+    let yapi=0, renk=0;
+    for (let i=0;i<n;i++){
+      if (temel[i].yapi!==su[i].yapi) yapi++;
+      if (temel[i].renk!==su[i].renk) renk++;
+    }
+    ok(c+" cildi RENK değiştiriyor", renk>n*0.5, renk+"/"+n);
+    ok(c+" cildi BİÇİM de değiştiriyor", yapi>n*0.05, yapi+"/"+n+" öğede yapı farkı");
+  }
+  await ctx.close();
+}
+
 /* 2. Sekmeler */
 console.log("\n[2] Defter sekmeleri");
 {
@@ -69,6 +105,83 @@ console.log("\n[2] Defter sekmeleri");
   ok("Burç sayfası açıldı", await p.isVisible("#s-burc"));
   ok("12 burç düğmesi", (await p.locator("#burc-izgara button").count())===12);
   ok("mevsim burcu işaretli", (await p.locator("#burc-izgara button.mevsim").count())===1);
+  await p.click("#t-kura"); await p.waitForTimeout(300);
+  ok("Kura sayfası açıldı", await p.isVisible("#s-kura") && !(await p.isVisible("#s-burc")));
+  await p.click("#t-ebced"); await p.waitForTimeout(300);
+  ok("İsim Falı sayfası açıldı", await p.isVisible("#s-ebced"));
+  ok("5 sekme görünür", (await p.locator('[role="tab"]:not([hidden])').count())===5);
+  ok("aynı anda tek panel açık",
+     (await p.locator('[role="tabpanel"]:not([hidden])').count())===1);
+  ok("konsol temiz", konsol.length===0, konsol.join(" | "));
+  await ctx.close();
+}
+
+/* 2b. Kura */
+console.log("\n[2b] Kura");
+{
+  const {ctx,p,konsol} = await sayfaAc({reducedMotion:"reduce"});
+  await git(p);
+  await p.click("#t-kura"); await p.waitForTimeout(200);
+  await p.fill("#sik1","Kahve"); await p.fill("#sik2","Çay");
+  await p.click('#kura-form button[type="submit"]');
+  await p.waitForSelector("#kura-cevap .kayit",{timeout:5000});
+  const a = await p.evaluate(()=>({
+    y:document.querySelector("#kura-cevap .yanit").textContent,
+    k:document.querySelector("#kura-cevap .kazanan").textContent,
+    n:document.querySelectorAll("#kura-cevap .kura-liste li").length }));
+  ok("kura sonucu geldi", a.y.length>5, a.y);
+  ok("iki şık listelendi", a.n===2, a.n+" şık");
+  ok("kazanan işaretli", /Kahve|Çay/.test(a.k), a.k);
+  /* sıra bağımsızlığı */
+  await p.fill("#sik1","Çay"); await p.fill("#sik2","Kahve");
+  await p.click('#kura-form button[type="submit"]'); await p.waitForTimeout(300);
+  const b = await p.textContent("#kura-cevap .kazanan");
+  ok("kura sıradan bağımsız", a.k.replace("✓","").trim()===b.replace("✓","").trim(), a.k+" vs "+b);
+  /* tek şıkla kura olmaz */
+  await p.fill("#sik2","");
+  await p.click('#kura-form button[type="submit"]'); await p.waitForTimeout(200);
+  ok("tek şıkta uyarı", (await p.textContent("#kura-hata")).includes("iki şık"));
+  /* aynı şık iki kez yazılırsa da kura olmaz */
+  await p.fill("#sik1","Kahve"); await p.fill("#sik2"," kahve ");
+  await p.click('#kura-form button[type="submit"]'); await p.waitForTimeout(200);
+  ok("aynı şık iki kez sayılmıyor", (await p.textContent("#kura-hata")).includes("iki şık"));
+  /* şık ekle düğmesi */
+  await p.click("#sik-ekle");
+  ok("üçüncü şık açıldı", await p.isVisible("#sik3"));
+  ok("konsol temiz", konsol.length===0, konsol.join(" | "));
+  await ctx.close();
+}
+
+/* 2c. Ebced / isim falı */
+console.log("\n[2c] İsim falı (ebced)");
+{
+  const {ctx,p,konsol} = await sayfaAc({reducedMotion:"reduce"});
+  await git(p);
+  await p.click("#t-ebced"); await p.waitForTimeout(200);
+  await p.fill("#ebced-ad","Mert");
+  await p.click('#ebced-form button'); await p.waitForSelector("#ebced-cevap .kayit",{timeout:5000});
+  const a = await p.evaluate(()=>({
+    s:document.querySelector("#ebced-cevap .ebced-sayi b").textContent,
+    t:document.querySelector("#ebced-cevap .ebced-sayi").textContent,
+    h:document.querySelector("#ebced-cevap .ebced-hane").textContent,
+    y:document.querySelector("#ebced-cevap .yanit").textContent }));
+  ok("ebced sayısı geldi", /^\d+$/.test(a.s) && +a.s>0, a.s);
+  ok("sayı ile etiket bitişik değil", / /.test(a.t.replace(a.s,"")[0]||" ") || a.t.includes(" ebced"), JSON.stringify(a.t));
+  ok("hane 1..9 arası", /^[1-9]\. hane$/.test(a.h), a.h);
+  ok("okuma geldi", a.y.length>25, a.y.slice(0,50));
+  /* aynı isim aynı sonuç */
+  await p.click('#ebced-form button'); await p.waitForTimeout(300);
+  const b = await p.textContent("#ebced-cevap .ebced-sayi b");
+  ok("aynı isim aynı sayı", a.s===b, a.s+" vs "+b);
+  /* Türkçe harf ayırt ediliyor: ş ≠ s */
+  await p.fill("#ebced-ad","Ayşe"); await p.click('#ebced-form button'); await p.waitForTimeout(300);
+  const c1 = await p.textContent("#ebced-cevap .ebced-sayi b");
+  await p.fill("#ebced-ad","Ayse"); await p.click('#ebced-form button'); await p.waitForTimeout(300);
+  const c2 = await p.textContent("#ebced-cevap .ebced-sayi b");
+  ok("ş ile s farklı değer veriyor", c1!==c2, c1+" vs "+c2);
+  /* okunacak harf yoksa uyarı */
+  await p.fill("#ebced-ad","123"); await p.click('#ebced-form button'); await p.waitForTimeout(200);
+  ok("harfsiz girdide uyarı", (await p.textContent("#ebced-hata")).length>5);
   ok("konsol temiz", konsol.length===0, konsol.join(" | "));
   await ctx.close();
 }
@@ -140,6 +253,40 @@ console.log("\n[5] Kader akışı");
   await ctx.close();
 }
 
+/* 5b. Defterin eski sayfaları
+   Sıfır depolama sözünün testi: geçmiş devirler hesaplanır, saklanmaz.
+   Aynı soru aynı devirde aynı geçmişi vermeli; farklı soru farklı geçmiş. */
+console.log("\n[5b] Defterin eski sayfaları");
+{
+  const {ctx,p,konsol} = await sayfaAc({reducedMotion:"reduce"});
+  await git(p);
+  const gecmisAl = async (soru) => {
+    await p.fill("#soru", soru); await p.click("#sor");
+    await p.waitForSelector("#cevap .kayit",{timeout:8000}); await p.waitForTimeout(300);
+    return p.evaluate(()=>[...document.querySelectorAll(".eski-liste li")].map(l=>({
+      tarih:l.querySelector(".eski-tarih").textContent,
+      rozet:l.querySelector(".eski-rozet").textContent,
+      metin:l.querySelector(".eski-metin").textContent })));
+  };
+  const a = await gecmisAl("Zam alacak mıyım?");
+  ok("8 eski sayfa listelendi", a.length===8, a.length+" satır");
+  ok("her satırda tarih var", a.every(x=>x.tarih.length>2), JSON.stringify(a[0]||{}));
+  ok("her satırda mühür rozeti var", a.every(x=>/NASİP|BEKLEMEDE|KAPANDI/.test(x.rozet)), JSON.stringify(a.map(x=>x.rozet)));
+  ok("her satırda hüküm var", a.every(x=>x.metin.length>8));
+  ok("geçmişte en az iki farklı kutup", new Set(a.map(x=>x.rozet)).size>=2, [...new Set(a.map(x=>x.rozet))].join(","));
+
+  const a2 = await gecmisAl("Zam alacak mıyım?");
+  ok("aynı soru aynı geçmiş", JSON.stringify(a)===JSON.stringify(a2));
+  const b = await gecmisAl("Ne zaman kavuşacağım?");
+  ok("farklı soru farklı geçmiş", JSON.stringify(a)!==JSON.stringify(b));
+
+  ok("hiçbir şey saklanmıyor (localStorage boş)",
+     await p.evaluate(()=>{ try { return localStorage.length===0; } catch(e){ return true; } }));
+  ok("çerez yok", (await p.context().cookies()).length===0);
+  ok("konsol temiz", konsol.length===0, konsol.join(" | "));
+  await ctx.close();
+}
+
 /* 6. PNG kart üretimi */
 console.log("\n[6] Fal kartı PNG");
 {
@@ -173,10 +320,17 @@ console.log("\n[7] Araç düğmeleri");
   await p.click("#rastgele");
   await p.waitForSelector(".kayit",{timeout:8000});
   ok("'sen sor' cevap üretti", (await p.inputValue("#soru")).length>3);
+  /* Ayar düğmesinin ETİKETİ sabit, yalnızca durum rozeti değişir. */
+  ok("ses etiketi sabit", (await p.textContent("#ses")).includes("Mühür sesi"));
   await p.click("#ses");
-  ok("ses açıldı", (await p.textContent("#ses")).includes("açık"));
+  ok("ses açıldı", (await p.textContent("#ses-durum"))==="açık" &&
+                   (await p.getAttribute("#ses","aria-pressed"))==="true");
   await p.click("#ses");
-  ok("ses kapandı", (await p.textContent("#ses")).includes("kapalı"));
+  ok("ses kapandı", (await p.textContent("#ses-durum"))==="kapalı" &&
+                    (await p.getAttribute("#ses","aria-pressed"))==="false");
+  ok("'sen sor' bir eylem, ayar değil", await p.evaluate(()=>{
+    const e=document.getElementById("rastgele");
+    return e.classList.contains("eylem") && !e.hasAttribute("aria-pressed"); }));
   ok("geri sayım yazıldı", /yeniden yazılır|yazılıyor/.test(await p.textContent("#gerisayim")));
   ok("konsol temiz", konsol.length===0, konsol.join(" | "));
   await ctx.close();
@@ -205,18 +359,47 @@ console.log("\n[8] Mobil taşma (320/360/390px, üç sekme)");
     await p.click('#burc-izgara button[data-burc="basak"]');
     await p.waitForSelector("#burc-cevap .kayit",{timeout:8000});
     ok("burç sekmesi taşmıyor ("+w+"px)", (await tasmaOlc())<=0, (await tasmaOlc())+"px");
+
+    await p.click("#t-kura"); await p.waitForTimeout(250);
+    await p.click("#sik-ekle"); await p.click("#sik-ekle");
+    await p.fill("#sik1","Abdurrahmanpaşa mahallesinde kalmaya devam edeyim");
+    await p.fill("#sik2","Kadıköy tarafına taşınıp yeni bir hayata başlayayım");
+    await p.fill("#sik3","Şimdilik hiçbir karar vermeden bekleyeyim");
+    await p.fill("#sik4","Aileme danışıp öyle karar vereyim");
+    await p.click('#kura-form button[type="submit"]');
+    await p.waitForSelector("#kura-cevap .kayit",{timeout:8000});
+    ok("kura sekmesi taşmıyor ("+w+"px)", (await tasmaOlc())<=0, (await tasmaOlc())+"px");
+
+    await p.click("#t-ebced"); await p.waitForTimeout(250);
+    await p.fill("#ebced-ad","Abdurrahmangazi Şerafettinoğlu");
+    await p.click("#ebced-form button");
+    await p.waitForSelector("#ebced-cevap .kayit",{timeout:8000});
+    ok("isim falı sekmesi taşmıyor ("+w+"px)", (await tasmaOlc())<=0, (await tasmaOlc())+"px");
+
+    /* eski sayfalar açıkken de taşmamalı */
+    await p.click("#t-kader"); await p.waitForTimeout(250);
+    const detay = await p.$("details.eski");
+    if (detay){ await p.click("details.eski > summary"); await p.waitForTimeout(400);
+      ok("eski sayfalar açıkken taşmıyor ("+w+"px)", (await tasmaOlc())<=0, (await tasmaOlc())+"px"); }
+    else ok("eski sayfalar bölümü var ("+w+"px)", false, "details.eski bulunamadı");
     await ctx.close();
   }
-  /* ciltlerin hepsinde de bir kez bak */
-  const {ctx,p} = await sayfaAc({viewport:{width:390,height:820}, reducedMotion:"reduce"});
+  /* Ciltlerin hepsinde de bir kez bak.
+     Her cilde TAZE bağlam açılır. Aynı bağlamda üst üste gezinildiğinde
+     Playwright'ın tıklama öncesi "kararlılık" denetimi #sor düğmesini 1px
+     oynuyor görüp zaman aşımına uğruyor. Ölçtük: sayfa kendi hâline
+     bırakıldığında scrollY, scrollHeight ve bütün üst öğe yükseklikleri tek
+     değerde sabit kalıyor — yani salınım sayfada değil, koşucunun kendi
+     kaydırma denetiminde. Taze bağlam sorunu ortadan kaldırıyor. */
   for (const c of ["gece","kahve","ferman","neon","kagit"]){
+    const {ctx,p} = await sayfaAc({viewport:{width:390,height:820}, reducedMotion:"reduce"});
     await git(p,"#cilt="+c);
     await p.fill("#soru","Yurtdışına taşınıp orada evlenebilecek miyim acaba diye çok düşünüyorum");
     await p.click("#sor"); await p.waitForSelector(".kayit",{timeout:8000});
     const t = await p.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
     ok("taşma yok ("+c+")", t<=0, t+"px");
+    await ctx.close();
   }
-  await ctx.close();
 }
 
 /* 8b. Uzun kesintisiz metin kartı taşırmasın */
@@ -325,6 +508,37 @@ console.log("\n[10b] Animasyon açıkken metin");
   ok("ikili hükmünde boşluklar korunuyor",
      i2.g.replace(/\s+/g," ").trim()===i2.t.replace(/\s+/g," ").trim(),
      "görünen: "+JSON.stringify(i2.g.slice(0,70)));
+
+  await p.click("#t-kura"); await p.waitForTimeout(500);
+  await p.fill("#sik1","Kahve"); await p.fill("#sik2","Çay");
+  await p.click('#kura-form button[type="submit"]');
+  await p.waitForSelector("#kura-cevap .kayit",{timeout:9000}); await p.waitForTimeout(1400);
+  const k2 = await p.evaluate(()=>{ const y=document.querySelector("#kura-cevap .yanit");
+    return {t:y.textContent, g:y.innerText}; });
+  ok("kura hükmünde boşluklar korunuyor",
+     k2.g.replace(/\s+/g," ").trim()===k2.t.replace(/\s+/g," ").trim(),
+     "görünen: "+JSON.stringify(k2.g.slice(0,70)));
+
+  await p.click("#t-ebced"); await p.waitForTimeout(500);
+  await p.fill("#ebced-ad","Zeynep"); await p.click("#ebced-form button");
+  await p.waitForSelector("#ebced-cevap .kayit",{timeout:9000}); await p.waitForTimeout(1400);
+  const e2 = await p.evaluate(()=>{ const y=document.querySelector("#ebced-cevap .yanit");
+    const s=document.querySelector("#ebced-cevap .ebced-sayi");
+    return {t:y.textContent, g:y.innerText, sayiG:s.innerText, sayiT:s.textContent}; });
+  ok("isim falı okumasında boşluklar korunuyor",
+     e2.g.replace(/\s+/g," ").trim()===e2.t.replace(/\s+/g," ").trim(),
+     "görünen: "+JSON.stringify(e2.g.slice(0,70)));
+  ok("ebced sayısı etikete yapışmıyor", /^\d+\s/.test(e2.sayiT), JSON.stringify(e2.sayiT.slice(0,30)));
+
+  await p.click("#t-kader"); await p.waitForTimeout(400);
+  await p.fill("#soru","Zam alacak mıyım?"); await p.click("#sor");
+  await p.waitForSelector("#cevap .kayit",{timeout:9000}); await p.waitForTimeout(1500);
+  await p.click("details.eski > summary"); await p.waitForTimeout(700);
+  const es = await p.evaluate(()=>[...document.querySelectorAll(".eski-liste li")].map(l=>({
+    t:l.querySelector(".eski-metin").textContent, g:l.querySelector(".eski-metin").innerText })));
+  ok("eski sayfalarda boşluklar korunuyor",
+     es.length>0 && es.every(x=>x.g.replace(/\s+/g," ").trim()===x.t.replace(/\s+/g," ").trim()),
+     JSON.stringify((es[0]||{}).g||"").slice(0,70));
   ok("konsol temiz", konsol.length===0, konsol.join(" | "));
   await ctx.close();
 }

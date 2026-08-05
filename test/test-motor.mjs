@@ -132,6 +132,95 @@ for (const uc of ["?", "...", "a", "acaba", "😀", "mı", "   ", "çok çok ço
   } catch (e) { ok("uç: " + JSON.stringify(uc), false, "istisna: " + e.message); }
 }
 
+/* ——— 12. Kura ——— */
+{
+  const iki = K.kuraSec(veri, ["Kahve", "Çay"], D);
+  ok("kura sonuç veriyor", !!iki && !!iki.secilen && iki.secenekler.length === 2, JSON.stringify(iki).slice(0, 90));
+  ok("kura kazananı şıklardan biri", iki && iki.secenekler.indexOf(iki.secilen) === iki.sira);
+  ok("kura hükmünde {secilen} yer değiştirdi", iki && !/\{secilen\}/.test(iki.yanit), iki && iki.yanit);
+  ok("kura sıra bağımsız",
+     K.kuraSec(veri, ["Çay", "Kahve"], D).secilen === iki.secilen);
+  ok("kura devirle değişebilir",
+     new Set([...Array(40)].map((_, i) => K.kuraSec(veri, ["Kahve", "Çay"], D + i).secilen)).size === 2);
+  ok("kura tek şıkta null", K.kuraSec(veri, ["yalnız"], D) === null);
+  ok("kura aynı şık iki kez → null", K.kuraSec(veri, ["Çay", " çay "], D) === null);
+  ok("kura boş girdide null", K.kuraSec(veri, ["", "   "], D) === null);
+  ok("kura şık tavanı 6", K.kuraSec(veri, "abcdefghij".split(""), D).secenekler.length === 6);
+  /* ES kararlılığı: 3. şık eklemek ilk ikisinin dengesini toptan bozmamalı */
+  let ayni = 0;
+  for (let i = 0; i < 200; i++) {
+    const a = K.kuraSec(veri, ["Kahve", "Çay"], D + i);
+    const b = K.kuraSec(veri, ["Kahve", "Çay", "Ayran"], D + i);
+    if (a.secilen === b.secilen) ayni++;
+  }
+  /* Rendezvous kuramı: 3 şıka çıkınca eski karar 2/3 olasılıkla korunur ≈ 133/200.
+     Eşik örnekleme gürültüsüne (sd≈6.7) pay bırakacak şekilde 110. Tohumu şık
+     kümesinden türetirsek bu değer ~67'ye düşer; test o gerilemeyi yakalar. */
+  ok("şık eklemek eski kararların çoğunu koruyor (ES)", ayni >= 110, ayni + "/200 aynı kaldı");
+  for (const uc of [null, undefined, [], ["__proto__", "constructor"], ["a".repeat(500), "b"]]) {
+    const ad = "kura uç: " + String(JSON.stringify(uc)).slice(0, 30);
+    try { K.kuraSec(veri, uc, D); ok(ad, true); }
+    catch (e) { ok(ad, false, "istisna: " + e.message); }
+  }
+}
+
+/* ——— 13. Ebced ——— */
+{
+  const m = K.ebcedDeger("Mert");
+  ok("ebced değeri hesaplanıyor", m && m.toplam === 40 + 1 + 200 + 400, JSON.stringify(m));
+  ok("ebced hane 1..9", m.hane >= 1 && m.hane <= 9 && m.hane === (m.toplam % 9 || 9), m.hane);
+  ok("ebced harf sayısı", m.harf === 4, m.harf);
+  ok("ebced Türkçe harf ayırt ediyor (ş≠s)",
+     K.ebcedDeger("Ayşe").toplam !== K.ebcedDeger("Ayse").toplam,
+     K.ebcedDeger("Ayşe").toplam + " vs " + K.ebcedDeger("Ayse").toplam);
+  ok("ebced büyük/küçük harf duyarsız", K.ebcedDeger("MERT").toplam === K.ebcedDeger("mert").toplam);
+  ok("ebced boşluk yutmuyor sayılmıyor", K.ebcedDeger("Ali Veli").harf === 7, K.ebcedDeger("Ali Veli").harf);
+  ok("ebced okunmayan işareti sayıyor", K.ebcedDeger("Mert1").okunmayan === 1, JSON.stringify(K.ebcedDeger("Mert1")));
+  ok("ebced harfsizde null", K.ebcedDeger("123") === null && K.ebcedDeger("") === null);
+  const n = K.ebcedNasip(veri, "Mert", D);
+  ok("ebced okuması geldi", n && n.yanit.length > 25 && n.serh.length > 10, JSON.stringify(n).slice(0, 100));
+  ok("ebced aynı devirde kararlı", K.ebcedNasip(veri, "Mert", D).yanit === n.yanit);
+  ok("ebced devir dönünce değişebilir",
+     new Set([...Array(30)].map((_, i) => K.ebcedNasip(veri, "Mert", D + i).yanit)).size > 1);
+  ok("ebced sayısı devirden BAĞIMSIZ",
+     new Set([...Array(30)].map((_, i) => K.ebcedNasip(veri, "Mert", D + i).toplam)).size === 1);
+  ok("aynı toplam aynı sayfayı açar",
+     K.ebcedNasip(veri, "Mert", D).yanit === (function () {
+       /* toplamı 641 olan başka bir dizi: t(400)+r(200)+m(40)+a(1) = "trma" */
+       const b = K.ebcedNasip(veri, "trma", D);
+       return b && b.toplam === 641 ? b.yanit : null;
+     })());
+  for (const uc of [null, undefined, "__proto__", "constructor", "x".repeat(500)]) {
+    const ad = "ebced uç: " + String(JSON.stringify(uc)).slice(0, 26);
+    try { K.ebcedNasip(veri, uc, D); ok(ad, true); }
+    catch (e) { ok(ad, false, "istisna: " + e.message); }
+  }
+}
+
+/* ——— 14. Defterin eski sayfaları ——— */
+{
+  const s = "Zam alacak mıyım?";
+  const g = K.gecmisSayfalar(s, veri, D, 8);
+  ok("8 eski sayfa", g.length === 8, g.length);
+  ok("dönemler artan ve şimdikinden küçük",
+     g.every((x, i) => x.donem === D - 8 + i) && g[g.length - 1].donem === D - 1,
+     g.map(x => x.donem).join(","));
+  ok("her sayfada hüküm ve kutup", g.every(x => x.yanit && x.kutup));
+  ok("eski sayfa = o dönemin cevabı",
+     g.every(x => K.cevapla(s, veri, x.donem).yanit === x.yanit));
+  ok("eski sayfalar kararlı", JSON.stringify(K.gecmisSayfalar(s, veri, D, 8)) === JSON.stringify(g));
+  ok("farklı soru farklı geçmiş",
+     JSON.stringify(K.gecmisSayfalar("Ne zaman kavuşacağım?", veri, D, 8)) !== JSON.stringify(g));
+  ok("adet tavanı 24", K.gecmisSayfalar(s, veri, D, 9999).length === 24);
+  ok("adet tabanı 1 (negatif girdi kırpılır)",
+     K.gecmisSayfalar(s, veri, D, -5).length === 1 && K.gecmisSayfalar(s, veri, D, 1).length === 1,
+     K.gecmisSayfalar(s, veri, D, -5).length + " / " + K.gecmisSayfalar(s, veri, D, 1).length);
+  ok("adet verilmezse 8", K.gecmisSayfalar(s, veri, D).length === 8 && K.gecmisSayfalar(s, veri, D, 0).length === 8);
+  ok("başlangıç zamanı hesaplandı", g.every(x => typeof x.baslangicMs === "number" && isFinite(x.baslangicMs)));
+  ok("başlangıçlar dönem uzunluğu kadar aralıklı",
+     g.every((x, i) => i === 0 || x.baslangicMs - g[i - 1].baslangicMs === (A.donemGun || 7) * 86400000));
+}
+
 console.log(`\n${gecti} geçti, ${kaldi} kaldı`);
 if (hata.length) { console.log("\nKALANLAR:"); hata.forEach(h => console.log("  ✗ " + h)); }
 console.log("mühür dağılımı:", JSON.stringify(yuzde));
