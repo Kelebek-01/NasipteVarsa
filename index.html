@@ -281,30 +281,39 @@ body.hazir .yuksel:nth-child(3){animation-delay:.16s}
 
 var MUHURLER = {var:"NASİP VAR", yok:"NASİP YOK", bekle:"BEKLEMEDE", kapandi:"DOSYA KAPANDI"};
 
-/* kader.json çekilemezse site yine çalışsın diye küçük yedek */
+/* kader.json çekilemezse site yine çalışsın diye küçük yedek (v3 şeması) */
 var YEDEK = {
+  surum:3,
   ayar:{donemGun:7, donemBaslangic:"2024-01-01", asgariGovde:2,
-        kutupAgirlik:{var:33,yok:30,bekle:35,kapandi:2}, konuEsik:1,
-        konuAgirlik:3, tipAgirlik:3, genelAgirlik:1},
-  durak:["acaba","bir","bu","ben","ne","ya","yoksa","ki","için","çok","daha"],
+        kaderAgirlik:{olur:33,olmaz:30,belirsiz:35,kapandi:2},
+        konuEsik:0.6, ngramEsik:0.72, konuAgirlik:3, tipAgirlik:3,
+        tonAgirlik:3, tonAgirlikKorku:6, tekrarEsigi:0.62},
+  ekler:["lAr","(y)H","(y)A","DA","DAn","(H)m","(H)yor","mHyor","(y)AcAk","DH","mHş","mA","mAz","(y)Hm","(H)r","Ar"],
+  soruEki:["mı","mi","mu","mü","mıyım","miyim","muyum","müyüm","mısın","misin"],
+  durak:["acaba","bir","bu","ben","ne","ya","yoksa","ki","için","çok","daha","zaman"],
   tipDesen:{secim:["yoksa","hangisi"], zaman:["ne zaman","kac yil"], nicel:["kac","ne kadar"],
             kisi:["kim","kimle"], yer:["nerede","nereye"], neden:["neden","niye"], nasil:["nasil"]},
-  konular:{},
-  hukum:{
-    var:["Nasipte varmış. Hazırlan.","Yazılmış bir kere; bozulmaz.","Kapı açık bırakılmış. Yürü.","Olacak. Telaş etme, olacak."],
-    yok:["Bu devirde nasip değilmiş.","Kısmet başka bahara.","Olmayacak duaya âmin denmez.","Bu defterde o satır boş çıktı."],
-    bekle:["Ne evet ne hayır: nasip meselesi.","Hayırlısı neyse o.","Kader acele sevmez. Bekle.","Nasip var da tarihi belli değil."],
-    kapandi:["Eeee? Bu gadar."]
-  },
+  konular:{}, korkuKokler:["kovul","ayrıl","hasta","kaybet","öl","boşan","kötü"],
+  istekKokler:["kazan","geç","kavuş","evlen","iyileş","terfi","bul","al"],
+  notrKokler:["hava","yağmur","deprem","maç"],
+  hukum:{ton:{
+    mujde:["Nasipte varmış. Hazırlan.","Kapı açık bırakılmış. Yürü.","Olacak. Telaş etme, olacak."],
+    uyari:["Bu geliyor. Yüzünü dönme, hazırlan.","Bu sefer kader senden yana değil.","Kabul et: bu satır böyle yazılmış."],
+    teselli:["Bu devirde nasip değilmiş.","Kısmet başka bahara.","Olmayacak duaya âmin denmez."],
+    ferah:["Korktuğun başına gelmiyor. Rahat ol.","Hayır. Bu yük senin sırtına yazılmamış.","O kapı kapanmıyor. Nefes al."],
+    belirsiz:["Ne evet ne hayır: nasip meselesi.","Hayırlısı neyse o.","Kader acele sevmez. Bekle."]
+  }, kapandi:["Eeee? Bu gadar."]},
   konuHukum:{}, tipHukum:{},
   okumaTip:{evet_hayir:["Niyetin okundu."], zaman:["Takvim soruyorsun."], nicel:["Rakam sormuşsun."],
             kisi:["Bir isim aranıyor."], yer:["Bir yer aranıyor."], neden:["Sebep sormuşsun."],
             nasil:["Usul sormuşsun."], secim:["İki yol arasında kalmışsın."], acik:["Soru geniş."]},
   okumaKonu:{genel:["Niyetin okundu.","Defter açıldı, sayfa bulundu."]},
   tavsiye:{
-    var:["Şükrünü unutma.","Acele etme, ama hazır ol."],
-    yok:["Israr etme; sonucu değiştirmez.","Kapanan kapıya bakma."],
-    bekle:["Sabret. Sabrın bittiği yerde cevap gelir.","Bir hafta sonra tekrar sor."],
+    mujde:["Şükrünü unutma.","Acele etme, ama hazır ol."],
+    uyari:["Panik etme; bilmek hazırlanmaktır.","Yalnız taşıma. Bir kişiye anlat."],
+    teselli:["Israr etme; sonucu değiştirmez.","Kapanan kapıya bakma."],
+    ferah:["Bu gece rahat uyu; hak ettin.","Endişeni besleme; besledikçe büyür."],
+    belirsiz:["Sabret. Sabrın bittiği yerde cevap gelir.","Bir hafta sonra tekrar sor."],
     kapandi:["Dosya kapandı. Başka soru?"]
   },
   ozel:{},

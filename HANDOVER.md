@@ -1,7 +1,7 @@
 # NasipteVarsa — Devir Notu (Claude Code için)
 
 Canlı: https://nasiptevarsa.com · Repo: `Kelebek-01/NasipteVarsa` · Yayın: GitHub Pages, `master` dalı kökten.
-Bu dosya `TASARIM-NOTLARI.md`'nin yerine geçer; oradaki "aynı soruya hep aynı cevap" kuralı v2'de değişti.
+Motor sürümü: **v3**. Bu dosya `TASARIM-NOTLARI.md`'nin yerine geçer.
 
 ## 1. Ne bu?
 
@@ -23,90 +23,112 @@ kader.json   Tüm içerik ve ayarlar (kod bilmeden düzenlenebilir)
 fonts/       Fraunces + Poppins, self-host woff2 (OFL). Google Fonts'a bağımlılık yok.
 og.png       1200×630 paylaşım görseli · favicon.svg · apple-touch-icon.png
 CNAME        nasiptevarsa.com
+test/        Regresyon ve güvenlik testleri (Node; yayına dahil değil)
+eval/        Ölçüm koşusu, bağımsız değerlendirme setleri, RAPOR.md
 project/     Eski Vue kaynağı. Yayına dahil değil, tarihsel; silinebilir.
 ```
 
-## 3. Kader motoru (kader.js)
+## 3. Kader motoru v3 (kader.js)
 
-Boru hattı — kural tabanlı, model yok:
+Katmanlar — hepsi kural tabanlı, model yok:
 
 ```
-düzle (tr-TR küçük harf, noktalama at)
-  → katla (ASCII: ı→i, ş→s, ğ→g, ü→u, ö→o, ç→c) — "sinav" ile "sınav" aynı olsun diye
-  → böl → durak kelimeleri ve soru zarflarını (mı/mi/mu/mü…) ayıkla
-  → gövdele (yinelemeli en-uzun-ek soyma + ünsüz sertleştirme + ikiz ünsüz)
-  → soru tipi (secim / zaman / nicel / kisi / yer / neden / nasil / evet_hayir / acik)
-  → konu (gövde sözlüğü puanlaması: ask, para, is, saglik, egitim, yol, genel)
-  → tohum = splitmix32( FNV-1a(sıralı benzersiz gövdeler) XOR splitmix32(dönem) )
-  → mulberry32 PRNG → kutup seç → hüküm / okuma / tavsiye havuzlarından çek
+1) Sesbilim    ünlü uyumu (kalınlık + düzlük), ünsüz benzeşmesi (D→d/t), yumuşama
+               geri alma (kitab→kitap). Ekler ARKETİP yazımıyla tutulur:
+               A=a|e · H=ı|i|u|ü · D=d|t · (y)(n)(s)=ünlü sonrası tampon · (H)=ünsüz sonrası
+2) Biçimbilim  Ekin yüzey biçimi GÖVDEDEN ÜRETİLİR ve tutmuyorsa soyulmaz.
+               "elma" → -mA eki "me" üretir, "ma" gelmez → korunur.
+               Morfotaktik: ek sırası kesin azalmalı; isim çekiminden sonra fiil eki
+               gelemez ("doktora"→"doktor", "dokto" değil). Köprü: -mA / -mAk.
+3) Sözdizim    9 soru tipi, olumsuzluk (-mA / -mAz / -mHyor), 1. şahıs işaretlemesi.
+               Olumsuzluk yalnızca -mA bir ZAMAN ekinin altındaysa sayılır:
+               "olmam gerekecek" adlaştırma, "kovulmayacak" olumsuzluk.
+4) Anlam       IDF ağırlıklı konu sözlüğü (+ karakter 3-gram geri düşüşü);
+               ARZU ekseni: istenen / korkulan / nötr — yüklem ağırlıklı
+               (Türkçe SOV: son içerik kelimesi yüklem, ağırlığı 3×).
+5) Üretim      tohum = splitmix32(FNV1a(sıralı kökler) ⊕ splitmix32(dönem))
+               Her karar ekseni AYRI alanla tohumlanır (kader / hüküm / okuma / tavsiye).
+               Seçim: Efraimidis–Spirakis ağırlıklı anahtarı k_i = u_i^(1/w_i), argmax.
 ```
 
-Yaklaşım ELIZA'nın (Weizenbaum, MIT, 1966) desen-eşleme + şablon-dönüşüm fikrinin Türkçeye
-uyarlanmış hâli. Akademik yenilik iddiası yok; sağlam ve tam deterministik bir mühendislik.
+**Arzu ekseni neden var:** v2'de "İşten kovulacak mıyım?" sorusuna `kutup=var` çıkınca
+"NASİP VAR" müjde mührü basılıyordu — kötü habere kutlama. v3 `kader` (olur/olmaz)
+ile `arzu`yu ayırıp **ton** üretir:
 
-**Şablonlar dilbilgisi açısından güvenli kurgulanmıştır:** her parça kendi başına tam bir
-cümledir, yuvaya isim/çekim sokulmaz. Türkçe eklemeli bir dil olduğu için "{konu}'ya" gibi
-yuvalar bozuk cümle üretir — bu yüzden bilinçli olarak kaçınıldı. Yeni içerik eklerken
-aynı kurala uy: **her satır noktasıyla biten, tek başına ayakta duran bir cümle olsun.**
+| | istenen / nötr | korkulan |
+|---|---|---|
+| **olur** | `mujde` → NASİP VAR | `uyari` → NASİP YOK |
+| **olmaz** | `teselli` → NASİP YOK | `ferah` → NASİP VAR |
 
-### Kader modu: dönem tohumu
+**Kararlı seçim neden önemli:** v2'de `indeks = floor(u·n)` idi; listeye tek cümle
+eklemek mevcut cevapların **%50,7**'sini değiştiriyordu. ES anahtarıyla bu **%4,3**'e
+düştü (ölçüldü, bkz. `eval/RAPOR.md` §3). Yani artık içerik eklemek kaderleri bozmuyor.
+Alan ayrımı sayesinde `tavsiye` listesini değiştirmek **hiçbir** hükmü değiştirmiyor (0/140).
 
-Tohuma bulunulan **dönem** (varsayılan 7 gün) karışır. Sonuç:
+### Ölçülmüş başarım
 
-* Aynı soru, aynı dönem → hep aynı cevap. Kelime sırası, büyük/küçük harf, noktalama ve
-  dolgu kelimeler ("acaba", "ya", "ki") sonucu **değiştirmez**.
-* Dönem dönünce kader yeniden yazılır. Kartta bitiş tarihi yazılı.
-* Aynı oturumda tekrar sorulursa bellekteki `oturumBellek` sözlüğünden döner (depolama yok).
+Hiç incelenmemiş, ayrı bir ajanın yazdığı 100 soruluk sette:
 
-`localStorage` bilinçli olarak **kullanılmadı**: (a) sıfır depolama duruşunu bozardı,
-(b) her cihazda farklı kader olurdu, (c) `#q=` paylaşım linki arkadaşına senin gördüğünden
-başka cevap gösterirdi. Dönem tohumu üçünü de çözer. Paylaşım linki `#q=<soru>&d=<dönem>`
-biçiminde dönemi de taşır, böylece **aynı devir içinde** paylaşılan link herkese aynı
-kaydı gösterir. Daha eski bir `d` değeri güvenlik gereği yok sayılır (bkz. §6) ve link
-güncel kaderi gösterir — kader zaten değiştiği için doğru davranış budur.
+| eksen | doğruluk | makro F1 | çoğunluk temel çizgisi |
+|---|---:|---:|---:|
+| soru tipi | **95,0%** | 0,932 | 35,0% |
+| konu | **73,0%** | 0,755 | 20,0% |
+| arzu | **59,0%** | 0,576 | 40,0% |
 
-## 4. kader.json şeması
+Arzu ekseni zayıf halkadır ve öyle raporlanmalıdır. Ayrıntı, karışıklık matrisleri,
+ablasyonlar ve dağılım testleri: `eval/RAPOR.md`.
+
+## 4. kader.json şeması (v3)
 
 | Alan | İşlevi |
 |---|---|
 | `ayar.donemGun` | Kaderin yeniden yazılma aralığı (gün). 7 = haftalık. |
-| `ayar.donemBaslangic` | Dönem sayacının sıfır noktası. **Değiştirme** — tüm eski linkler kayar. |
-| `ayar.kutupAgirlik` | var/yok/bekle/kapandi dağılımı. `kapandi` easter egg, düşük tut. |
-| `ayar.konuAgirlik` / `tipAgirlik` / `genelAgirlik` | Havuz karışım katsayıları. |
+| `ayar.donemBaslangic` | Dönem sayacının sıfır noktası. **Değiştirme** — eski linkler kayar. |
+| `ayar.kaderAgirlik` | `olur`/`olmaz`/`belirsiz`/`kapandi` dağılımı. `kapandi` easter egg, düşük tut. |
+| `ayar.konuAgirlik` · `tipAgirlik` · `tonAgirlik` · `tonAgirlikKorku` | Havuz karışım katsayıları. Korkulan sorularda ton havuzu ağır basar. |
+| `ayar.konuEsik` · `ngramEsik` · `tekrarEsigi` | Konu kabul eşiği, bulanık eşleme eşiği, cevap içi tekrar eşiği. |
+| `ekler` | **Arketip** yazımıyla ek şablonları. Türetim ekleri (lH, CH, lHK, sHz) bilinçli olarak YOK — "okulu"yu "oku"ya indiriyorlardı. |
+| `soruEki` | mı/mi/mu/mü ve çekimli biçimleri; gövdelemeden önce ayıklanır. |
 | `durak` | Tohuma ve konuya karışmaması gereken dolgu kelimeler. |
 | `tipDesen` | Soru tipi tetikleyicileri. **ASCII katlanmış yazılır** ("ne zaman", "kac"). |
-| `konular[x].kokler` | Konu sözlüğü. Türkçe yazılır, motor gövdeleyip eşleştirir. |
-| `hukum[kutup]` | Genel hükümler (büyük cümle). |
-| `konuHukum[konu][kutup]` | Konuya özel hükümler. |
-| `tipHukum[tip][kutup]` | Soru tipine özel hükümler ("ne zaman"a tarih diliyle cevap). |
+| `konular[x].kokler` | Konu sözlüğü. **KÖK biçiminde yaz** ("hasta", "hastalanmak" değil). Motor hem yazıldığı hem gövdelenmiş biçimi indeksler. |
+| `korkuKokler` · `istekKokler` · `notrKokler` | Arzu ekseni sözlükleri. Yine kök biçiminde. |
+| `hukum.ton[ton]` | Genel hükümler, **TON'a göre**: `mujde` / `uyari` / `teselli` / `ferah` / `belirsiz`. |
+| `konuHukum[konu][ton]` | Konuya özel hükümler, yine tona göre. |
+| `tipHukum[tip][kader]` | Soru tipine özel hükümler, **KADER'e göre** (`olur`/`olmaz`/`belirsiz`) ve **tondan bağımsız** yazılmalı: "Sandığından erken" hem beklenen hem korkulan olay için çalışır. |
 | `okumaTip` / `okumaKonu` | Şerhin ilk cümlesi — sorunun okunması. |
-| `tavsiye[kutup]` | Şerhin ikinci cümlesi — kapanış. |
+| `tavsiye[ton]` | Şerhin ikinci cümlesi — kapanış, tona göre. |
 | `ozel` | Birebir eşleşen sorular. Anahtar ASCII katlanmış ve noktalamasız yazılır. |
 | `gunluk` | Günün Nasibi havuzu (takvim gününe bağlı, herkeste aynı). |
 
-`tipHukum[tip][kutup]` doluysa genel havuz devre dışı kalır — "Yüzde elli" cümlesi
+Yeni cümle yazarken tek kural: **her satır noktasıyla biten, tek başına ayakta duran
+bir cümle olsun.** Türkçe eklemeli olduğu için yuvaya isim/çekim sokulmaz; şablonlar
+tam cümleleri yan yana dizer.
+
+`tipHukum[tip][kader]` doluysa genel havuz devre dışı kalır — "Yüzde elli" cümlesi
 "ne zaman" sorusunu cevaplamaz diye. Bunu bozma.
 
 ## 5. Testler
 
 ```bash
-node test-motor.mjs        # 64 test: gövdeleme, tip, konu, determinizm, dağılım, uç durumlar
-node test-guvenlik.mjs     # prototip anahtarları, enjeksiyon yükleri, dönem sınırları, CPU
-node test-tarayici.mjs     # 41 test: akış, paylaşım linki, dönem güvenliği, fragment saldırıları,
-                           #          mobil, yedek veri, 404
+node test/test-motor.mjs        # 88 test: sesbilim, gövdeleme, morfotaktik, tip/arzu,
+                                #          determinizm, kararlılık, dağılım, uç durumlar
+node test/test-guvenlik.mjs     # prototip anahtarları, enjeksiyon yükleri, dönem sınırları, CPU
+node test/test-tarayici.mjs     # 41 test: akış, paylaşım linki, dönem güvenliği,
+                                #          fragment saldırıları, mobil, yedek veri, 404
+node eval/degerlendir.mjs       # ölçüm koşusu → eval/RAPOR.md
 ```
 
 **Tarayıcı testi tuzağı:** yalnızca hash değiştiren `goto` sayfayı yeniden yüklemez ve
-inline script tekrar çalışmaz — test bayat kartı ölçer ve sahte "geçti" verir. Bu yüzden
-`git(sayfa, hash)` yardımcı fonksiyonu her gezinmeye benzersiz bir sorgu ekler. Yeni
-fragment testi yazarken bunu kullan.
+inline script tekrar çalışmaz — test bayat kartı ölçer ve sahte "geçti" verir. `git(sayfa, hash)`
+yardımcısı her gezinmeye benzersiz sorgu ekler; yeni fragment testinde onu kullan.
 
-Test dosyaları repoda değil, oturum çalışma alanındaydı. Kalıcı hâle getirmek istersen
-repoya `test/` altına taşı. `test-tarayici.mjs` `playwright-core` ister ve kendi statik
-sunucusunu 8099'da ayağa kaldırır.
+**Ölçüm yöntemi notu:** `eval/holdout.json` (140 soru) geliştirme sırasında hataları
+incelenen settir, artık saf held-out değildir. `eval/test2.json` (100 soru) hiç
+incelenmedi; **başarım iddiaları yalnızca onun üzerinden yapılmalı.** Yeni bir iddia
+gerekirse yeni bir set yazdır, mevcut setlere göre ayar yapma.
 
-İçerik değişikliğinden sonra en azından şunu doğrula: `node test-motor.mjs` sıfır hata
-vermeli — bozuk çıktı, boş yuva, çift boşluk, noktasız cümle ve kutup dengesi orada denetlenir.
+İçerik değişikliğinden sonra en az `node test/test-motor.mjs` sıfır hata vermeli.
 
 ## 6. Güvenlik duruşu
 
