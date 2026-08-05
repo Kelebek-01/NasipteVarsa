@@ -248,23 +248,66 @@ console.log("\n[10] Dayanıklılık");
   await ctx.close();
 }
 
+/* 10b. ANİMASYON AÇIKKEN metin bütünlüğü
+   Tüm testler reducedMotion ile koşarsa mürekkep animasyonunun DOM'u hiç
+   çalışmaz ve "kelimeler bitişik çıkıyor" gibi hatalar gözden kaçar.
+   Bu blok bilinçli olarak animasyonlu yolu sınar. */
+console.log("\n[10b] Animasyon açıkken metin");
+{
+  const {ctx,p,konsol} = await sayfaAc();          /* reducedMotion YOK */
+  await git(p);
+  await p.evaluate(()=>{ const g=document.getElementById("giris"); if(g) g.hidden=true; });
+  await p.fill("#soru","Zam alacak mıyım?"); await p.click("#sor");
+  await p.waitForSelector("#cevap .kayit",{timeout:9000}); await p.waitForTimeout(1600);
+  const k = await p.evaluate(()=>{ const y=document.querySelector("#cevap .yanit");
+    return {t:y.textContent, g:y.innerText, sp:y.querySelectorAll("span.kel").length}; });
+  ok("hüküm kelime kelime çiziliyor", k.sp>1, k.sp+" span");
+  ok("hükümde boşluklar korunuyor", k.g.replace(/\s+/g," ").trim()===k.t.replace(/\s+/g," ").trim(),
+     "görünen: "+JSON.stringify(k.g.slice(0,60)));
+  ok("bitişik kelime yok", !/[a-zçğıöşü][A-ZÇĞİÖŞÜ]/.test(k.g) && k.g.indexOf(" ")>0, k.g.slice(0,60));
+
+  await p.click("#t-burc"); await p.waitForTimeout(500);
+  await p.click('#burc-izgara button[data-burc="aslan"]');
+  await p.waitForSelector("#burc-cevap .kayit",{timeout:9000}); await p.waitForTimeout(1800);
+  const b2 = await p.evaluate(()=>{ const y=document.querySelector("#burc-cevap .yanit");
+    return {t:y.textContent, g:y.innerText}; });
+  ok("burç okumasında boşluklar korunuyor",
+     b2.g.replace(/\s+/g," ").trim()===b2.t.replace(/\s+/g," ").trim(),
+     "görünen: "+JSON.stringify(b2.g.slice(0,70)));
+
+  await p.click("#t-ikili"); await p.waitForTimeout(500);
+  await p.fill("#ad1","Mert"); await p.fill("#ad2","Zeynep");
+  await p.click("#ikili-form button");
+  await p.waitForSelector("#ikili-cevap .kayit",{timeout:9000}); await p.waitForTimeout(1400);
+  const i2 = await p.evaluate(()=>{ const y=document.querySelector("#ikili-cevap .yanit");
+    return {t:y.textContent, g:y.innerText}; });
+  ok("ikili hükmünde boşluklar korunuyor",
+     i2.g.replace(/\s+/g," ").trim()===i2.t.replace(/\s+/g," ").trim(),
+     "görünen: "+JSON.stringify(i2.g.slice(0,70)));
+  ok("konsol temiz", konsol.length===0, konsol.join(" | "));
+  await ctx.close();
+}
+
 /* 11. Ekran görüntüleri */
 {
   for (const c of ["gece","kahve","ferman","neon","kagit"]){
-    const {ctx,p} = await sayfaAc({viewport:{width:1180,height:1000}, reducedMotion:"reduce"});
+    const {ctx,p} = await sayfaAc({viewport:{width:1180,height:1000}});
     await git(p,"#cilt="+c);
+    await p.evaluate(()=>{ const g=document.getElementById("giris"); if(g) g.hidden=true; });
     await p.fill("#soru","İşten kovulacak mıyım?"); await p.click("#sor");
-    await p.waitForSelector(".kayit",{timeout:8000}); await p.waitForTimeout(300);
+    await p.waitForSelector(".kayit",{timeout:9000}); await p.waitForTimeout(1700);
     await p.screenshot({path:KOK + "/../shots/cilt-"+c+".png", fullPage:true});
     await ctx.close();
   }
-  const {ctx,p} = await sayfaAc({viewport:{width:1180,height:1000}, reducedMotion:"reduce"});
-  await git(p); await p.click("#t-burc"); await p.waitForTimeout(200);
-  await p.click('#burc-izgara button[data-burc="aslan"]'); await p.waitForTimeout(400);
+  const {ctx,p} = await sayfaAc({viewport:{width:1180,height:1000}});
+  await git(p);
+  await p.evaluate(()=>{ const g=document.getElementById("giris"); if(g) g.hidden=true; });
+  await p.click("#t-burc"); await p.waitForTimeout(200);
+  await p.click('#burc-izgara button[data-burc="aslan"]'); await p.waitForTimeout(1800);
   await p.screenshot({path:KOK + "/../shots/burc.png", fullPage:true});
   await p.click("#t-ikili"); await p.waitForTimeout(300);
   await p.fill("#ad1","Mert"); await p.fill("#ad2","Zeynep");
-  await p.click("#ikili-form button"); await p.waitForTimeout(600);
+  await p.click("#ikili-form button"); await p.waitForTimeout(1600);
   await p.screenshot({path:KOK + "/../shots/ikili.png", fullPage:true});
   await ctx.close();
 }
