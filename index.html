@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nasipte Varsa — Sorunu sor, kader cevaplasın.</title>
-<meta name="description" content="Olacak mı, olmayacak mı? Sorunu yaz, cevabı kader versin. Aynı soruya hep aynı cevap — yazılmış bir kere. Günün nasibini de almadan gitme.">
+<meta name="description" content="Olacak mı, olmayacak mı? Sorunu yaz, cevabı kader versin. Kader haftada bir yeniden yazılır — bu devrin cevabı burada. Günün nasibini de almadan gitme.">
 <link rel="canonical" href="https://nasiptevarsa.com/">
 <meta name="theme-color" content="#202330">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Nasipte Varsa">
 <meta property="og:title" content="Nasipte Varsa">
-<meta property="og:description" content="Sorunu sor, kader cevaplasın. Aynı soruya hep aynı cevap — yazılmış bir kere.">
+<meta property="og:description" content="Sorunu sor, kader cevaplasın. Kader haftada bir yeniden yazılır.">
 <meta property="og:url" content="https://nasiptevarsa.com/">
 <meta property="og:image" content="https://nasiptevarsa.com/og.png">
 <meta property="og:image:width" content="1200">
@@ -136,7 +136,11 @@ main{display:block}
 .kayit .yanit{
   font-family:"Fraunces","Georgia",serif;font-weight:500;
   font-size:clamp(1.45rem, 4.6vw, 1.9rem);line-height:1.35;
-  margin:0 0 18px;text-wrap:pretty;
+  margin:0 0 14px;text-wrap:pretty;
+}
+.kayit .serh{
+  margin:0 0 18px;padding-left:14px;border-left:2px solid var(--cizgi);
+  color:var(--sut);opacity:.84;font-size:.97rem;line-height:1.62;text-wrap:pretty;
 }
 .muhur-satir{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
 .muhur{
@@ -237,7 +241,7 @@ body.hazir .yuksel:nth-child(3){animation-delay:.16s}
   <main>
     <section class="kapak yuksel">
       <h1>Olacak mı, olmayacak mı?</h1>
-      <p>Sorunu yaz, cevabı kader versin. Aynı soruya hep aynı cevap çıkar — yazılmış bir kere.</p>
+      <p>Sorunu yaz, cevabı kader versin. Bu devirde ne yazıldıysa o çıkar; devir dönünce kader sayfayı çevirir.</p>
     </section>
 
     <form class="sorgu yuksel" id="form" novalidate>
@@ -265,154 +269,94 @@ body.hazir .yuksel:nth-child(3){animation-delay:.16s}
   </footer>
 </div>
 
+<script src="/kader.js"></script>
 <script>
 "use strict";
-/* ————— kader defteri ————— */
-var CEVAPLAR = [
-  /* nasip var */
-  {t:"Nasipte varmış. Hazırlan.",k:"var"},
-  {t:"Kısmetse olur derler ya… kısmetmiş.",k:"var"},
-  {t:"İçime doğdu: bu iş olacak.",k:"var"},
-  {t:"Yazılmışsa bozulmaz. Yazılmış.",k:"var"},
-  {t:"Alnında yazıyormuş, silinmez.",k:"var"},
-  {t:"Kapı açık. Yürü.",k:"var"},
-  {t:"Hayırlısıyla olacak, için rahat olsun.",k:"var"},
-  {t:"Bugün git yarın gel yok — nasip bugün.",k:"var"},
-  {t:"Olur olur. Sabret, yeter.",k:"var"},
-  {t:"Nasip rüzgârı senden yana esiyor.",k:"var"},
-  {t:"Kader defterine “evet” diye geçilmiş.",k:"var"},
-  {t:"Bu soruyu sorman bile işaret. Evet.",k:"var"},
-  {t:"Kısmet kapını çoktan çalmış, sen duymamışsın.",k:"var"},
-  {t:"Nasip onaylandı. İmza: Kader.",k:"var"},
-  {t:"Yolu açık tutmuşlar. Geç.",k:"var"},
-  {t:"Evet. Ama kimseye söyleme, nazar değmesin.",k:"var"},
-  /* nasip yok */
-  {t:"Bu sefer nasip değilmiş.",k:"yok"},
-  {t:"Kısmet başka bahara.",k:"yok"},
-  {t:"O kapı bu devirde açılmaz.",k:"yok"},
-  {t:"Kader ağlarını başkasına örmüş.",k:"yok"},
-  {t:"Olmayacak duaya amin denmez.",k:"yok"},
-  {t:"Vazgeç. Hayırlısı buymuş.",k:"yok"},
-  {t:"Yazılmamış. Silinmişi bile yok.",k:"yok"},
-  {t:"Nasip defterinde bu sayfa boş çıktı.",k:"yok"},
-  {t:"Kısmet: yok. Tekrar sorma, aynısı çıkar.",k:"yok"},
-  {t:"Bu iş olmaz da olmaz.",k:"yok"},
-  {t:"Kader mesajını görüldü yaptı, cevap yazmadı.",k:"yok"},
-  {t:"Üzülme ama bu nasip komşuya gitti.",k:"yok"},
-  {t:"Hayır. Hem de hayırlısıyla hayır.",k:"yok"},
-  {t:"Eeee? Bu gadar.",k:"kapandi"},
-  /* beklemede */
-  {t:"Hayırlısı neyse o.",k:"bekle"},
-  {t:"Perşembe’ye nasip.",k:"bekle"},
-  {t:"Kader acele sevmez. Bekle.",k:"bekle"},
-  {t:"Ne evet ne hayır: nasip meselesi.",k:"bekle"},
-  {t:"Bugün sorma, kader izinli.",k:"bekle"},
-  {t:"Üç gün sonra tekrar sor. Ciddiyim.",k:"bekle"},
-  {t:"Nasip var da tarihi belli değil.",k:"bekle"},
-  {t:"Kısmet kapıda ama zili bulamıyor.",k:"bekle"},
-  {t:"Nasip onaya gönderildi. Bekleyiniz.",k:"bekle"},
-  {t:"Kaderde revizyon var, sonra gel.",k:"bekle"},
-  {t:"Yüzde elli. Gerisi dua.",k:"bekle"},
-  {t:"Bu bilgi seninle kader arasında kalsın istenmiş.",k:"bekle"},
-  {t:"Sana mı kaldı bilmek? Sabret.",k:"bekle"},
-  {t:"Nasip yolda ama trafik var.",k:"bekle"},
-  {t:"Kader şu an başka bir kullanıcıyla ilgileniyor.",k:"bekle"},
-  {t:"Belki. Kelimenin tam anlamıyla: belki.",k:"bekle"}
-];
-var OZEL = {
-  "nasipte varsa": {t:"Varsa, olur. Olmazsa, hayırlısı.",k:"bekle"},
-  "sen kimsin": {t:"Kaderin sesiyim. Sorunu sor.",k:"bekle"},
-  "naber": {t:"İyidir. Kaderle sohbet de nasipmiş demek. Sorunu sor.",k:"var"}
-};
-var NASIPLER = [
-  "Bugün ağzından çıkana dikkat: nasip kulak misafiri.",
-  "Sağ cebine koyduğunu sol cebinde arayacaksın. Sakin ol.",
-  "Bugün “sonra yaparım” dediğin şey yarın da seni bekler. Bugün yap.",
-  "Bir bardak çay içmeden karar verme.",
-  "Bugün kimseyle inatlaşma; kader senden inatçı.",
-  "Kaybettiğin şey üçüncü baktığın yerde.",
-  "Bugün gelen mesajı iki kere oku, bir kere cevapla.",
-  "Nasibin bugün küçük ama sağlam. Küçümseme.",
-  "Yorgunluğun nazardan değil, uykusuzluktan. Erken yat.",
-  "Bugün eski bir tanıdıktan haber alabilirsin. Şaşırma.",
-  "Para konuşulacaksa öğleden sonra konuş.",
-  "Bugün ayakkabını sağlam bağla; yol görünüyor.",
-  "İçine doğan şey doğru ama tarihi yanlış.",
-  "Bugün bir şey kırılırsa üzülme; yerine iyisi gelir derler.",
-  "Bugün kendi çayını kendin söyle, kimseye minnet etme.",
-  "Bugün liste yap. Kader düzenli sever.",
-  "Beklediğin cevap gecikecek ama olumlu.",
-  "Bugün yaptığın küçük bir iyilik, büyük yerden dönecek.",
-  "Telefonu bırak, pencereden bak. Nasip dışarıda.",
-  "Bugün kimseye akıl verme; kendi aklın lazım olacak.",
-  "Unuttuğun bir söz var. Hatırla, hafifle.",
-  "Bugün pazarlık günü. Utanma, iste.",
-  "Yarına bırakma: bugün nasip açık, yarın belli olmaz.",
-  "Bugün biriyle helalleş, için rahatlasın.",
-  "Kulağın çınlarsa iyiye yor; seni hayırla anıyorlar.",
-  "Bugün ortalığı topla; kısmet dağınık eve uğramaz derler.",
-  "İlk teklifi kabul etme. İkincisi yolda.",
-  "Bugün az konuş, çok dinle. Nasip detayda.",
-  "Kararsızsan yazı tura at; para havadayken hangisini istediğini anlarsın.",
-  "Bugün tatlı ye, tatlı konuş. İkisi de nasip.",
-  "Kapını çalan olursa aç; misafir kısmetiyle gelir.",
-  "Bugün eski defterleri açma. Orada nasip kalmadı.",
-  "Sabrının bugünlük son kullanma tarihi yakın. İdareli kullan.",
-  "Bugün başladığın iş yarım kalmaz. Başla.",
-  "Nasip bugün seninle ama alıngan. Şükret.",
-  "Bugün kimseyi bekletme; yoksa bekleyen sen olursun.",
-  "Şansın renkli bugün. Gri giyme.",
-  "Bugün bir çiçeği sula. Karşılığı var.",
-  "Aklındaki kişiye yaz. Nasip cesuru sever.",
-  "Bugün trafikte söylenme; kader plakanı biliyor.",
-  "Öğle uykusu bugün mübah. Kaçırma.",
-  "Bugün hesap kitap günü değil. Yarın say.",
-  "Bir kapı kapanırsa zorlama bugün. Pencereye bak.",
-  "Bugün aldığın her “tamam” senettir. Not al.",
-  "Nasip bugün erkenci. Sabahı boş geçirme.",
-  "Mesele şemsiye değil, niyet. Niyetini düzelt, öyle çık.",
-  "Kırgınlık taşıma bugün. Ağır.",
-  "Bugün bir kere “hayır” demeyi dene. Nasip sınır sever."
-];
-var DUSUNCELER = [
-  "kader yoklanıyor…","kısmet defteri açılıyor…","niyet okunuyor…",
-  "yıldızlara danışılıyor…","alın yazısı büyütülüyor…","kahve telvesine bakılıyor…","nasip sorgulanıyor…"
-];
-var ORNEKLER = ["Zam alacak mıyım?","O mesaj gelecek mi?","Yarın erken kalkabilecek miyim?","Bu iş olacak mı?","Piyango bana çıkar mı?"];
+/* ————— arayüz ————— */
+
 var MUHURLER = {var:"NASİP VAR", yok:"NASİP YOK", bekle:"BEKLEMEDE", kapandi:"DOSYA KAPANDI"};
 
-/* deterministik: aynı soru → aynı kayıt */
-function duzle(s){
-  return s.toLocaleLowerCase("tr-TR")
-    .replace(/[.,!?;:"'“”‘’()\[\]]/g," ")
-    .replace(/\s+/g," ").trim();
-}
-function hashle(s){
-  var h = 2166136261;
-  for (var i = 0; i < s.length; i++){
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
-function cevapla(soru){
-  var d = duzle(soru);
-  var h = hashle(d);
-  var c = OZEL[d] || CEVAPLAR[h % CEVAPLAR.length];
-  return {c:c, no:1000 + (h % 9000)};
-}
+/* kader.json çekilemezse site yine çalışsın diye küçük yedek */
+var YEDEK = {
+  ayar:{donemGun:7, donemBaslangic:"2024-01-01", asgariGovde:2,
+        kutupAgirlik:{var:33,yok:30,bekle:35,kapandi:2}, konuEsik:1,
+        konuAgirlik:3, tipAgirlik:3, genelAgirlik:1},
+  durak:["acaba","bir","bu","ben","ne","ya","yoksa","ki","için","çok","daha"],
+  tipDesen:{secim:["yoksa","hangisi"], zaman:["ne zaman","kac yil"], nicel:["kac","ne kadar"],
+            kisi:["kim","kimle"], yer:["nerede","nereye"], neden:["neden","niye"], nasil:["nasil"]},
+  konular:{},
+  hukum:{
+    var:["Nasipte varmış. Hazırlan.","Yazılmış bir kere; bozulmaz.","Kapı açık bırakılmış. Yürü.","Olacak. Telaş etme, olacak."],
+    yok:["Bu devirde nasip değilmiş.","Kısmet başka bahara.","Olmayacak duaya âmin denmez.","Bu defterde o satır boş çıktı."],
+    bekle:["Ne evet ne hayır: nasip meselesi.","Hayırlısı neyse o.","Kader acele sevmez. Bekle.","Nasip var da tarihi belli değil."],
+    kapandi:["Eeee? Bu gadar."]
+  },
+  konuHukum:{}, tipHukum:{},
+  okumaTip:{evet_hayir:["Niyetin okundu."], zaman:["Takvim soruyorsun."], nicel:["Rakam sormuşsun."],
+            kisi:["Bir isim aranıyor."], yer:["Bir yer aranıyor."], neden:["Sebep sormuşsun."],
+            nasil:["Usul sormuşsun."], secim:["İki yol arasında kalmışsın."], acik:["Soru geniş."]},
+  okumaKonu:{genel:["Niyetin okundu.","Defter açıldı, sayfa bulundu."]},
+  tavsiye:{
+    var:["Şükrünü unutma.","Acele etme, ama hazır ol."],
+    yok:["Israr etme; sonucu değiştirmez.","Kapanan kapıya bakma."],
+    bekle:["Sabret. Sabrın bittiği yerde cevap gelir.","Bir hafta sonra tekrar sor."],
+    kapandi:["Dosya kapandı. Başka soru?"]
+  },
+  ozel:{},
+  gunluk:["Bugün ağzından çıkana dikkat: nasip kulak misafiri.","Bir bardak çay içmeden karar verme.","Bugün liste yap. Kader düzenli sever."],
+  dusunceler:["kader yoklanıyor…","kısmet defteri açılıyor…","niyet okunuyor…"],
+  ornekler:["Zam alacak mıyım?","Bu iş olacak mı?","Ne zaman kavuşacağım?"]
+};
 
 var $ = function(id){ return document.getElementById(id); };
 var giris = $("giris"), form = $("form"), soruEl = $("soru"),
     sorBtn = $("sor"), cevapEl = $("cevap"), hataEl = $("hata");
 var azHareket = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-var paylasilan = null;
+
+var VERI = null, HAZIR = false, DONEM = 0, YEDEKTE = false;
+var oturumBellek = {};   /* aynı oturumda aynı soru → aynı cevap, depolama yok */
+var bekleyen = null;
+
+/* paylaşılan link: #q=<soru>&d=<dönem> */
+var paylasilan = null, paylasilanDonem = null;
 try {
-  var m = location.hash.match(/[#&]q=([^&]+)/);
-  if (m) paylasilan = decodeURIComponent(m[1]);
+  var mq = location.hash.match(/[#&]q=([^&]*)/);
+  if (mq) paylasilan = decodeURIComponent(mq[1]);
+  var md = location.hash.match(/[#&]d=(-?\d+)/);
+  if (md) paylasilanDonem = parseInt(md[1], 10);
 } catch(e){}
 
-/* açılış animasyonu */
+/* ————— veri yükleme ————— */
+function veriyiKur(v, yedekMi){
+  VERI = Kader.hazirla(v);
+  YEDEKTE = !!yedekMi;
+  DONEM = (paylasilanDonem !== null && !isNaN(paylasilanDonem))
+    ? paylasilanDonem
+    : Kader.donemHesapla(VERI.ayar, Date.now());
+  HAZIR = true;
+  sorBtn.disabled = false;
+  sorBtn.textContent = "Kadere Danış";
+  gunuYaz();
+  ornekleriBaslat();
+  if (bekleyen){ var b = bekleyen; bekleyen = null; sor(b.soru, b.hizli); }
+}
+
+sorBtn.disabled = true;
+sorBtn.textContent = "Defter açılıyor…";
+
+if (window.fetch){
+  fetch("kader.json", {cache:"no-cache"})
+    .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(function(v){ veriyiKur(v, false); })
+    .catch(function(err){
+      if (window.console) console.warn("kader.json yüklenemedi, yedek veri kullanılıyor:", err);
+      veriyiKur(YEDEK, true);
+    });
+} else {
+  veriyiKur(YEDEK, true);
+}
+
+/* ————— açılış animasyonu ————— */
 function girisiKapat(){
   if (giris.hidden) return;
   giris.classList.add("out");
@@ -431,25 +375,28 @@ $("tekrar").addEventListener("click", function(){
   location.reload();
 });
 
-/* örnek soru dolaşımı */
-var ornekIdx = 0;
-window.setInterval(function(){
-  if (document.activeElement === soruEl || soruEl.value) return;
-  ornekIdx = (ornekIdx + 1) % ORNEKLER.length;
-  soruEl.placeholder = ORNEKLER[ornekIdx];
-}, 3500);
+/* ————— örnek soru dolaşımı ————— */
+var ornekZaman = null;
+function ornekleriBaslat(){
+  if (ornekZaman) return;
+  var liste = (VERI && VERI.ornekler && VERI.ornekler.length) ? VERI.ornekler : YEDEK.ornekler;
+  var i = 0;
+  ornekZaman = window.setInterval(function(){
+    if (document.activeElement === soruEl || soruEl.value) return;
+    i = (i + 1) % liste.length;
+    soruEl.placeholder = liste[i];
+  }, 3500);
+}
 
-/* günün nasibi */
-(function(){
+/* ————— günün nasibi ————— */
+function gunuYaz(){
   var simdi = new Date();
-  var yilBasi = new Date(simdi.getFullYear(), 0, 0);
-  var gunNo = Math.floor((simdi - yilBasi) / 86400000);
-  $("gun-nasip").textContent = NASIPLER[(simdi.getFullYear() * 366 + gunNo) % NASIPLER.length];
+  $("gun-nasip").textContent = Kader.gununNasibi(VERI, simdi);
   var tarih = new Intl.DateTimeFormat("tr-TR", {day:"numeric", month:"long", weekday:"long"}).format(simdi);
   $("gun-etiket").textContent = "Günün Nasibi · " + tarih;
-})();
+}
 
-/* sorma akışı */
+/* ————— sorma akışı ————— */
 var mesgul = false;
 function sor(soru, hizli){
   if (mesgul) return;
@@ -464,25 +411,33 @@ function sor(soru, hizli){
     soruEl.focus();
     return;
   }
+  if (!HAZIR){ bekleyen = {soru:temiz, hizli:hizli}; return; }
+
   hataEl.textContent = "";
   mesgul = true;
   sorBtn.disabled = true;
   sorBtn.textContent = "Soruluyor…";
   soruEl.blur();
 
-  var sonuc = cevapla(temiz);
-  history.replaceState(null, "", "#q=" + encodeURIComponent(temiz));
+  var anahtar = Kader.anahtarla(temiz);
+  var sonuc = oturumBellek[anahtar];
+  if (!sonuc){
+    sonuc = Kader.cevapla(temiz, VERI, DONEM);
+    oturumBellek[anahtar] = sonuc;
+  }
+  history.replaceState(null, "", baglanti(temiz));
 
+  var dusunceler = (VERI.dusunceler && VERI.dusunceler.length) ? VERI.dusunceler : YEDEK.dusunceler;
   var dus = document.createElement("p");
   dus.className = "dusunce";
   dus.setAttribute("aria-hidden", "true");
   cevapEl.textContent = "";
   cevapEl.appendChild(dus);
-  var di = Math.floor(Math.random() * DUSUNCELER.length);
-  dus.textContent = DUSUNCELER[di];
+  var di = Math.floor(Math.random() * dusunceler.length);
+  dus.textContent = dusunceler[di];
   var donme = window.setInterval(function(){
-    di = (di + 1) % DUSUNCELER.length;
-    dus.textContent = DUSUNCELER[di];
+    di = (di + 1) % dusunceler.length;
+    dus.textContent = dusunceler[di];
   }, 560);
 
   window.setTimeout(function(){
@@ -492,6 +447,23 @@ function sor(soru, hizli){
     sorBtn.disabled = false;
     sorBtn.textContent = "Kadere Danış";
   }, (hizli || azHareket) ? 400 : 1700);
+}
+
+function baglanti(soru){
+  return "#q=" + encodeURIComponent(soru) + "&d=" + DONEM;
+}
+function tamBaglanti(soru){
+  return location.origin + location.pathname + baglanti(soru);
+}
+
+function devirNotu(){
+  try {
+    var bitis = new Date(Kader.donemAraligi(VERI.ayar, DONEM).bitisMs);
+    var g = new Intl.DateTimeFormat("tr-TR", {day:"numeric", month:"long"}).format(bitis);
+    return "Bu kayıt " + g + " tarihine kadar geçerli; sonra kader yeniden yazılır.";
+  } catch(e){
+    return "Bu kayıt bu devre aittir; devir dönünce kader yeniden yazılır.";
+  }
 }
 
 function goster(soru, sonuc){
@@ -504,13 +476,17 @@ function goster(soru, sonuc){
 
   var yanit = document.createElement("p");
   yanit.className = "yanit";
-  yanit.textContent = sonuc.c.t;
+  yanit.textContent = sonuc.yanit;
+
+  var serh = document.createElement("p");
+  serh.className = "serh";
+  serh.textContent = sonuc.serh;
 
   var satir = document.createElement("div");
   satir.className = "muhur-satir";
   var muhur = document.createElement("span");
-  muhur.className = "muhur " + sonuc.c.k;
-  muhur.textContent = MUHURLER[sonuc.c.k];
+  muhur.className = "muhur " + sonuc.kutup;
+  muhur.textContent = MUHURLER[sonuc.kutup] || "KAYIT";
   var no = document.createElement("span");
   no.className = "kayit-no";
   no.textContent = "Kayıt №" + sonuc.no;
@@ -519,7 +495,7 @@ function goster(soru, sonuc){
 
   var not = document.createElement("p");
   not.className = "not";
-  not.textContent = "Aynı soru, aynı kayıt — kader fikrini değiştirmez.";
+  not.textContent = devirNotu();
 
   var paylas = document.createElement("div");
   paylas.className = "paylas";
@@ -527,9 +503,11 @@ function goster(soru, sonuc){
   kopyala.type = "button";
   kopyala.textContent = "Linki Kopyala";
   kopyala.addEventListener("click", function(){
-    var url = location.origin + location.pathname + "#q=" + encodeURIComponent(soru);
-    var eski = "Linki Kopyala";
-    function tamam(){ kopyala.textContent = "Kopyalandı ✓"; window.setTimeout(function(){ kopyala.textContent = eski; }, 2000); }
+    var url = tamBaglanti(soru);
+    function tamam(){
+      kopyala.textContent = "Kopyalandı ✓";
+      window.setTimeout(function(){ kopyala.textContent = "Linki Kopyala"; }, 2000);
+    }
     if (navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(url).then(tamam, function(){ eskiKopyala(url); tamam(); });
     } else { eskiKopyala(url); tamam(); }
@@ -542,8 +520,8 @@ function goster(soru, sonuc){
     pb.addEventListener("click", function(){
       navigator.share({
         title: "Nasipte Varsa",
-        text: "“" + soru + "” diye sordum, kader “" + sonuc.c.t + "” dedi.",
-        url: location.origin + location.pathname + "#q=" + encodeURIComponent(soru)
+        text: "“" + soru + "” diye sordum, kader “" + sonuc.yanit + "” dedi.",
+        url: tamBaglanti(soru)
       }).catch(function(){});
     });
     paylas.appendChild(pb);
@@ -551,6 +529,7 @@ function goster(soru, sonuc){
 
   kart.appendChild(eko);
   kart.appendChild(yanit);
+  if (sonuc.serh) kart.appendChild(serh);
   kart.appendChild(satir);
   kart.appendChild(not);
   kart.appendChild(paylas);
