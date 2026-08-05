@@ -48,6 +48,15 @@ async function git(sayfa, hash) {
 
 async function kartAl(sayfa) {
   await sayfa.waitForSelector(".kayit", { timeout: 8000 });
+  /* Kayıt numarası sayaç animasyonuyla yerine oturuyor; kararlı hâlini bekle,
+     yoksa test animasyonun ortasındaki geçici rakamı okur. */
+  let onceki = null;
+  for (let i = 0; i < 40; i++) {
+    const simdi = await sayfa.evaluate(() => document.querySelector(".kayit-no")?.textContent || "");
+    if (simdi && simdi === onceki) break;
+    onceki = simdi;
+    await sayfa.waitForTimeout(80);
+  }
   return await sayfa.evaluate(() => {
     const k = document.querySelector(".kayit");
     return {
