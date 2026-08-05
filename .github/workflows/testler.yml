@@ -1,0 +1,68 @@
+# Her push'ta motor regresyon testlerini ve veri bütünlüğünü çalıştırır.
+# Bilinçli olarak bağımlılıksız: yalnızca Node çekirdeği. Tarayıcı testleri
+# (test/test-tarayici.mjs) playwright-core istediği için burada koşmaz;
+# onu elle çalıştır.
+name: testler
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  motor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: kader.json geçerli JSON mu
+        run: node -e "JSON.parse(require('fs').readFileSync('kader.json','utf8')); console.log('kader.json geçerli')"
+
+      - name: Veri bütünlüğü — motorun beklediği havuzlar dolu mu
+        run: |
+          node -e "
+          const v = JSON.parse(require('fs').readFileSync('kader.json','utf8'));
+          const eksik = [];
+          for (const t of ['mujde','uyari','teselli','ferah','belirsiz']) {
+            if (!(v.hukum.ton[t] || []).length) eksik.push('hukum.ton.' + t);
+            if (!(v.tavsiye[t] || []).length) eksik.push('tavsiye.' + t);
+          }
+          for (const k in v.konuHukum) for (const t of ['mujde','uyari','teselli','ferah','belirsiz'])
+            if (!(v.konuHukum[k][t] || []).length) eksik.push('konuHukum.' + k + '.' + t);
+          for (const k in v.tipHukum) for (const d of ['olur','olmaz','belirsiz'])
+            if (!(v.tipHukum[k][d] || []).length) eksik.push('tipHukum.' + k + '.' + d);
+          if (!(v.okumaKonu.genel || []).length) eksik.push('okumaKonu.genel');
+          if (eksik.length) { console.error('Boş havuz:\n  ' + eksik.join('\n  ')); process.exit(1); }
+          console.log('Tüm havuzlar dolu');
+          "
+
+      - name: Cümle biçimi — her satır noktalamayla bitmeli
+        run: |
+          node -e "
+          const v = JSON.parse(require('fs').readFileSync('kader.json','utf8'));
+          const kotu = [];
+          const bak = (yol, liste) => (liste || []).forEach(c => {
+            if (typeof c !== 'string') return;
+            if (!/[.!?…]\$/.test(c.trim())) kotu.push(yol + ': ' + c);
+            if (/\s\s/.test(c)) kotu.push(yol + ' (çift boşluk): ' + c);
+          });
+          for (const t in v.hukum.ton) bak('hukum.ton.' + t, v.hukum.ton[t]);
+          for (const t in v.tavsiye) bak('tavsiye.' + t, v.tavsiye[t]);
+          for (const k in v.konuHukum) for (const t in v.konuHukum[k]) bak('konuHukum.' + k + '.' + t, v.konuHukum[k][t]);
+          for (const k in v.tipHukum) for (const d in v.tipHukum[k]) bak('tipHukum.' + k + '.' + d, v.tipHukum[k][d]);
+          for (const k in v.okumaKonu) bak('okumaKonu.' + k, v.okumaKonu[k]);
+          for (const k in v.okumaTip) bak('okumaTip.' + k, v.okumaTip[k]);
+          bak('gunluk', v.gunluk);
+          if (kotu.length) { console.error('Biçim hatası:\n  ' + kotu.join('\n  ')); process.exit(1); }
+          console.log('Cümle biçimi temiz');
+          "
+
+      - name: Motor regresyon testleri
+        run: node test/test-motor.mjs
+
+      - name: Güvenlik probu
+        run: node test/test-guvenlik.mjs
