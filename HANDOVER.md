@@ -109,10 +109,19 @@ paylaşım için `navigator.canShare({files})`, yoksa indirme. Yerleşim **ölç
 satırlar önce ölçülüp içerik dikeyde ortalanıyor, yoksa uzun cevaplarda çerçeveye biniyor.
 Renkler cilt token'larından okunuyor, yani kart hangi cilt açıksa ona uyuyor.
 
-**Oyunlaştırma.** Mühür sesi WebAudio ile **sentezleniyor** (ses dosyası yok, sıfır bayt)
-ve varsayılan **kapalı** — kimseyi habersiz ses çalarak rahatsız etmiyoruz. Sallama
-DeviceMotion ile; iOS'ta izin gerektiği için önce bir düğmeye basılıyor. Devir geri sayımı
+**Oyunlaştırma.** İki ayrı ses WebAudio ile **sentezleniyor** (ses dosyası yok, sıfır bayt):
+mühür sesi (kayıt görününce) ve daha tok bir **çarpma sesi** (sallama anında, "bir yere
+vurdum" hissi için) — ikisi de `sesAcik` bayrağına saygı duyar ve varsayılan **kapalı**.
+Sallama DeviceMotion ile; iOS izni bir kez sorulur, düğme **açma/kapama** olarak çalışır
+(dinleyici `removeEventListener` ile gerçekten kaldırılır, yoksa telefon boşuna dinlemede
+kalır). Varsa `navigator.vibrate` ile kısa bir titreşim de veriliyor. Devir geri sayımı
 30 saniyede bir güncelleniyor.
+
+**Mobil tuzağı:** ızgara ve esnek kutu öğelerinin varsayılan `min-width` değeri `auto`dur;
+`<input>`'un içsel genişliği (~20 karakter) sütunu `1fr`den taşırır. İkili nasip formu
+390px'te 340px taşıyordu. Çözüm `min-width:0` + dar ekranda tek sütun. Yeni form
+eklerken bunu unutma. Taşma testi artık **üç sekmeyi de** 320/360/390px'te ölçüyor —
+önceki sürüm yalnızca Kader sekmesine bakıyordu, hata bu yüzden kaçmıştı.
 
 **CSP notu:** `img-src` artık `data:` ve `blob:` de kabul ediyor — sırasıyla kâğıt dokusu
 (gömülü SVG) ve fal kartı (canvas blob) için. Başka gevşetme yok.

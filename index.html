@@ -125,7 +125,7 @@ section[role="tabpanel"]:focus{outline:none}
 
 /* form */
 .sorgu{display:flex;gap:10px;margin:22px 0 8px;flex-wrap:wrap}
-.sorgu input{flex:1 1 240px;min-height:52px;padding:12px 18px;font:inherit;font-size:1.05rem;
+.sorgu input{flex:1 1 240px;min-width:0;min-height:52px;padding:12px 18px;font:inherit;font-size:1.05rem;
   color:var(--sut);background:var(--gece2);border:1px solid var(--cizgi);border-radius:14px}
 .sorgu input::placeholder{color:var(--duman);opacity:.75}
 .sorgu button{flex:1 1 auto;min-height:52px;padding:12px 26px;border:0;border-radius:14px;
@@ -193,8 +193,11 @@ body[data-cilt="gece"] .kayit::before,body[data-cilt="neon"] .kayit::before{mix-
 
 /* ——— ikili nasip ——— */
 .ikili-form{display:grid;gap:10px;grid-template-columns:1fr 1fr;margin:20px 0 8px}
-.ikili-form input{min-height:52px;padding:12px 16px;font:inherit;font-size:1rem;color:var(--sut);
-  background:var(--gece2);border:1px solid var(--cizgi);border-radius:14px}
+/* min-width:0 şart: ızgara/esnek öğelerin varsayılan min-width'i auto'dur ve
+   input'un içsel genişliği (~20 karakter) sütunu 1fr'den taşırır. */
+.ikili-form input{min-width:0;width:100%;min-height:52px;padding:12px 16px;font:inherit;font-size:1rem;
+  color:var(--sut);background:var(--gece2);border:1px solid var(--cizgi);border-radius:14px}
+@media (max-width:560px){ .ikili-form{grid-template-columns:1fr} }
 .ikili-form button{grid-column:1/-1;min-height:52px;border:0;border-radius:14px;background:var(--altin);
   color:var(--gece);font:inherit;font-weight:700;cursor:pointer}
 .yuzde{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(2.6rem,12vw,3.6rem);line-height:1;
@@ -526,6 +529,30 @@ function muhurSesi(){
     src.connect(f); f.connect(ng); ng.connect(sesBaglam.destination); src.start(t);
   } catch(e){}
 }
+/* Sallama darbesi: mühürden daha alçak ve gövdeli — bir yere vurmuş hissi. */
+function carpmaSesi(){
+  if (!sesAcik) return;
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    if (!sesBaglam) sesBaglam = new AC();
+    if (sesBaglam.state === "suspended") sesBaglam.resume();
+    var t = sesBaglam.currentTime;
+    var o = sesBaglam.createOscillator(), g = sesBaglam.createGain();
+    o.type = "triangle"; o.frequency.setValueAtTime(120, t);
+    o.frequency.exponentialRampToValueAtTime(38, t + 0.22);
+    g.gain.setValueAtTime(0.26, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
+    o.connect(g); g.connect(sesBaglam.destination); o.start(t); o.stop(t + 0.36);
+    var n = sesBaglam.createBuffer(1, Math.floor(sesBaglam.sampleRate * 0.12), sesBaglam.sampleRate);
+    var d = n.getChannelData(0);
+    for (var i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2);
+    var src = sesBaglam.createBufferSource(), f = sesBaglam.createBiquadFilter(), ng = sesBaglam.createGain();
+    src.buffer = n; f.type = "lowpass"; f.frequency.value = 900; ng.gain.value = 0.20;
+    src.connect(f); f.connect(ng); ng.connect(sesBaglam.destination); src.start(t);
+  } catch(e){}
+}
+
 $("ses").addEventListener("click", function(){
   sesAcik = !sesAcik;
   this.setAttribute("aria-pressed", sesAcik ? "true" : "false");
@@ -538,26 +565,41 @@ $("ses").addEventListener("click", function(){
   var btn = $("salla");
   if (!("DeviceMotionEvent" in window)) return;
   btn.hidden = false;
-  var son = 0, esik = 16;
-  function dinle(){
-    window.addEventListener("devicemotion", function(e){
-      var a = e.accelerationIncludingGravity; if (!a) return;
-      var g = Math.abs(a.x||0) + Math.abs(a.y||0) + Math.abs(a.z||0);
-      var simdi = Date.now();
-      if (g > 25 + esik && simdi - son > 1500){
-        son = simdi;
-        if (!soruEl.value.trim()) rastgeleSor(); else sor(soruEl.value, false);
-      }
-    });
-    btn.textContent = "Salla, sorulsun ✓";
+  var son = 0, esik = 16, acik = false, izinli = false;
+
+  function hareket(e){
+    var a = e.accelerationIncludingGravity; if (!a) return;
+    var g = Math.abs(a.x||0) + Math.abs(a.y||0) + Math.abs(a.z||0);
+    var simdi = Date.now();
+    if (g > 25 + esik && simdi - son > 1500){
+      son = simdi;
+      carpmaSesi();                      /* darbe TAM sallama anında duyulsun */
+      try { if (navigator.vibrate) navigator.vibrate(18); } catch(e2){}
+      if (!soruEl.value.trim()) rastgeleSor(); else sor(soruEl.value, false);
+    }
+  }
+  function ac(){
+    if (acik) return;
+    window.addEventListener("devicemotion", hareket);
+    acik = true;
+    btn.textContent = "Salla, sorulsun ✓ (kapat)";
     btn.setAttribute("aria-pressed", "true");
   }
+  function kapat(){
+    window.removeEventListener("devicemotion", hareket);
+    acik = false;
+    btn.textContent = "Telefonu salla";
+    btn.setAttribute("aria-pressed", "false");
+  }
   btn.addEventListener("click", function(){
+    if (acik) { kapat(); return; }                       /* geri kapatılabilir */
+    if (izinli) { ac(); return; }                        /* izin bir kez sorulur */
     if (typeof DeviceMotionEvent.requestPermission === "function"){
       DeviceMotionEvent.requestPermission().then(function(izin){
-        if (izin === "granted") dinle(); else btn.textContent = "Sallama izni yok";
+        if (izin === "granted"){ izinli = true; ac(); }
+        else btn.textContent = "Sallama izni yok";
       }).catch(function(){ btn.textContent = "Sallama açılamadı"; });
-    } else dinle();
+    } else { izinli = true; ac(); }
   });
 })();
 
@@ -778,9 +820,25 @@ function jeton(ad){ return getComputedStyle(document.body).getPropertyValue(ad).
 
 function sarLine(ctx, metin, genislik){
   var kelime = metin.split(" "), satir = [], simdi = "";
+  function harftenBol(k){
+    /* Tek başına satıra sığmayan kelime (yapıştırılmış uzun dizi) çerçeveyi
+       taşırıyordu; harf harf bölünür. */
+    var p = "";
+    for (var c = 0; c < k.length; c++){
+      if (ctx.measureText(p + k[c]).width > genislik && p){ satir.push(p); p = k[c]; }
+      else p += k[c];
+    }
+    return p;
+  }
   for (var i = 0; i < kelime.length; i++){
-    var dene = simdi ? simdi + " " + kelime[i] : kelime[i];
-    if (ctx.measureText(dene).width > genislik && simdi){ satir.push(simdi); simdi = kelime[i]; }
+    var k = kelime[i];
+    if (ctx.measureText(k).width > genislik){
+      if (simdi){ satir.push(simdi); simdi = ""; }
+      simdi = harftenBol(k);
+      continue;
+    }
+    var dene = simdi ? simdi + " " + k : k;
+    if (ctx.measureText(dene).width > genislik && simdi){ satir.push(simdi); simdi = k; }
     else simdi = dene;
   }
   if (simdi) satir.push(simdi);
