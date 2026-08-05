@@ -104,6 +104,11 @@ tarama çizgileri; **kâğıt** baştan sona serifli dizgi + solda kırmızı ma
 zaten çekemeyiz. Ciltler farkı elimizdeki Fraunces/Poppins'i farklı yerlerde kullanarak
 ve sistem monospace yığınına düşerek kuruyor. Yeni cilt eklerken bunu bozma.
 
+**Cilt seçici.** Cildi devir seçer, bu fikrin kendisi — ama kullanıcı ötekileri hiç
+göremiyordu. Başlık altındaki etiket artık bir düğme: açılınca beş cildi önizleyebiliyor,
+"Devre dön" ile devrin kendi cildine dönülüyor. Seçim URL'e `#cilt=` olarak `replaceState`
+ile yazılır: paylaşılabilir, geçmişi kirletmez, hiçbir şey saklanmaz.
+
 İki denetim var, ikisini de çalıştır: `test/test-arayuz.mjs` §1b (cilt gerçekten yapı
 değiştiriyor mu — %5 eşiği) ve §9 kontrast (ana/ikincil metin ≥4.5, vurgu ve mühür ≥3).
 CI'da ayrıca `.github/cilt-denetimi.mjs` her cilt bloğunda biçim token'ı arıyor.
@@ -173,6 +178,22 @@ Sallama DeviceMotion ile; iOS izni bir kez sorulur, düğme **açma/kapama** ola
 (dinleyici `removeEventListener` ile gerçekten kaldırılır, yoksa telefon boşuna dinlemede
 kalır). Varsa `navigator.vibrate` ile kısa bir titreşim de veriliyor. Devir geri sayımı
 30 saniyede bir güncelleniyor.
+
+**`hidden` tuzağı — bunu bir kez yedik.** Tarayıcının kendi `[hidden]{display:none}`
+kuralı en düşük öncelikliktir. Bir bileşene `display:inline-flex` yazmak onu **sessizce
+ezer** ve öğe `hidden` iken bile çizilir. "Sallayınca sor" düğmesi masaüstünde tam bu
+yüzden görünüyordu: JS `hidden = true` diyordu, `.anahtar{display:inline-flex}` üstüne
+yazıyordu. Artık global `[hidden]{display:none !important}` var, silme.
+**Testte `el.hidden` okumak yetmez** — o özellik doğruydu ve test geçiyordu. Görünürlük
+ölçülmeli (`offsetParent`, `getComputedStyle().display`, `page.isVisible`). §1d ayrıca
+sayfadaki bütün `[hidden]` öğeleri tarayıp hiçbirinin çizilmediğini doğruluyor.
+
+**"Sallayınca sor" yalnızca dokunmatikte.** `DeviceMotionEvent` masaüstü Chrome'da da
+**tanımlıdır**, ivmeölçer olmasa bile; tek başına varlık denetimi yanlış. Doğru soru
+"bu cihazın birincil girdisi dokunma mı": `(pointer: coarse) and (hover: none)`.
+**Ölçülmemiş durum:** dokunmatik ekranlı ama fareyle kullanılan dizüstü. Playwright'ın
+`hasTouch` emülasyonu pointer'ı zorla `coarse` yaptığı için o senaryo testte
+canlandırılamıyor; davranış yalnızca CSS sorgusunun anlamına dayanıyor.
 
 **Mobil tuzağı:** ızgara ve esnek kutu öğelerinin varsayılan `min-width` değeri `auto`dur;
 `<input>`'un içsel genişliği (~20 karakter) sütunu `1fr`den taşırır. İkili nasip formu

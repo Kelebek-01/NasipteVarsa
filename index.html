@@ -132,6 +132,13 @@ body[data-cilt="kagit"]{
 }
 
 *,*::before,*::after{box-sizing:border-box}
+/* `hidden` özelliğini yazar stilinden koru.
+   Tarayıcının kendi kuralı `[hidden]{display:none}` en düşük öncelikliktir; bir
+   bileşene `display:inline-flex` yazmak onu SESSİZCE ezer ve öğe `hidden` iken
+   bile çizilir. "Sallayınca sor" düğmesi masaüstünde tam bu yüzden görünüyordu:
+   JS `hidden = true` diyordu, `.anahtar{display:inline-flex}` üstüne yazıyordu.
+   Testin `el.hidden` okuması da bunu yakalamaz — görünürlük ölçülmeli. */
+[hidden]{display:none !important}
 body{
   margin:0; background:var(--gece); background-image:var(--isik);
   color:var(--sut); font-family:var(--govde-yazi);
@@ -162,7 +169,22 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 header.ust{text-align:center;padding-top:8px}
 .marka{font-weight:700;font-size:1.05rem;letter-spacing:.02em;color:var(--sut);text-decoration:none;display:inline-block}
 .marka .nokta{color:var(--altin)}
-.cilt-etiket{margin:6px 0 0;font-size:var(--ol-0);letter-spacing:.18em;text-transform:uppercase;color:var(--duman)}
+.cilt-satir{margin:6px 0 0}
+.cilt-etiket{display:inline-flex;align-items:center;gap:7px;border:0;background:transparent;padding:4px 2px;
+  min-height:32px;font:inherit;font-family:var(--govde-yazi);font-size:var(--ol-0);letter-spacing:.18em;
+  text-transform:uppercase;color:var(--duman);cursor:pointer;border-radius:6px;transition:color .18s ease}
+.cilt-etiket:hover{color:var(--sut)}
+.cilt-etiket::after{content:"▾";font-size:.9em;letter-spacing:0;transition:transform .2s ease}
+.cilt-etiket[aria-expanded="true"]::after{transform:rotate(180deg)}
+.cilt-secici{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px 0 0}
+.cilt-secici[hidden]{display:none}
+.cilt-secici button{border:1px solid var(--cizgi);background:transparent;color:var(--duman);
+  font:inherit;font-family:var(--govde-yazi);font-size:.78rem;padding:6px 12px;min-height:34px;
+  border-radius:var(--cip-yuvarlak);cursor:pointer;transition:color .18s,border-color .18s}
+.cilt-secici button:hover{color:var(--sut);border-color:var(--duman)}
+.cilt-secici button[aria-pressed="true"]{color:var(--altin);border-color:var(--altin);
+  background:color-mix(in srgb,var(--altin) 10%,transparent)}
+.cilt-secici button.devre{border-style:dashed}
 
 /* ——— defter sekmeleri ——— */
 .defter-nav{display:flex;gap:6px;justify-content:center;margin:22px 0 4px;flex-wrap:wrap}
@@ -440,7 +462,11 @@ body[data-cilt="neon"]::after{
 <div class="sayfa">
   <header class="ust yuksel">
     <a class="marka" href="/" translate="no">nasipte varsa<span class="nokta">.</span></a>
-    <p class="cilt-etiket" id="cilt-etiket"></p>
+    <p class="cilt-satir">
+      <button type="button" class="cilt-etiket" id="cilt-etiket"
+              aria-expanded="false" aria-controls="cilt-secici"></button>
+    </p>
+    <div class="cilt-secici" id="cilt-secici" hidden></div>
   </header>
 
   <nav class="defter-nav yuksel" role="tablist" aria-label="Defter sayfaları">
@@ -626,6 +652,7 @@ function veriyiKur(v, yedekMi){
            paylasilanDonem <= simdikiDonem && paylasilanDonem >= simdikiDonem - 1)
     ? paylasilanDonem : simdikiDonem;
   HAZIR = true;
+  ciltSeciciKur();
   ciltUygula();
   sorBtn.disabled = false;
   sorBtn.textContent = "Kadere Danış";
@@ -648,19 +675,63 @@ if (window.fetch){
     });
 } else { veriyiKur(YEDEK, true); }
 
-/* ═════════ cilt ═════════ */
+/* ═════════ cilt ═════════
+   Cildi devir seçer; bu fikrin kendisi. Ama kullanıcı ötekileri hiç göremiyordu.
+   Etiket artık bir düğme: açılınca beş cilt önizlenebiliyor, "Devre dön" ile
+   devrin kendi cildine geri dönülüyor. Seçim URL'e `#cilt=` olarak yazılır
+   (paylaşılabilir, sıfır depolama) ve tarayıcı geçmişini kirletmemek için
+   pushState değil replaceState kullanılır. */
 function ciltUygula(){
   var liste = VERI.ciltler || [];
   var c = null;
   if (ciltZorla){ for (var i=0;i<liste.length;i++) if (liste[i].id === ciltZorla) c = liste[i]; }
-  if (!c) c = Kader.ciltSec(DONEM, liste);
+  var devrin = Kader.ciltSec(DONEM, liste);
+  var onizleme = !!c && (!devrin || c.id !== devrin.id);
+  if (!c) c = devrin;
   if (!c) return;
   CILT = c;
   document.body.setAttribute("data-cilt", c.id);
-  $("cilt-etiket").textContent = "Bu devrin cildi · " + c.ad;
+  $("cilt-etiket").textContent = (onizleme ? "Cilt · " : "Bu devrin cildi · ") + c.ad;
   var tema = getComputedStyle(document.body).getPropertyValue("--gece").trim();
   var m = document.querySelector('meta[name="theme-color"]');
   if (m && tema) m.setAttribute("content", tema);
+  var kap = $("cilt-secici");
+  Array.prototype.forEach.call(kap.querySelectorAll("button[data-cilt]"), function(b){
+    b.setAttribute("aria-pressed", b.getAttribute("data-cilt") === c.id ? "true" : "false");
+  });
+  var dev = kap.querySelector("button.devre");
+  if (dev) dev.hidden = !onizleme;
+}
+
+function ciltSeciciKur(){
+  var kap = $("cilt-secici"), liste = VERI.ciltler || [], etiket = $("cilt-etiket");
+  if (liste.length < 2){ etiket.disabled = true; etiket.removeAttribute("aria-expanded"); return; }
+  kap.textContent = "";
+  function sec(id){
+    ciltZorla = id;
+    ciltUygula();
+    try {
+      history.replaceState(null, "", id ? (location.pathname + "#cilt=" + id) : location.pathname);
+    } catch(e){}
+  }
+  liste.forEach(function(c){
+    var b = document.createElement("button");
+    b.type = "button"; b.setAttribute("data-cilt", c.id); b.setAttribute("aria-pressed", "false");
+    b.textContent = c.ad;
+    b.addEventListener("click", function(){ sec(c.id); });
+    kap.appendChild(b);
+  });
+  var dev = document.createElement("button");
+  dev.type = "button"; dev.className = "devre"; dev.textContent = "Devre dön"; dev.hidden = true;
+  dev.addEventListener("click", function(){ sec(null); });
+  kap.appendChild(dev);
+
+  etiket.addEventListener("click", function(){
+    var acik = this.getAttribute("aria-expanded") === "true";
+    this.setAttribute("aria-expanded", acik ? "false" : "true");
+    kap.hidden = acik;
+    if (!acik){ var ilk = kap.querySelector("button"); if (ilk) ilk.focus(); }
+  });
 }
 
 /* ═════════ açılış ═════════ */
@@ -778,7 +849,18 @@ $("ses").addEventListener("click", function(){
 /* ═════════ sallama (mobil) ═════════ */
 (function(){
   var btn = $("salla");
-  if (!("DeviceMotionEvent" in window)) return;
+  /* Masaüstü Chrome'da da `DeviceMotionEvent` TANIMLIDIR — ivmeölçer olmasa bile.
+     Tek başına varlık denetimi düğmeyi masaüstünde de gösteriyordu; kullanıcı
+     açıyordu, hiçbir şey olmuyordu. Asıl sorulacak şey "bu cihazın birincil
+     girdisi dokunma mı": (pointer:coarse) + (hover:none). Dokunmatik ekranlı
+     ama fareyle kullanılan dizüstünde birincil işaretçi `fine` olduğu için
+     düğme yine gizli kalır — istediğimiz de bu. */
+  var dokunmatik = false;
+  try {
+    dokunmatik = window.matchMedia &&
+                 window.matchMedia("(pointer: coarse) and (hover: none)").matches;
+  } catch(e){}
+  if (!("DeviceMotionEvent" in window) || !dokunmatik) return;
   btn.hidden = false;
   var son = 0, esik = 16, acik = false, izinli = false;
 
