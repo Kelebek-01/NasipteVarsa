@@ -1,12 +1,16 @@
 {
   "surum": 3,
   "_okuma": "Sitenin tüm kader verisi. Şema ve kurallar için HANDOVER.md. Kritik: konuHukum ve hukum.ton TON'a göre ayrılır (mujde/uyari/teselli/ferah/belirsiz); tipHukum ise KADER'e göre (olur/olmaz/belirsiz) ve tondan bağımsız yazılmalıdır.",
-
   "ayar": {
     "donemGun": 7,
     "donemBaslangic": "2024-01-01",
     "asgariGovde": 2,
-    "kaderAgirlik": { "olur": 33, "olmaz": 30, "belirsiz": 35, "kapandi": 2 },
+    "kaderAgirlik": {
+      "olur": 33,
+      "olmaz": 30,
+      "belirsiz": 35,
+      "kapandi": 2
+    },
     "konuEsik": 0.6,
     "ngramEsik": 0.72,
     "konuAgirlik": 3,
@@ -15,119 +19,652 @@
     "tonAgirlikKorku": 6,
     "tekrarEsigi": 0.62
   },
-
   "_ekNotu": "Arketip yazımı: A=a|e, H=ı|i|u|ü, D=d|t, C=c|ç, (y)(n)(s)=ünlüden sonra beliren yardımcı ünsüz, (H)=ünsüzden sonra beliren yardımcı ünlü. Motor bu şablonun yüzey biçimini gövdeden ÜRETİR ve tutmuyorsa soymaz. TÜRETİM ekleri (lH, CH, lHK, sHz) bilinçli olarak yoktur: 'okulu'yu 'oku'ya indiriyorlardı.",
   "ekler": [
-    "lAr", "lArH", "(y)H", "(y)A", "DA", "DAn", "(n)Hn", "(s)H",
-    "(H)m", "(H)mHz", "(H)n", "(H)nHz", "(y)lA", "(n)DA", "(n)DAn", "(n)H", "(n)A",
-    "(H)yor", "mHyor", "(y)AcAk", "DH", "mHş", "(y)Abil", "mAlH", "sA",
-    "mA", "mAz", "mAk", "DHk", "(y)Hm", "sHn", "(y)Hz", "sHnHz",
-    "DHr", "(H)r", "Ar"
+    "lAr",
+    "lArH",
+    "(y)H",
+    "(y)A",
+    "DA",
+    "DAn",
+    "(n)Hn",
+    "(s)H",
+    "(H)m",
+    "(H)mHz",
+    "(H)n",
+    "(H)nHz",
+    "(y)lA",
+    "(n)DA",
+    "(n)DAn",
+    "(n)H",
+    "(n)A",
+    "(H)yor",
+    "mHyor",
+    "(y)AcAk",
+    "DH",
+    "mHş",
+    "(y)Abil",
+    "mAlH",
+    "sA",
+    "mA",
+    "mAz",
+    "mAk",
+    "DHk",
+    "(y)Hm",
+    "sHn",
+    "(y)Hz",
+    "sHnHz",
+    "DHr",
+    "(H)r",
+    "Ar"
   ],
-
   "soruEki": [
-    "mı", "mi", "mu", "mü", "mıyım", "miyim", "muyum", "müyüm",
-    "mısın", "misin", "musun", "müsün", "mıyız", "miyiz", "muyuz", "müyüz",
-    "mısınız", "misiniz", "musunuz", "müsünüz", "mıdır", "midir", "mudur", "müdür",
-    "mıydı", "miydi", "muydu", "müydü", "mıymış", "miymiş"
+    "mı",
+    "mi",
+    "mu",
+    "mü",
+    "mıyım",
+    "miyim",
+    "muyum",
+    "müyüm",
+    "mısın",
+    "misin",
+    "musun",
+    "müsün",
+    "mıyız",
+    "miyiz",
+    "muyuz",
+    "müyüz",
+    "mısınız",
+    "misiniz",
+    "musunuz",
+    "müsünüz",
+    "mıdır",
+    "midir",
+    "mudur",
+    "müdür",
+    "mıydı",
+    "miydi",
+    "muydu",
+    "müydü",
+    "mıymış",
+    "miymiş"
   ],
-
   "durak": [
-    "acaba", "ama", "ancak", "bana", "beni", "benim", "ben", "bence", "bir", "biraz",
-    "bu", "bunu", "bunun", "çok", "da", "de", "daha", "diye", "eğer", "en", "gibi",
-    "hem", "hep", "her", "hiç", "ile", "için", "ise", "ki", "kadar", "o", "onu",
-    "sana", "sen", "senin", "şu", "ve", "veya", "ya", "yani", "yoksa", "zaten",
-    "artık", "sadece", "yine", "peki", "sence", "galiba", "belki", "abi", "abla",
-    "zaman", "vakit", "sonra", "önce", "şey", "olay", "durum", "kere", "defa", "tane",
-    "lan", "be", "hani", "işte", "falan", "filan", "gerçekten", "valla", "yahu"
+    "acaba",
+    "ama",
+    "ancak",
+    "bana",
+    "beni",
+    "benim",
+    "ben",
+    "bence",
+    "bir",
+    "biraz",
+    "bu",
+    "bunu",
+    "bunun",
+    "çok",
+    "da",
+    "de",
+    "daha",
+    "diye",
+    "eğer",
+    "en",
+    "gibi",
+    "hem",
+    "hep",
+    "her",
+    "hiç",
+    "ile",
+    "için",
+    "ise",
+    "ki",
+    "kadar",
+    "o",
+    "onu",
+    "sana",
+    "sen",
+    "senin",
+    "şu",
+    "ve",
+    "veya",
+    "ya",
+    "yani",
+    "yoksa",
+    "zaten",
+    "artık",
+    "sadece",
+    "yine",
+    "peki",
+    "sence",
+    "galiba",
+    "belki",
+    "abi",
+    "abla",
+    "zaman",
+    "vakit",
+    "sonra",
+    "önce",
+    "şey",
+    "olay",
+    "durum",
+    "kere",
+    "defa",
+    "tane",
+    "lan",
+    "be",
+    "hani",
+    "işte",
+    "falan",
+    "filan",
+    "gerçekten",
+    "valla",
+    "yahu"
   ],
-
   "tipDesen": {
-    "secim": ["yoksa", "hangisi", "hangisini", "hangisine", "hangi biri", "mi yoksa", "mi kalsam", "mi etsem"],
-    "zaman": ["ne zaman", "ne vakit", "kac yil", "kac ay", "kac gun", "kac hafta", "kac sene",
-              "kacinci", "hangi yil", "hangi ay", "ne zamana", "kaca kadar", "kac yasinda"],
-    "nicel": ["kac", "ne kadar", "kaca", "kacta", "yuzde kac", "kac tane", "kac kere", "kac kisi"],
-    "kisi": ["kim", "kimle", "kiminle", "kimi", "kimin", "kimden", "kime"],
-    "yer": ["nerede", "nereye", "nereden", "neresi", "nerde", "nerye", "hangi sehir", "hangi ulke"],
-    "neden": ["neden", "niye", "nicin", "sebebi ne", "niden"],
-    "nasil": ["nasil", "ne yapmaliyim", "ne yapsam", "nasil yaparim", "ne yapmam", "nasil olur"]
+    "secim": [
+      "yoksa",
+      "hangisi",
+      "hangisini",
+      "hangisine",
+      "hangi biri",
+      "mi yoksa",
+      "mi kalsam",
+      "mi etsem"
+    ],
+    "zaman": [
+      "ne zaman",
+      "ne vakit",
+      "kac yil",
+      "kac ay",
+      "kac gun",
+      "kac hafta",
+      "kac sene",
+      "kacinci",
+      "hangi yil",
+      "hangi ay",
+      "ne zamana",
+      "kaca kadar",
+      "kac yasinda"
+    ],
+    "nicel": [
+      "kac",
+      "ne kadar",
+      "kaca",
+      "kacta",
+      "yuzde kac",
+      "kac tane",
+      "kac kere",
+      "kac kisi"
+    ],
+    "kisi": [
+      "kim",
+      "kimle",
+      "kiminle",
+      "kimi",
+      "kimin",
+      "kimden",
+      "kime"
+    ],
+    "yer": [
+      "nerede",
+      "nereye",
+      "nereden",
+      "neresi",
+      "nerde",
+      "nerye",
+      "hangi sehir",
+      "hangi ulke"
+    ],
+    "neden": [
+      "neden",
+      "niye",
+      "nicin",
+      "sebebi ne",
+      "niden"
+    ],
+    "nasil": [
+      "nasil",
+      "ne yapmaliyim",
+      "ne yapsam",
+      "nasil yaparim",
+      "ne yapmam",
+      "nasil olur"
+    ]
   },
-
   "konular": {
-    "ask": { "ad": "gönül", "kokler": [
-      "sev", "aşk", "aşık", "sevgi", "sevgili", "nişan", "evlen", "evlilik", "ayrıl", "boşan",
-      "flört", "gönül", "kalp", "romantik", "kavuş", "nikah", "düğün", "kıskan", "aldat",
-      "barışmak", "terk", "eş", "nişanlı", "sevda", "hoşlan", "ilişki", "çift", "yalnızlık" ] },
-    "para": { "ad": "kısmet", "kokler": [
-      "para", "zam", "maaş", "borç", "kredi", "zengin", "kazanç", "ödeme", "fatura", "bütçe",
-      "piyango", "loto", "yatırım", "altın", "dolar", "kira", "birikim", "harcama", "satın",
-      "bahis", "miras", "prim", "ikramiye", "faiz", "taksit", "banka", "servet", "ucuz", "pahalı" ] },
-    "is": { "ad": "ekmek", "kokler": [
-      "iş", "işe", "işi", "işten", "terfi", "kariyer", "patron", "müdür", "mülakat", "kovul",
-      "istifa", "şirket", "proje", "ofis", "meslek", "atama", "kadro", "sözleşme", "mesai",
-      "staj", "başvuru", "işsiz", "çalışmak", "maaşlı", "pozisyon", "görüşme", "zam almak" ] },
-    "saglik": { "ad": "beden", "kokler": [
-      "sağlık", "hasta", "iyileş", "ameliyat", "doktor", "tedavi", "ağrı", "kilo", "zayıf",
-      "spor", "uyku", "psikolog", "terapi", "hamile", "gebe", "ilaç", "tahlil", "rapor",
-      "hastane", "kanser", "grip", "yorgun", "uykusuz", "diyet", "şifa", "mide", "baş ağrısı" ] },
-    "egitim": { "ad": "defter", "kokler": [
-      "sınav", "yks", "kpss", "ales", "yds", "üniversite", "okul", "ders", "burs", "lisans",
-      "mezun", "ödev", "diploma", "ehliyet", "kurs", "sertifika", "tez", "bölüm", "öğrenci",
-      "not ortalaması", "final", "vize sınavı", "hoca", "öğretmen", "sınıf" ] },
-    "yol": { "ad": "yol", "kokler": [
-      "taşın", "vize", "pasaport", "yurtdışı", "göç", "seyahat", "tatil", "uçak", "yurt",
-      "şehir", "ülke", "yolculuk", "yolcu", "bilet", "konsolosluk", "adres", "göçmen",
-      "gurbet", "memleket", "havalimanı", "otobüs", "tren", "ikamet" ] }
+    "ask": {
+      "ad": "gönül",
+      "kokler": [
+        "sev",
+        "aşk",
+        "aşık",
+        "sevgi",
+        "sevgili",
+        "nişan",
+        "evlen",
+        "evlilik",
+        "ayrıl",
+        "boşan",
+        "flört",
+        "gönül",
+        "kalp",
+        "romantik",
+        "kavuş",
+        "nikah",
+        "düğün",
+        "kıskan",
+        "aldat",
+        "barışmak",
+        "terk",
+        "eş",
+        "nişanlı",
+        "sevda",
+        "hoşlan",
+        "ilişki",
+        "çift",
+        "yalnızlık"
+      ]
+    },
+    "para": {
+      "ad": "kısmet",
+      "kokler": [
+        "para",
+        "zam",
+        "maaş",
+        "borç",
+        "kredi",
+        "zengin",
+        "kazanç",
+        "ödeme",
+        "fatura",
+        "bütçe",
+        "piyango",
+        "loto",
+        "yatırım",
+        "altın",
+        "dolar",
+        "kira",
+        "birikim",
+        "harcama",
+        "satın",
+        "bahis",
+        "miras",
+        "prim",
+        "ikramiye",
+        "faiz",
+        "taksit",
+        "banka",
+        "servet",
+        "ucuz",
+        "pahalı"
+      ]
+    },
+    "is": {
+      "ad": "ekmek",
+      "kokler": [
+        "iş",
+        "işe",
+        "işi",
+        "işten",
+        "terfi",
+        "kariyer",
+        "patron",
+        "müdür",
+        "mülakat",
+        "kovul",
+        "istifa",
+        "şirket",
+        "proje",
+        "ofis",
+        "meslek",
+        "atama",
+        "kadro",
+        "sözleşme",
+        "mesai",
+        "staj",
+        "başvuru",
+        "işsiz",
+        "çalışmak",
+        "maaşlı",
+        "pozisyon",
+        "görüşme",
+        "zam almak"
+      ]
+    },
+    "saglik": {
+      "ad": "beden",
+      "kokler": [
+        "sağlık",
+        "hasta",
+        "iyileş",
+        "ameliyat",
+        "doktor",
+        "tedavi",
+        "ağrı",
+        "kilo",
+        "zayıf",
+        "spor",
+        "uyku",
+        "psikolog",
+        "terapi",
+        "hamile",
+        "gebe",
+        "ilaç",
+        "tahlil",
+        "rapor",
+        "hastane",
+        "kanser",
+        "grip",
+        "yorgun",
+        "uykusuz",
+        "diyet",
+        "şifa",
+        "mide",
+        "baş ağrısı"
+      ]
+    },
+    "egitim": {
+      "ad": "defter",
+      "kokler": [
+        "sınav",
+        "yks",
+        "kpss",
+        "ales",
+        "yds",
+        "üniversite",
+        "okul",
+        "ders",
+        "burs",
+        "lisans",
+        "mezun",
+        "ödev",
+        "diploma",
+        "ehliyet",
+        "kurs",
+        "sertifika",
+        "tez",
+        "bölüm",
+        "öğrenci",
+        "not ortalaması",
+        "final",
+        "vize sınavı",
+        "hoca",
+        "öğretmen",
+        "sınıf"
+      ]
+    },
+    "yol": {
+      "ad": "yol",
+      "kokler": [
+        "taşın",
+        "vize",
+        "pasaport",
+        "yurtdışı",
+        "göç",
+        "seyahat",
+        "tatil",
+        "uçak",
+        "yurt",
+        "şehir",
+        "ülke",
+        "yolculuk",
+        "yolcu",
+        "bilet",
+        "konsolosluk",
+        "adres",
+        "göçmen",
+        "gurbet",
+        "memleket",
+        "havalimanı",
+        "otobüs",
+        "tren",
+        "ikamet"
+      ]
+    }
   },
-
   "_arzuNotu": "Arzu ekseni mührün anlamını düzeltir. 'İşten kovulacak mıyım?' sorusuna 'NASİP VAR' basmak tonu ters çevirir. korkuKokler soranın olmasından çekindiği olayları, istekKokler umduğu olayları listeler. Olumsuz çekim (-mA-) ekseni kendiliğinden ters çevirir.",
   "_kokBicimi": "Tüm kökler KÖK biçiminde yazılır (mastar değil): 'bat' evet, 'batmak' hayır. Motor bu listeleri gövdelemez; soru gövdesiyle birebir ya da önek olarak eşleştirir.",
   "korkuKokler": [
-    "kovul", "işsiz", "ayrıl", "boşan", "aldat", "terk", "kaybet", "öl", "ölüm",
-    "kanser", "bat", "iflas", "reddedil", "zarar", "kaza", "ceza", "hapis", "haciz",
-    "yalnız", "unutul", "azarla", "kavga", "bozul", "kesil", "kötü", "başarısız",
-    "borçlan", "üzül", "kork", "yıkıl", "kal", "sürün", "kırıl", "elen", "dağıl",
-    "hastalan", "kötüleş", "azal", "kaçır", "gecik", "reddet", "iptal", "cezalan",
-    "kapan", "biteceğ", "nüksey", "kandırıl", "sömürül", "atıl", "çakıl", "üzücü"
+    "kovul",
+    "işsiz",
+    "ayrıl",
+    "boşan",
+    "aldat",
+    "terk",
+    "kaybet",
+    "öl",
+    "ölüm",
+    "kanser",
+    "bat",
+    "iflas",
+    "reddedil",
+    "zarar",
+    "kaza",
+    "ceza",
+    "hapis",
+    "haciz",
+    "yalnız",
+    "unutul",
+    "azarla",
+    "kavga",
+    "bozul",
+    "kesil",
+    "kötü",
+    "başarısız",
+    "borçlan",
+    "üzül",
+    "kork",
+    "yıkıl",
+    "kal",
+    "sürün",
+    "kırıl",
+    "elen",
+    "dağıl",
+    "hastalan",
+    "kötüleş",
+    "azal",
+    "kaçır",
+    "gecik",
+    "reddet",
+    "iptal",
+    "cezalan",
+    "kapan",
+    "biteceğ",
+    "nüksey",
+    "kandırıl",
+    "sömürül",
+    "atıl",
+    "çakıl",
+    "üzücü"
   ],
   "istekKokler": [
-    "kazan", "geç", "kavuş", "evlen", "iyileş", "terfi", "başar", "zengin", "onaylan",
-    "kabul", "art", "barış", "mezun", "sevil", "mutlu", "şifa", "kurtul", "düzel",
-    "toparlan", "yüksel", "kapat", "bit", "bul", "al", "çık", "gel", "gir", "aç",
-    "yeter", "artacak", "iyileşecek", "atla", "hallol", "çözül", "rahatla", "sevin",
-    "işe gir", "yol al", "denk", "başla", "tamamla", "hamile", "müjde"
+    "kazan",
+    "geç",
+    "kavuş",
+    "evlen",
+    "iyileş",
+    "terfi",
+    "başar",
+    "zengin",
+    "onaylan",
+    "kabul",
+    "art",
+    "barış",
+    "mezun",
+    "sevil",
+    "mutlu",
+    "şifa",
+    "kurtul",
+    "düzel",
+    "toparlan",
+    "yüksel",
+    "kapat",
+    "bit",
+    "bul",
+    "al",
+    "çık",
+    "gel",
+    "gir",
+    "aç",
+    "yeter",
+    "artacak",
+    "iyileşecek",
+    "atla",
+    "hallol",
+    "çözül",
+    "rahatla",
+    "sevin",
+    "işe gir",
+    "yol al",
+    "denk",
+    "başla",
+    "tamamla",
+    "hamile",
+    "müjde"
   ],
   "_notrNotu": "Soranın kişisel umut/korkusunu taşımayan, dış dünyaya ait olaylar.",
   "notrKokler": [
-    "hava", "yağmur", "kar yağ", "deprem", "maç", "seçim", "dolar kuru", "borsa endeks",
-    "gündem", "haber", "trafik", "mevsim", "sıcaklık", "rüya", "burç", "yıldız"
+    "hava",
+    "yağmur",
+    "kar yağ",
+    "deprem",
+    "maç",
+    "seçim",
+    "dolar kuru",
+    "borsa endeks",
+    "gündem",
+    "haber",
+    "trafik",
+    "mevsim",
+    "sıcaklık",
+    "rüya",
+    "burç",
+    "yıldız"
   ],
-
   "_ciltNotu": "Defterin cildi her devirde değişir; herkes aynı cildi görür. Elle denemek için #cilt=kahve gibi.",
   "ciltler": [
-    { "id": "gece",   "ad": "Gece Defteri" },
-    { "id": "kahve",  "ad": "Kahve Falı" },
-    { "id": "ferman", "ad": "Ferman" },
-    { "id": "neon",   "ad": "Neon Kısmet" },
-    { "id": "kagit",  "ad": "Kâğıt ve Mürekkep" }
+    {
+      "id": "gece",
+      "ad": "Gece Defteri"
+    },
+    {
+      "id": "kahve",
+      "ad": "Kahve Falı"
+    },
+    {
+      "id": "ferman",
+      "ad": "Ferman"
+    },
+    {
+      "id": "neon",
+      "ad": "Neon Kısmet"
+    },
+    {
+      "id": "kagit",
+      "ad": "Kâğıt ve Mürekkep"
+    }
   ],
-
   "_burcNotu": "Haftalık burç okuması: tohum = burç ⊕ dönem. Okuma = element cümlesi + genel cümle. Element havuzları burcun mizacını, genel havuz haftanın gidişatını taşır.",
   "burclar": [
-    { "id": "koc",     "ad": "Koç",     "simge": "♈", "element": "ates",   "bas": "03-21", "bit": "04-19" },
-    { "id": "boga",    "ad": "Boğa",    "simge": "♉", "element": "toprak", "bas": "04-20", "bit": "05-20" },
-    { "id": "ikizler", "ad": "İkizler", "simge": "♊", "element": "hava",   "bas": "05-21", "bit": "06-21" },
-    { "id": "yengec",  "ad": "Yengeç",  "simge": "♋", "element": "su",     "bas": "06-22", "bit": "07-22" },
-    { "id": "aslan",   "ad": "Aslan",   "simge": "♌", "element": "ates",   "bas": "07-23", "bit": "08-22" },
-    { "id": "basak",   "ad": "Başak",   "simge": "♍", "element": "toprak", "bas": "08-23", "bit": "09-22" },
-    { "id": "terazi",  "ad": "Terazi",  "simge": "♎", "element": "hava",   "bas": "09-23", "bit": "10-22" },
-    { "id": "akrep",   "ad": "Akrep",   "simge": "♏", "element": "su",     "bas": "10-23", "bit": "11-21" },
-    { "id": "yay",     "ad": "Yay",     "simge": "♐", "element": "ates",   "bas": "11-22", "bit": "12-21" },
-    { "id": "oglak",   "ad": "Oğlak",   "simge": "♑", "element": "toprak", "bas": "12-22", "bit": "01-19" },
-    { "id": "kova",    "ad": "Kova",    "simge": "♒", "element": "hava",   "bas": "01-20", "bit": "02-18" },
-    { "id": "balik",   "ad": "Balık",   "simge": "♓", "element": "su",     "bas": "02-19", "bit": "03-20" }
+    {
+      "id": "koc",
+      "ad": "Koç",
+      "simge": "♈",
+      "element": "ates",
+      "bas": "03-21",
+      "bit": "04-19"
+    },
+    {
+      "id": "boga",
+      "ad": "Boğa",
+      "simge": "♉",
+      "element": "toprak",
+      "bas": "04-20",
+      "bit": "05-20"
+    },
+    {
+      "id": "ikizler",
+      "ad": "İkizler",
+      "simge": "♊",
+      "element": "hava",
+      "bas": "05-21",
+      "bit": "06-21"
+    },
+    {
+      "id": "yengec",
+      "ad": "Yengeç",
+      "simge": "♋",
+      "element": "su",
+      "bas": "06-22",
+      "bit": "07-22"
+    },
+    {
+      "id": "aslan",
+      "ad": "Aslan",
+      "simge": "♌",
+      "element": "ates",
+      "bas": "07-23",
+      "bit": "08-22"
+    },
+    {
+      "id": "basak",
+      "ad": "Başak",
+      "simge": "♍",
+      "element": "toprak",
+      "bas": "08-23",
+      "bit": "09-22"
+    },
+    {
+      "id": "terazi",
+      "ad": "Terazi",
+      "simge": "♎",
+      "element": "hava",
+      "bas": "09-23",
+      "bit": "10-22"
+    },
+    {
+      "id": "akrep",
+      "ad": "Akrep",
+      "simge": "♏",
+      "element": "su",
+      "bas": "10-23",
+      "bit": "11-21"
+    },
+    {
+      "id": "yay",
+      "ad": "Yay",
+      "simge": "♐",
+      "element": "ates",
+      "bas": "11-22",
+      "bit": "12-21"
+    },
+    {
+      "id": "oglak",
+      "ad": "Oğlak",
+      "simge": "♑",
+      "element": "toprak",
+      "bas": "12-22",
+      "bit": "01-19"
+    },
+    {
+      "id": "kova",
+      "ad": "Kova",
+      "simge": "♒",
+      "element": "hava",
+      "bas": "01-20",
+      "bit": "02-18"
+    },
+    {
+      "id": "balik",
+      "ad": "Balık",
+      "simge": "♓",
+      "element": "su",
+      "bas": "02-19",
+      "bit": "03-20"
+    }
   ],
-
   "burcOkuma": {
     "element": {
       "ates": [
@@ -190,7 +727,6 @@
       "Bu hafta şansın detayda; acele edersen kaçırırsın."
     ]
   },
-
   "_ikiliNotu": "İki kişilik nasip. Tohum iki ismin SIRALANMIŞ hâlinden üretilir, yani A+B ile B+A aynıdır. Havuzlar kasten şefkatlidir: düşük yüzdede bile hiçbir cümle aşağılayıcı olamaz. Bu kural bozulmamalı.",
   "ikili": {
     "hukum": {
@@ -232,7 +768,6 @@
       "Yüzde ne olursa olsun, sormak bile bir yakınlık işareti."
     ]
   },
-
   "_kuraNotu": "Kura: şıklardan birini kader seçer. hukum içindeki {secilen} yerine seçilen şık konur; şık ismine EK GETİRME (ünlü uyumu tutmaz), yalın hâlde bırak.",
   "kura": {
     "hukum": [
@@ -259,7 +794,6 @@
       "Kader seçmesini bilir; taşımasını sen bileceksin."
     ]
   },
-
   "_ebcedNotu": "Ebced: Latin harfli isimden YAKLAŞIK ebced değeri. Latin→Arap harf eşlemesi kayıplıdır (s = sin/sad/se), tablo en yaygın karşılığı alır. hane = toplamın rakam kökü (1..9), bu sayı bilimi geleneğinden gelir, ebcedin kendisinden değil. Metinler sayıya göre seçilir: aynı toplamı veren iki isim aynı sayfayı açar.",
   "ebced": {
     "hane": {
@@ -317,7 +851,6 @@
       "Bu bir hesap, bir hüküm değil."
     ]
   },
-
   "hukum": {
     "ton": {
       "mujde": [
@@ -391,115 +924,650 @@
         "Cevap yolda ama trafik var."
       ]
     },
-    "kapandi": ["Eeee? Bu gadar."]
+    "kapandi": [
+      "Eeee? Bu gadar."
+    ]
   },
-
   "konuHukum": {
     "ask": {
-      "mujde": ["Gönül defterinde bu isim iki kere geçiyor.", "Kavuşma yazılmış; sadece takvimi geç yazmışlar.", "Kalbin bildiğini defter de biliyor."],
-      "uyari": ["Bu gönül bu sayfada yorulacak.", "Kalbin bunu zaten sezmişti; defter onaylıyor.", "Bu bağ çözülüyor; düğümü sen atmadın."],
-      "teselli": ["Gönül isterse de defter istemiyor.", "O isim bu sayfada yazmıyor.", "Bu sevda nasipsiz çıktı; kabahat sende değil."],
-      "ferah": ["Bu gönül kırılmıyor. Rahat uyu.", "Korktuğun kopuş defterde yok.", "O bağ duruyor; sen kendini yıpratma."],
-      "belirsiz": ["Gönül işi bu; kader bile acele etmiyor.", "İki kalp aynı sayfaya henüz gelmemiş.", "Bu sevdanın satırı yazılıyor ama bitmemiş."]
+      "mujde": [
+        "Gönül defterinde bu isim iki kere geçiyor.",
+        "Kavuşma yazılmış; sadece takvimi geç yazmışlar.",
+        "Kalbin bildiğini defter de biliyor.",
+        "O isim senin sayfana düşmüş.",
+        "Bekleyiş bitiyor; defter kavuşmayı yazmış.",
+        "Aradığın gönül seni de arıyormuş.",
+        "Bu sevda karşılıksız değilmiş.",
+        "İki isim yan yana yazılmış, mürekkep kurumuş.",
+        "Gecikti ama geliyor; yolu uzunmuş.",
+        "Bu kapı sana açılıyor; çalmaktan çekinme.",
+        "Gönlünün düştüğü yer boş değilmiş.",
+        "Kalbin yanılmamış, sabrın boşa gitmemiş."
+      ],
+      "uyari": [
+        "Bu gönül bu sayfada yorulacak.",
+        "Kalbin bunu zaten sezmişti; defter onaylıyor.",
+        "Bu bağ çözülüyor; düğümü sen atmadın.",
+        "Bu bağ inceliyor; zorlarsan kopar.",
+        "Sezdiğin soğukluk gerçekmiş.",
+        "Bu ayrılık yazılmış; hazırlıksız yakalanma.",
+        "O isim bu sayfadan siliniyor.",
+        "Korktuğun mesafe açılacak.",
+        "Bu gönül başka yere bakıyor.",
+        "Kırılma olacak; kimin elinden çıktığı önemli değil.",
+        "Bu sevdanın faturası sana kesiliyor.",
+        "Beklediğin dönüş olmayacak; yüzünü yeni sayfaya çevir."
+      ],
+      "teselli": [
+        "Gönül isterse de defter istemiyor.",
+        "O isim bu sayfada yazmıyor.",
+        "Bu sevda nasipsiz çıktı; kabahat sende değil.",
+        "Bu kapı sana açılmıyor; başka kapı var.",
+        "Yanlış isme sabrettin; kabahat sabrında değil.",
+        "Kavuşma bu devre yazılmamış.",
+        "Gönlünü verdiğin yerde defter boş.",
+        "Bu sevdadan sana kalan ders olacak, kişi değil.",
+        "Beklediğin cevap gelmeyecek; bekleyişini geri al.",
+        "O isim başka defterde geçiyor.",
+        "Bu yol kavuşmaya çıkmıyor; kendine çıkıyor.",
+        "İstediğin olmadı ama kaybettiğin de yok."
+      ],
+      "ferah": [
+        "Bu gönül kırılmıyor. Rahat uyu.",
+        "Korktuğun kopuş defterde yok.",
+        "O bağ duruyor; sen kendini yıpratma.",
+        "Korktuğun ayrılık defterde yazmıyor.",
+        "Bu bağ göründüğünden sağlam.",
+        "Kaybedeceğini sandığın şey yerinde duruyor.",
+        "O soğukluk geçici; kalıcı olan sizsiniz.",
+        "Kuruntun kadar büyük bir şey yok ortada.",
+        "Bu gönül seni bırakmıyor.",
+        "Endişen boşa; sayfada kopuş yok.",
+        "Sarsıldı ama yıkılmadı.",
+        "Uykunu bu yüzden bölme; defter rahat."
+      ],
+      "belirsiz": [
+        "Gönül işi bu; kader bile acele etmiyor.",
+        "İki kalp aynı sayfaya henüz gelmemiş.",
+        "Bu sevdanın satırı yazılıyor ama bitmemiş.",
+        "İki kalp de bekliyor; kimse ilk sözü söylemiyor.",
+        "Bu sevdanın kararı sende, defterde değil.",
+        "Gönül işi acele kaldırmaz; satır yazılıyor.",
+        "Defter bu isim için henüz mürekkep almamış.",
+        "Ne kavuşma yazılmış ne ayrılık; arada duruyor.",
+        "Bu sayfa açık; kapatan da açan da sensin.",
+        "Kader bu kez kenara çekilmiş, bakıyor.",
+        "Cevap sende saklı; deftere sorman gerekmiyordu.",
+        "Bir söz eksik; onu kader söylemez."
+      ]
     },
     "para": {
-      "mujde": ["Kısmet kapısı bu kez rakamdan yana açık.", "Bereket yazılmış; küçük gelse de sağlam.", "Bu hesap senin lehine kapanacak."],
-      "uyari": ["Kese bu devirde sıkışıyor.", "Rakam yazılmış ama senin istediğin yönde değil.", "Bu hesap tutmayacak; şimdiden bilesin."],
-      "teselli": ["Bu devirde kese ağzını açmıyor.", "Beklediğin hane boş kalmış.", "Bu kapıdan bereket geçmiyor bu hafta."],
-      "ferah": ["Korktuğun kadar kötü değil; kese boşalmıyor.", "O yük altında kalmıyorsun.", "Rakam korkuttuğu kadar değil."],
-      "belirsiz": ["Para meselesinde defter tarih vermiyor.", "Rakam yazılmış ama mürekkebi solmuş, okunmuyor.", "Kısmet var, vadesi belirsiz."]
+      "mujde": [
+        "Kısmet kapısı bu kez rakamdan yana açık.",
+        "Bereket yazılmış; küçük gelse de sağlam.",
+        "Bu hesap senin lehine kapanacak.",
+        "Kese bu devre ağırlaşıyor.",
+        "Beklediğin bereket yolda; kapıyı aç.",
+        "Hesap senin lehine kapanıyor.",
+        "Rızık kapısı genişliyor.",
+        "Bu iş sana kazanç yazıyor.",
+        "Sıkıntı bitiyor; nefes alacaksın.",
+        "Emeğinin karşılığı bu sayfada yazılı.",
+        "Umduğun geliyor, hem de umduğundan önce.",
+        "Darlık geçti; defter bolluk yazmış."
+      ],
+      "uyari": [
+        "Kese bu devirde sıkışıyor.",
+        "Rakam yazılmış ama senin istediğin yönde değil.",
+        "Bu hesap tutmayacak; şimdiden bilesin.",
+        "Bu hesap sandığın gibi kapanmıyor.",
+        "Beklenmedik bir gider yazılmış.",
+        "Kese bu devre hafifliyor; ölçülü ol.",
+        "Korktuğun kayıp gerçekleşiyor.",
+        "Bu borcun süresi uzayacak.",
+        "Güvendiğin ödeme gecikecek.",
+        "Bu yatırım sana yük olacak.",
+        "Sıkışacaksın; şimdiden yedeğini ayır.",
+        "Bu para gidiyor; peşinden koşma."
+      ],
+      "teselli": [
+        "Bu devirde kese ağzını açmıyor.",
+        "Beklediğin hane boş kalmış.",
+        "Bu kapıdan bereket geçmiyor bu hafta.",
+        "Umduğun kazanç bu devre yazılmamış.",
+        "Bu kapı bereket kapısı değilmiş.",
+        "Beklediğin ödeme bu sayfada geçmiyor.",
+        "Hesap istediğin gibi çıkmadı; hesabın yanlış değildi.",
+        "Bu iş sana para getirmiyor, tecrübe getiriyor.",
+        "Zenginlik bu devrin işi değil.",
+        "İstediğin rakam defterde yok.",
+        "Bu bekleyiş uzayacak; boşuna değil ama uzayacak.",
+        "Kazanç gecikti diye emek boşa gitmedi."
+      ],
+      "ferah": [
+        "Korktuğun kadar kötü değil; kese boşalmıyor.",
+        "O yük altında kalmıyorsun.",
+        "Rakam korkuttuğu kadar değil.",
+        "Korktuğun kayıp olmayacak.",
+        "Kese sandığın kadar boşalmıyor.",
+        "O borç seni batırmaz.",
+        "Beklediğin darlık kapıyı çalmayacak.",
+        "Hesap görünenden daha rahat kapanıyor.",
+        "Bu yükün altında kalmayacaksın.",
+        "Kaygılandığın gider yazılmamış.",
+        "Sıkışma korkun bu devre boşa çıkıyor.",
+        "Defter senden alacağını almış, yenisini istemiyor."
+      ],
+      "belirsiz": [
+        "Para meselesinde defter tarih vermiyor.",
+        "Rakam yazılmış ama mürekkebi solmuş, okunmuyor.",
+        "Kısmet var, vadesi belirsiz.",
+        "Bu hesabın sonu henüz yazılmamış.",
+        "Kese ne doluyor ne boşalıyor; bekliyor.",
+        "Rakam belli değil; niyet belli.",
+        "Bu devre para satırı boş bırakılmış.",
+        "Kazanç da kayıp da mümkün; tercih sende.",
+        "Defter bu konuda sessiz kalmayı seçmiş.",
+        "Bereket kapıda ama zili çalmamış.",
+        "Bu iş para değil, karar bekliyor.",
+        "Sayının yerinde şimdilik boşluk var."
+      ]
     },
     "is": {
-      "mujde": ["Ekmek kapısı aralanmış. İt, açılır.", "Bu iş senin adına kayda geçmiş.", "Emeğin karşılığı bu sayfada yazıyor."],
-      "uyari": ["Bu masa dağılıyor; toparlanmaya bak.", "Kapı kapanıyor, ama sokak geniş.", "Bu dosya senin lehine kapanmıyor."],
-      "teselli": ["Bu kapı senin ekmeğin değil.", "Bu iş yazılmamış; başka kapıya bak.", "Bu masa sana kurulmamış."],
-      "ferah": ["Ekmeğin yerinde duruyor. Rahat ol.", "Korktuğun kapanma yok bu sayfada.", "Yerin sağlam; boşuna geceni bölme."],
-      "belirsiz": ["İş meselesi askıda; imza bekleniyor.", "Kapı ne açık ne kapalı — aralık.", "Bu dosya masada duruyor, karar çıkmamış."]
+      "mujde": [
+        "Ekmek kapısı aralanmış. İt, açılır.",
+        "Bu iş senin adına kayda geçmiş.",
+        "Emeğin karşılığı bu sayfada yazıyor.",
+        "O kapı sana açılıyor; imzayı hazırla.",
+        "Emeğin bu devre görülüyor.",
+        "Beklediğin haber geliyor.",
+        "Yeni sayfa senin adına açılmış.",
+        "Bu iş oluyor; kendini fazla yorma.",
+        "Adın doğru masaya düşmüş.",
+        "Terfi yazılmış; sırası gelecek.",
+        "Bu teklif senin nasibin.",
+        "Uzun mesai karşılığını buluyor."
+      ],
+      "uyari": [
+        "Bu masa dağılıyor; toparlanmaya bak.",
+        "Kapı kapanıyor, ama sokak geniş.",
+        "Bu dosya senin lehine kapanmıyor.",
+        "Bu masada işler karışıyor.",
+        "Korktuğun değişiklik olacak.",
+        "Bu kapı bu devre kapanıyor.",
+        "Yükün artacak; şimdiden ayarını yap.",
+        "Güvendiğin destek çekilecek.",
+        "Bu işin sonu senin istediğin gibi bitmiyor.",
+        "Beklenmedik bir ayrılık yazılmış.",
+        "Bu yolun sonunda başka kapı aramak var.",
+        "Sıkıntı gelecek; ama geçici olduğunu da yazmışlar."
+      ],
+      "teselli": [
+        "Bu kapı senin ekmeğin değil.",
+        "Bu iş yazılmamış; başka kapıya bak.",
+        "Bu masa sana kurulmamış.",
+        "O kapı bu devre açılmıyor.",
+        "Beklediğin teklif gelmeyecek.",
+        "Bu iş sana yazılmamış.",
+        "Emeğin boşa gitmedi ama karşılığı burada değil.",
+        "Bu masa senin masan değilmiş.",
+        "Terfi bu sayfada geçmiyor.",
+        "Aradığın haber bu devre yok.",
+        "Bu kapıyı çalmaya devam etme; başka kapı var.",
+        "İstediğin olmadı; yerine yol açıldı."
+      ],
+      "ferah": [
+        "Ekmeğin yerinde duruyor. Rahat ol.",
+        "Korktuğun kapanma yok bu sayfada.",
+        "Yerin sağlam; boşuna geceni bölme.",
+        "Korktuğun ayrılık yazılmamış.",
+        "Bu masa senden alınmıyor.",
+        "İşini kaybetmiyorsun.",
+        "Beklediğin kriz kapıyı çalmayacak.",
+        "O tartışma büyümeden kapanıyor.",
+        "Kaygılandığın karar senin aleyhine çıkmıyor.",
+        "Yerin sağlam; sallanan sen değilsin.",
+        "Bu fırtına seni almadan geçiyor.",
+        "Endişeni bırak; defter seni koruyor."
+      ],
+      "belirsiz": [
+        "İş meselesi askıda; imza bekleniyor.",
+        "Kapı ne açık ne kapalı — aralık.",
+        "Bu dosya masada duruyor, karar çıkmamış.",
+        "Bu kapı ne açık ne kapalı; aralık.",
+        "Karar bir masada bekliyor, imza atılmamış.",
+        "Bu iş senin adımını bekliyor.",
+        "Defter bu satırı sonraya bırakmış.",
+        "Ne gitmek yazılmış ne kalmak.",
+        "Bu devre sadece hazırlık var, sonuç yok.",
+        "İki yol da açık; kader hangisini seçtiğine bakıyor.",
+        "Cevap masanda, defterde değil.",
+        "Bu sayfa yazılıyor ama mürekkep kurumamış."
+      ]
     },
     "saglik": {
-      "mujde": ["Beden toparlanır; defter iyiye yazmış.", "Şifa yazılmış. Sabır da yazılmış, ikisi beraber gelir.", "İyilik yolda; acele etme, gelecek."],
-      "uyari": ["Bedenin sana bir şey söylüyor; kulak ver.", "Bu hâliyle sürmez; bilene görün.", "Defter 'ihmal etme' diyor."],
-      "teselli": ["Bu yükü bu şekilde taşıyamazsın; yol değiştir.", "Kendi başına olmaz bu. Bilene sor.", "Zorlarsan uzar. Zorlama."],
-      "ferah": ["Korktuğun şey yok. Nefes al.", "Beden sandığından sağlam.", "Bu endişe gereğinden büyük; defter sakin."],
-      "belirsiz": ["Beden kendi takvimini işletiyor; sabır.", "Sonuç henüz belli değil, telaş erken.", "Defter 'yavaş' diyor, 'olmaz' demiyor."]
+      "mujde": [
+        "Beden toparlanır; defter iyiye yazmış.",
+        "Şifa yazılmış. Sabır da yazılmış, ikisi beraber gelir.",
+        "İyilik yolda; acele etme, gelecek.",
+        "Beden toparlanıyor.",
+        "Şifa yazılmış; sabırla gelecek.",
+        "Bu sıkıntı geçiyor.",
+        "Aradığın iyileşme bu sayfada var.",
+        "Nefesin rahatlıyor.",
+        "Yatak seni uzun tutmayacak.",
+        "İlaç tutuyor; endişeni bırak.",
+        "Bu devre bedenin seninle barışıyor.",
+        "Güç geri geliyor, azar azar ama geliyor."
+      ],
+      "uyari": [
+        "Bedenin sana bir şey söylüyor; kulak ver.",
+        "Bu hâliyle sürmez; bilene görün.",
+        "Defter 'ihmal etme' diyor.",
+        "Beden bir şey söylüyor; kulak ver.",
+        "Bu yorgunluk kendiliğinden geçmiyor.",
+        "İhmal ettiğin şey büyüyor.",
+        "Korktuğun sıkıntı gerçek çıkıyor.",
+        "Bu devre bedenine borçlusun; ertelersen faizi artar.",
+        "Aksatma; sıra sende değil, bedende.",
+        "Bu ağrı haber veriyor, susmuyor.",
+        "Dinlenmeyi seçmezsen o senin yerine seçilecek.",
+        "Bu yükü beden kaldıramıyor; azalt."
+      ],
+      "teselli": [
+        "Bu yükü bu şekilde taşıyamazsın; yol değiştir.",
+        "Kendi başına olmaz bu. Bilene sor.",
+        "Zorlarsan uzar. Zorlama.",
+        "Beklediğin hızlı iyileşme bu devre yok.",
+        "Bu sıkıntı biraz daha kalıyor.",
+        "İstediğin sonuç bu sayfada yazmıyor.",
+        "Sabır gerekiyor; kısa yol kapalı.",
+        "Bu devre şifa değil, tahammül yazılmış.",
+        "Beklentini biraz ileri al.",
+        "İyileşme geliyor ama bu satırda değil.",
+        "Acele ettin; beden acele etmiyor.",
+        "Bu defa iyi haber yok, kötü haber de yok."
+      ],
+      "ferah": [
+        "Korktuğun şey yok. Nefes al.",
+        "Beden sandığından sağlam.",
+        "Bu endişe gereğinden büyük; defter sakin.",
+        "Korktuğun şey çıkmıyor.",
+        "Bu belirti sandığın kadar büyük değil.",
+        "Defterde ağır bir şey yazmıyor.",
+        "Kuruntun kendisinden büyük.",
+        "Beden dayanıyor; senin kadar korkmuyor.",
+        "O sonuç temiz çıkacak.",
+        "Bu geçici; kalıcı sanma.",
+        "Endişeni bırak, uykunu bölme.",
+        "Bu sayfada kötü haber yok."
+      ],
+      "belirsiz": [
+        "Beden kendi takvimini işletiyor; sabır.",
+        "Sonuç henüz belli değil, telaş erken.",
+        "Defter 'yavaş' diyor, 'olmaz' demiyor.",
+        "Beden karar vermemiş.",
+        "Bu devre sadece beklemek yazılmış.",
+        "Sonuç henüz yazılmadı; acele okumak yok.",
+        "Ne iyileşme ne bozulma; duruyor.",
+        "Defter bu konuda sessiz.",
+        "Bu satır doktorun kalemiyle yazılır, kaderin değil.",
+        "Zaman söyleyecek, defter değil.",
+        "Belirti var, hüküm yok.",
+        "Bekle; acele eden yanılır."
+      ]
     },
     "egitim": {
-      "mujde": ["Defterde adın var; emeğini boşa yazmamışlar.", "Bu kapı okuyanlara açık. Sen okudun.", "Bu sınavı geçecek olan sensin."],
-      "uyari": ["Bu turda netice senin istediğin gibi değil.", "Emek eksik kalmış; defter onu görüyor.", "Bu sonuç seni yoracak ama bitirmeyecek."],
-      "teselli": ["Bu sefer olmayacak. Bir dahakine çalışılır.", "Bu kapı bu turda açılmıyor.", "Defter 'bu değil' diyor. Başka kapı var."],
-      "ferah": ["Korktuğun sonuç çıkmıyor. Rahatla.", "Elenmiyorsun; defter net.", "O kâbus gerçekleşmiyor."],
-      "belirsiz": ["Sonuç yazılıyor; mürekkep kurumadan sorma.", "Emek görünüyor ama karşılığı henüz sayfada yok.", "Netice askıda. Bekleyeceksin."]
+      "mujde": [
+        "Defterde adın var; emeğini boşa yazmamışlar.",
+        "Bu kapı okuyanlara açık. Sen okudun.",
+        "Bu sınavı geçecek olan sensin.",
+        "Emeğin kâğıda geçiyor.",
+        "Bu sınav senin lehine yazılmış.",
+        "Kalem seni yarı yolda bırakmıyor.",
+        "Beklediğin sonuç geliyor.",
+        "Çalıştığın yerden soruluyor.",
+        "Bu kapı açılıyor; hazırlığın yetiyor.",
+        "Adın listede geçiyor.",
+        "Uykusuz geceler bu sayfada karşılığını buluyor.",
+        "Bu devre başarı yazılmış."
+      ],
+      "uyari": [
+        "Bu turda netice senin istediğin gibi değil.",
+        "Emek eksik kalmış; defter onu görüyor.",
+        "Bu sonuç seni yoracak ama bitirmeyecek.",
+        "Bu hazırlık yetmiyor; süre daralıyor.",
+        "Korktuğun sonuç çıkabilir.",
+        "Eksik bıraktığın yerden sorulacak.",
+        "Bu sınav sandığından zor.",
+        "Erteledikçe kapı daralıyor.",
+        "Bu devre kaybedilen zamanın hesabı soruluyor.",
+        "Güvendiğin konu seni yanıltacak.",
+        "Sonuç istediğin gibi gelmeyecek; ikinci hakkı şimdiden düşün.",
+        "Bu yoldan geçmek için bir tur daha var."
+      ],
+      "teselli": [
+        "Bu sefer olmayacak. Bir dahakine çalışılır.",
+        "Bu kapı bu turda açılmıyor.",
+        "Defter 'bu değil' diyor. Başka kapı var.",
+        "Bu sefer olmuyor.",
+        "Beklediğin sonuç bu sayfada yazmıyor.",
+        "Kapı bu devre açılmıyor.",
+        "Emeğin boşa gitmedi ama sıra bu değil.",
+        "Adın bu listede geçmiyor.",
+        "İstediğin puan defterde yok.",
+        "Bu kapıya bir devre daha var.",
+        "Kaybettiğin sınav, kaybettiğin yıl değil.",
+        "Bu defa değil demek, hiçbir zaman demek değil."
+      ],
+      "ferah": [
+        "Korktuğun sonuç çıkmıyor. Rahatla.",
+        "Elenmiyorsun; defter net.",
+        "O kâbus gerçekleşmiyor.",
+        "Korktuğun başarısızlık yazılmamış.",
+        "Bu sınavdan kalmıyorsun.",
+        "Kaygın hazırlığından büyük.",
+        "Sonuç sandığın kadar kötü çıkmayacak.",
+        "Bu kapı kapanmıyor.",
+        "Endişen boşa; kâğıt seni tutuyor.",
+        "Bildiğin yerden soruluyor.",
+        "Bu devre kaybetmek yok.",
+        "İçin rahat olsun; defter yanında."
+      ],
+      "belirsiz": [
+        "Sonuç yazılıyor; mürekkep kurumadan sorma.",
+        "Emek görünüyor ama karşılığı henüz sayfada yok.",
+        "Netice askıda. Bekleyeceksin.",
+        "Kalem havada; karar sende.",
+        "Bu sayfa çalışmanla yazılacak, kaderle değil.",
+        "Sonuç henüz belli değil; süre var.",
+        "Defter bu satırı sana bırakmış.",
+        "Ne geçmek yazılmış ne kalmak.",
+        "Bu devre yalnızca hazırlık yazılı.",
+        "Cevap kitapta, defterde değil.",
+        "Kader burada seyirci.",
+        "Yazılmamış bir sonucu okumaya çalışıyorsun."
+      ]
     },
     "yol": {
-      "mujde": ["Yol açık görünüyor. Ayakkabını sağlam bağla.", "Gidiş yazılmış; dönüş ayrı mesele.", "Kapı sınırda değil, sende. Ve açık."],
-      "uyari": ["Bu yol seni yoracak; yine de yürüyeceksin.", "Gidiş var ama umduğun gibi değil.", "Bu yolculuk defterde ağır yazılmış."],
-      "teselli": ["Bu yol bu devirde kapalı.", "Gitmek yazılmamış. Kalmak da fena değil.", "Bu kapı damgasız; geçemezsin."],
-      "ferah": ["Korktuğun ayrılık yok; yol seni götürmüyor.", "Kalıyorsun. İçin rahat olsun.", "O kopuş defterde yazmıyor."],
-      "belirsiz": ["Yol var ama tarih yok.", "Bavul hazır, izin yazılmamış.", "Yol açılıyor, henüz açılmadı."]
+      "mujde": [
+        "Yol açık görünüyor. Ayakkabını sağlam bağla.",
+        "Gidiş yazılmış; dönüş ayrı mesele.",
+        "Kapı sınırda değil, sende. Ve açık.",
+        "Yol açık.",
+        "O sefer yazılmış; bavulunu hazırla.",
+        "Gitmek nasibinde var.",
+        "Kapılar sana açılıyor.",
+        "Beklediğin izin çıkıyor.",
+        "Uzak yakınlaşıyor.",
+        "Bu yolculuk sana iyi gelecek.",
+        "Dönüşün de yazılmış; gidişin gibi rahat.",
+        "Bu devre adın yollarda geçiyor."
+      ],
+      "uyari": [
+        "Bu yol seni yoracak; yine de yürüyeceksin.",
+        "Gidiş var ama umduğun gibi değil.",
+        "Bu yolculuk defterde ağır yazılmış.",
+        "Bu yol düşündüğün gibi düz değil.",
+        "Sefer gecikecek.",
+        "Korktuğun engel çıkıyor.",
+        "Bu yolculuk seni yoracak.",
+        "Beklediğin izin bu devre gelmiyor.",
+        "Dönüş sandığından zor olacak.",
+        "Bu kapı şimdilik kapanıyor.",
+        "Yola çıkmadan iki kere düşün.",
+        "Bu yolun ortasında bir aksama yazılmış."
+      ],
+      "teselli": [
+        "Bu yol bu devirde kapalı.",
+        "Gitmek yazılmamış. Kalmak da fena değil.",
+        "Bu kapı damgasız; geçemezsin.",
+        "Bu yol bu devre açılmıyor.",
+        "Gitmek bu sayfada yazmıyor.",
+        "Beklediğin sefer ertelendi.",
+        "Uzak bu devre uzak kalıyor.",
+        "İstediğin kapı bu değilmiş.",
+        "Bavulu şimdilik kaldır.",
+        "Yol kapalı ama kalıcı değil.",
+        "Bu gidiş olmadı; kaybın yok.",
+        "Sıra sende değil; bekleyen çok."
+      ],
+      "ferah": [
+        "Korktuğun ayrılık yok; yol seni götürmüyor.",
+        "Kalıyorsun. İçin rahat olsun.",
+        "O kopuş defterde yazmıyor.",
+        "Korktuğun aksilik yolda yok.",
+        "Bu sefer sorunsuz geçiyor.",
+        "Kaygılandığın engel yazılmamış.",
+        "Yol açık; içini ferah tut.",
+        "Dönüşün rahat olacak.",
+        "Kaybolmuyorsun; harita elinde.",
+        "Bu yolculukta kötü haber yok.",
+        "Endişeni evde bırak.",
+        "Gidiyorsun ve dönüyorsun; ikisi de yazılı."
+      ],
+      "belirsiz": [
+        "Yol var ama tarih yok.",
+        "Bavul hazır, izin yazılmamış.",
+        "Yol açılıyor, henüz açılmadı.",
+        "Yol görünüyor ama tarihi konmamış.",
+        "Bu sefer için defter sessiz.",
+        "Gitmek de kalmak da açık.",
+        "Bavul hazır, karar değil.",
+        "Bu satır senin adımını bekliyor.",
+        "Kader yolu göstermiş, tarihini yazmamış.",
+        "Ne uzak ne yakın; arada.",
+        "Bu devre sadece hazırlık yazılı.",
+        "Yola çıkacaksın ama bu sayfada değil."
+      ]
     }
   },
-
   "_tipNotu": "tipHukum KADER'e göre ayrılır (olur/olmaz/belirsiz) ve TONDAN BAĞIMSIZ yazılmalıdır: 'Sandığından erken' cümlesi hem beklenen hem korkulan olay için çalışır.",
   "tipHukum": {
     "zaman": {
-      "olur": ["Sandığından erken. Hazırlıksız yakalanma.", "Bu devir dolmadan olur.", "Yakın. Ay değişmeden."],
-      "olmaz": ["Beklediğin tarihte değil. Hiçbir tarihte de değil.", "O gün gelmeyecek; takvimi kapat.", "Zamanı sorma, çünkü zamanı yok."],
-      "belirsiz": ["Tarih verilmemiş. Kasıtlı olarak verilmemiş.", "Sorduğun günden sonra; ne kadar sonra belli değil.", "Takvim yazılmamış, mevsim yazılmış: sonra."]
+      "olur": [
+        "Sandığından erken. Hazırlıksız yakalanma.",
+        "Bu devir dolmadan olur.",
+        "Yakın. Ay değişmeden."
+      ],
+      "olmaz": [
+        "Beklediğin tarihte değil. Hiçbir tarihte de değil.",
+        "O gün gelmeyecek; takvimi kapat.",
+        "Zamanı sorma, çünkü zamanı yok."
+      ],
+      "belirsiz": [
+        "Tarih verilmemiş. Kasıtlı olarak verilmemiş.",
+        "Sorduğun günden sonra; ne kadar sonra belli değil.",
+        "Takvim yazılmamış, mevsim yazılmış: sonra."
+      ]
     },
     "nicel": {
-      "olur": ["Umduğundan fazla çıkacak.", "Sayı senin lehine yuvarlanmış.", "Beklediğin rakamın üstü var."],
-      "olmaz": ["Umduğundan az. Şimdiden alışsan iyi olur.", "Sayı tutmuyor; hesabı tekrar yap.", "O rakam bu sayfada yok."],
-      "belirsiz": ["Rakam yazılmamış; tahmin etme, bekle.", "Az mı çok mu — defter suskun.", "Sayıyı sorma, sırayı sor."]
+      "olur": [
+        "Umduğundan fazla çıkacak.",
+        "Sayı senin lehine yuvarlanmış.",
+        "Beklediğin rakamın üstü var."
+      ],
+      "olmaz": [
+        "Umduğundan az. Şimdiden alışsan iyi olur.",
+        "Sayı tutmuyor; hesabı tekrar yap.",
+        "O rakam bu sayfada yok."
+      ],
+      "belirsiz": [
+        "Rakam yazılmamış; tahmin etme, bekle.",
+        "Az mı çok mu — defter suskun.",
+        "Sayıyı sorma, sırayı sor."
+      ]
     },
     "kisi": {
-      "olur": ["Aklına ilk gelen isim doğru.", "Tanıdığın biri. Uzakta arama.", "Beklemediğin biri değil — beklediğin biri."],
-      "olmaz": ["Aklındaki kişi değil. Onu kafandan çıkar.", "O isim bu sayfada geçmiyor.", "Kimse. Bu sorunun cevabı kimse."],
-      "belirsiz": ["İsim yazılmamış, sadece gölgesi var.", "Henüz tanışmadığın biri olabilir.", "Defter isim vermiyor; niyet veriyor."]
+      "olur": [
+        "Aklına ilk gelen isim doğru.",
+        "Tanıdığın biri. Uzakta arama.",
+        "Beklemediğin biri değil — beklediğin biri."
+      ],
+      "olmaz": [
+        "Aklındaki kişi değil. Onu kafandan çıkar.",
+        "O isim bu sayfada geçmiyor.",
+        "Kimse. Bu sorunun cevabı kimse."
+      ],
+      "belirsiz": [
+        "İsim yazılmamış, sadece gölgesi var.",
+        "Henüz tanışmadığın biri olabilir.",
+        "Defter isim vermiyor; niyet veriyor."
+      ]
     },
     "yer": {
-      "olur": ["Sandığın yerde. Bir daha bak.", "Uzakta değil; çok yakında.", "Aradığın yer, en son baktığın yer olacak."],
-      "olmaz": ["Orada değil. Orayı boşuna arıyorsun.", "O yer bu hikâyede geçmiyor.", "Aradığın yerde yok; belki hiç olmadı."],
-      "belirsiz": ["Yer belli değil, yön belli: ileri.", "Adres yazılmamış. Sabret, yazılır.", "Nerede olduğu değil, ne zaman olduğu önemli."]
+      "olur": [
+        "Sandığın yerde. Bir daha bak.",
+        "Uzakta değil; çok yakında.",
+        "Aradığın yer, en son baktığın yer olacak."
+      ],
+      "olmaz": [
+        "Orada değil. Orayı boşuna arıyorsun.",
+        "O yer bu hikâyede geçmiyor.",
+        "Aradığın yerde yok; belki hiç olmadı."
+      ],
+      "belirsiz": [
+        "Yer belli değil, yön belli: ileri.",
+        "Adres yazılmamış. Sabret, yazılır.",
+        "Nerede olduğu değil, ne zaman olduğu önemli."
+      ]
     },
     "neden": {
-      "olur": ["Sebebi sende ve bunu biliyorsun.", "Hayırlısı olsun diye. Başka sebebi yok.", "Çünkü sıra sana gelmişti."],
-      "olmaz": ["Sebebini sorma; cevabı hoşuna gitmez.", "Sebep sende değil. Bu kadarı yeter.", "Bazı satırların sebebi yazılmaz."],
-      "belirsiz": ["Sebep sonra anlaşılır, şimdi değil.", "Neden diye sorma; nasıl diye sor.", "Cevabı var ama bu sayfada değil."]
+      "olur": [
+        "Sebebi sende ve bunu biliyorsun.",
+        "Hayırlısı olsun diye. Başka sebebi yok.",
+        "Çünkü sıra sana gelmişti."
+      ],
+      "olmaz": [
+        "Sebebini sorma; cevabı hoşuna gitmez.",
+        "Sebep sende değil. Bu kadarı yeter.",
+        "Bazı satırların sebebi yazılmaz."
+      ],
+      "belirsiz": [
+        "Sebep sonra anlaşılır, şimdi değil.",
+        "Neden diye sorma; nasıl diye sor.",
+        "Cevabı var ama bu sayfada değil."
+      ]
     },
     "nasil": {
-      "olur": ["Bildiğin gibi. İçine doğan yol doğru yol.", "Sabırla ve sessizce. Başka usulü yok.", "Aceleyle değil, düzenle."],
-      "olmaz": ["Bu yolla olmaz. Yolu değiştir.", "Denediğin usul yanlış; ısrar zarar.", "Nasıl sorusu boşa; bu iş olmuyor."],
-      "belirsiz": ["Usulü var ama sırası gelmemiş.", "Önce bekle, sonra sor. Sırası bu.", "Yolu göstermiyorlar; kapıyı gösteriyorlar."]
+      "olur": [
+        "Bildiğin gibi. İçine doğan yol doğru yol.",
+        "Sabırla ve sessizce. Başka usulü yok.",
+        "Aceleyle değil, düzenle."
+      ],
+      "olmaz": [
+        "Bu yolla olmaz. Yolu değiştir.",
+        "Denediğin usul yanlış; ısrar zarar.",
+        "Nasıl sorusu boşa; bu iş olmuyor."
+      ],
+      "belirsiz": [
+        "Usulü var ama sırası gelmemiş.",
+        "Önce bekle, sonra sor. Sırası bu.",
+        "Yolu göstermiyorlar; kapıyı gösteriyorlar."
+      ]
     },
     "secim": {
-      "olur": ["İlk aklına geleni seç. Doğrusu o.", "İkisi de olur ama biri daha çabuk olur: ilki.", "Tereddüt ettiğin değil, içinden geçen."],
-      "olmaz": ["İkisi de değil. Üçüncü bir yol var.", "Seçtiğin hangisiyse öteki daha iyiydi.", "Bu ikisinden hayır çıkmaz."],
-      "belirsiz": ["Seçmek için erken. Biraz daha bekle.", "Seçim senin değil bu sefer.", "İkisi de açık; kapanmasını bekle."]
+      "olur": [
+        "İlk aklına geleni seç. Doğrusu o.",
+        "İkisi de olur ama biri daha çabuk olur: ilki.",
+        "Tereddüt ettiğin değil, içinden geçen."
+      ],
+      "olmaz": [
+        "İkisi de değil. Üçüncü bir yol var.",
+        "Seçtiğin hangisiyse öteki daha iyiydi.",
+        "Bu ikisinden hayır çıkmaz."
+      ],
+      "belirsiz": [
+        "Seçmek için erken. Biraz daha bekle.",
+        "Seçim senin değil bu sefer.",
+        "İkisi de açık; kapanmasını bekle."
+      ]
     }
   },
-
   "okumaTip": {
-    "evet_hayir": ["Net bir soru sormuşsun; defter de net cevap vermiş.", "Evet-hayır soruluyor, kader ikisinden birini işaretlemiş.", "Kapalı uçlu soru, kapalı zarf cevap."],
-    "zaman": ["Takvim soruyorsun; kader takvimle arası iyi değildir.", "Zaman sorulmuş. Zaman en geç veren cevaptır.", "Ne zaman diye sordun; defter mevsim diliyle konuşuyor."],
-    "nicel": ["Rakam sormuşsun; defterde rakam değil ölçü yazar.", "Sayı istiyorsun, kader tartıyla çalışıyor.", "Ne kadar diye sordun; cevabı kantara vurmuşlar."],
-    "kisi": ["Bir isim aranıyor bu sayfada.", "Kim diye sordun; defterde isimler soluk yazılır.", "Kişi sorulmuş; kader parmakla göstermeyi sevmez."],
-    "yer": ["Bir yer aranıyor; defter yön veriyor, adres değil.", "Nerede diye sordun; kaderin haritası kabadır.", "Yer sorulmuş, mesafe ölçülmüş."],
-    "neden": ["Sebep sormuşsun; en zor sorulan soru budur.", "Neden diye sordun; defter sebebi en sona yazar.", "Gerekçe aranıyor bu satırda."],
-    "nasil": ["Usul sormuşsun; kader usulden anlar.", "Nasıl diye sordun; cevabı yöntemde saklı.", "Yol soruluyor, yön veriliyor."],
-    "secim": ["İki yol arasında kalmışsın.", "Seçim sorulmuş; defter iki kapıya birden bakıyor.", "Ya o ya bu demişsin; kaderin üçüncü şıkkı da vardır."],
-    "acik": ["Ucu açık bir soru sormuşsun; cevabı da öyle.", "Soru geniş; defter dar cevap vermiş.", "Niyetin sorudan büyük görünüyor."]
+    "evet_hayir": [
+      "Net bir soru sormuşsun; defter de net cevap vermiş.",
+      "Evet-hayır soruluyor, kader ikisinden birini işaretlemiş.",
+      "Kapalı uçlu soru, kapalı zarf cevap."
+    ],
+    "zaman": [
+      "Takvim soruyorsun; kader takvimle arası iyi değildir.",
+      "Zaman sorulmuş. Zaman en geç veren cevaptır.",
+      "Ne zaman diye sordun; defter mevsim diliyle konuşuyor."
+    ],
+    "nicel": [
+      "Rakam sormuşsun; defterde rakam değil ölçü yazar.",
+      "Sayı istiyorsun, kader tartıyla çalışıyor.",
+      "Ne kadar diye sordun; cevabı kantara vurmuşlar."
+    ],
+    "kisi": [
+      "Bir isim aranıyor bu sayfada.",
+      "Kim diye sordun; defterde isimler soluk yazılır.",
+      "Kişi sorulmuş; kader parmakla göstermeyi sevmez."
+    ],
+    "yer": [
+      "Bir yer aranıyor; defter yön veriyor, adres değil.",
+      "Nerede diye sordun; kaderin haritası kabadır.",
+      "Yer sorulmuş, mesafe ölçülmüş."
+    ],
+    "neden": [
+      "Sebep sormuşsun; en zor sorulan soru budur.",
+      "Neden diye sordun; defter sebebi en sona yazar.",
+      "Gerekçe aranıyor bu satırda."
+    ],
+    "nasil": [
+      "Usul sormuşsun; kader usulden anlar.",
+      "Nasıl diye sordun; cevabı yöntemde saklı.",
+      "Yol soruluyor, yön veriliyor."
+    ],
+    "secim": [
+      "İki yol arasında kalmışsın.",
+      "Seçim sorulmuş; defter iki kapıya birden bakıyor.",
+      "Ya o ya bu demişsin; kaderin üçüncü şıkkı da vardır."
+    ],
+    "acik": [
+      "Ucu açık bir soru sormuşsun; cevabı da öyle.",
+      "Soru geniş; defter dar cevap vermiş.",
+      "Niyetin sorudan büyük görünüyor."
+    ]
   },
-
   "okumaKonu": {
-    "ask": ["Gönül meselesi soruluyor; bu defterin en kalabalık sayfası.", "Kalp işi. Kader burada en yavaş yazar.", "Sevda sorulmuş; cevabı iki kişiyi birden bağlar."],
-    "para": ["Para meselesi soruluyor; defterde rakam değil bereket yazar.", "Kısmet hesabı açılmış.", "Kese sorulmuş; kader keseyi değil eli ölçer."],
-    "is": ["Ekmek meselesi bu; defterin en ciddi sayfası.", "Emek sorulmuş, karşılığı tartılıyor.", "İş kapısı soruluyor; kapılar bu defterde çok."],
-    "saglik": ["Beden meselesi; kader burada aceleye gelmez.", "Şifa sorulmuş. Şifanın kendi takvimi vardır.", "Sağlık soruluyor; defter burada temkinli yazar."],
-    "egitim": ["Emek ve netice soruluyor.", "Defter meselesi; bu sayfa çalışanı sever.", "Sınav sorulmuş, terazi kurulmuş."],
-    "yol": ["Yol meselesi; gidenin de kalanın da defteri ayrıdır.", "Yolculuk soruluyor; kader yolları geç açar.", "Gitmek sorulmuş, kalmak da cevabın içinde."],
-    "genel": ["Niyetin okundu.", "Soru tartıldı, cevabı bulundu.", "Defter açıldı, sayfa bulundu."]
+    "ask": [
+      "Gönül meselesi soruluyor; bu defterin en kalabalık sayfası.",
+      "Kalp işi. Kader burada en yavaş yazar.",
+      "Sevda sorulmuş; cevabı iki kişiyi birden bağlar."
+    ],
+    "para": [
+      "Para meselesi soruluyor; defterde rakam değil bereket yazar.",
+      "Kısmet hesabı açılmış.",
+      "Kese sorulmuş; kader keseyi değil eli ölçer."
+    ],
+    "is": [
+      "Ekmek meselesi bu; defterin en ciddi sayfası.",
+      "Emek sorulmuş, karşılığı tartılıyor.",
+      "İş kapısı soruluyor; kapılar bu defterde çok."
+    ],
+    "saglik": [
+      "Beden meselesi; kader burada aceleye gelmez.",
+      "Şifa sorulmuş. Şifanın kendi takvimi vardır.",
+      "Sağlık soruluyor; defter burada temkinli yazar."
+    ],
+    "egitim": [
+      "Emek ve netice soruluyor.",
+      "Defter meselesi; bu sayfa çalışanı sever.",
+      "Sınav sorulmuş, terazi kurulmuş."
+    ],
+    "yol": [
+      "Yol meselesi; gidenin de kalanın da defteri ayrıdır.",
+      "Yolculuk soruluyor; kader yolları geç açar.",
+      "Gitmek sorulmuş, kalmak da cevabın içinde."
+    ],
+    "genel": [
+      "Niyetin okundu.",
+      "Soru tartıldı, cevabı bulundu.",
+      "Defter açıldı, sayfa bulundu."
+    ]
   },
-
   "tavsiye": {
     "mujde": [
       "Sen üstüne düşeni yap, gerisini karıştırma.",
@@ -571,18 +1639,42 @@
       "Bir bardak çay iç, sonra bir daha düşün.",
       "Ne umutlan ne kork; ikisi de erken."
     ],
-    "kapandi": ["Dosya kapandı. Başka soru?"]
+    "kapandi": [
+      "Dosya kapandı. Başka soru?"
+    ]
   },
-
   "ozel": {
-    "sen kimsin": { "yanit": "Kaderin sesiyim. Sorunu sor.", "serh": "Kim olduğumu sormuşsun; ben soru sorulan tarafım.", "kutup": "bekle" },
-    "nasipte varsa": { "yanit": "Varsa, olur. Olmazsa, hayırlısı.", "serh": "Sitenin adını sormuşsun. Cevabı da adında yazıyor.", "kutup": "bekle" },
-    "naber": { "yanit": "İyidir. Kaderle sohbet de nasipmiş.", "serh": "Hâl hatır sorulmuş; defter bunu sever.", "kutup": "var" },
-    "eee bu gadar": { "yanit": "Eeee? Bu gadar.", "serh": "Dosya kapandı.", "kutup": "kapandi" },
-    "eeee bu gadar": { "yanit": "Eeee? Bu gadar.", "serh": "Dosya kapandı.", "kutup": "kapandi" },
-    "kader nedir": { "yanit": "Yazılmış olan. Okuyabilsen soru sormazdın.", "serh": "Tanım istemişsin; defter tanım vermez, örnek verir.", "kutup": "bekle" }
+    "sen kimsin": {
+      "yanit": "Kaderin sesiyim. Sorunu sor.",
+      "serh": "Kim olduğumu sormuşsun; ben soru sorulan tarafım.",
+      "kutup": "bekle"
+    },
+    "nasipte varsa": {
+      "yanit": "Varsa, olur. Olmazsa, hayırlısı.",
+      "serh": "Sitenin adını sormuşsun. Cevabı da adında yazıyor.",
+      "kutup": "bekle"
+    },
+    "naber": {
+      "yanit": "İyidir. Kaderle sohbet de nasipmiş.",
+      "serh": "Hâl hatır sorulmuş; defter bunu sever.",
+      "kutup": "var"
+    },
+    "eee bu gadar": {
+      "yanit": "Eeee? Bu gadar.",
+      "serh": "Dosya kapandı.",
+      "kutup": "kapandi"
+    },
+    "eeee bu gadar": {
+      "yanit": "Eeee? Bu gadar.",
+      "serh": "Dosya kapandı.",
+      "kutup": "kapandi"
+    },
+    "kader nedir": {
+      "yanit": "Yazılmış olan. Okuyabilsen soru sormazdın.",
+      "serh": "Tanım istemişsin; defter tanım vermez, örnek verir.",
+      "kutup": "bekle"
+    }
   },
-
   "gunluk": [
     "Bugün ağzından çıkana dikkat: nasip kulak misafiri.",
     "Sağ cebine koyduğunu sol cebinde arayacaksın. Sakin ol.",
@@ -633,15 +1725,21 @@
     "Kırgınlık taşıma bugün. Ağır.",
     "Bugün bir kere “hayır” demeyi dene. Nasip sınır sever."
   ],
-
   "dusunceler": [
-    "kader yoklanıyor…", "kısmet defteri açılıyor…", "niyet okunuyor…",
-    "yıldızlara danışılıyor…", "alın yazısı büyütülüyor…",
-    "kahve telvesine bakılıyor…", "nasip sorgulanıyor…"
+    "kader yoklanıyor…",
+    "kısmet defteri açılıyor…",
+    "niyet okunuyor…",
+    "yıldızlara danışılıyor…",
+    "alın yazısı büyütülüyor…",
+    "kahve telvesine bakılıyor…",
+    "nasip sorgulanıyor…"
   ],
-
   "ornekler": [
-    "Zam alacak mıyım?", "O mesaj gelecek mi?", "Bu iş olacak mı?",
-    "Ne zaman kavuşacağım?", "İstifa etsem mi kalsam mı?", "Sınavı geçecek miyim?"
+    "Zam alacak mıyım?",
+    "O mesaj gelecek mi?",
+    "Bu iş olacak mı?",
+    "Ne zaman kavuşacağım?",
+    "İstifa etsem mi kalsam mı?",
+    "Sınavı geçecek miyim?"
   ]
 }

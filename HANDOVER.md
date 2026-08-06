@@ -339,13 +339,38 @@ Yeni cümle yazarken tek kural: **her satır noktasıyla biten, tek başına aya
 bir cümle olsun.** Türkçe eklemeli olduğu için yuvaya isim/çekim sokulmaz; şablonlar
 tam cümleleri yan yana dizer.
 
-`tipHukum[tip][kader]` doluysa genel havuz devre dışı kalır — "Yüzde elli" cümlesi
-"ne zaman" sorusunu cevaplamaz diye. Bunu bozma.
+### Havuz payı nasıl belirlenir (içerik yazmadan önce oku)
+
+`adaylastir()` ağırlığı **cümle başına** verir. Yani bir havuzun seçilme payı
+**havuz boyu × ağırlık**'la orantılıdır. Üç havuz da her zaman yarışa girer;
+hiçbiri diğerini devre dışı bırakmaz.
+
+| havuz | anahtar | ağırlık | hücre başına |
+|---|---|---|---|
+| `hukum.ton[ton]` | TON | `tonAgirlik` 3 · korkulan soruda `tonAgirlikKorku` 6 | 12 |
+| `tipHukum[tip][kader]` | KADER | `tipAgirlik` 3 (havuz boşsa 0) | 3 |
+| `konuHukum[konu][ton]` | TON | `konuAgirlik` 3 | 12 |
+
+Bir "aşk" evet/hayır sorusunda: ton 12×3 = 36, konu 12×3 = 36, tip 0
+(`evet_hayir` ve `acik` `tipHukum`'da **yok**, bilerek — o havuz tondan bağımsız
+yazılmak zorunda ve evet/hayır soruları tam da tonun en kritik olduğu yer).
+
+**Ölçülmüş etkisi.** `konuHukum` hücre başına 3 iken konuya özel hüküm 48 sorunun
+yalnızca %8'inde çıkıyordu; 12'ye çıkarılınca **%38**. Cevapların monotonlaşması
+buradan geliyordu: neredeyse her hüküm tona göre 12 cümlelik genel havuzdan
+geliyordu. Havuz büyütürken bu tabloya bak — dar havuza cümle eklemek payı da
+büyütür, geniş havuza eklemek çeşitliliği artırır ama payı değiştirmez.
+
+**`konuHukum` TON'a, `tipHukum` KADER'e göre anahtarlanır.** Bu ikisi karıştı bir
+kere: `cevapla()` `konuHukum`'u kader ile okuyordu, tek kesişen anahtar `belirsiz`
+olduğu için 90 konu cümlesinin **72'si hiç seçilemiyordu** ve hiçbir test bunu
+görmedi. `test-motor.mjs` §13 artık havuz **isabetini** ölçüyor; şema anahtarı ya
+da okuma tarafı kayarsa orası kalır. Silme.
 
 ## 5. Testler
 
 ```bash
-node test/test-motor.mjs        # 132 test: sesbilim, gövdeleme, morfotaktik, tip/arzu,
+node test/test-motor.mjs        # 138 test: sesbilim, gövdeleme, morfotaktik, tip/arzu,
                                 #           determinizm, kararlılık, dağılım, uç durumlar,
                                 #           kura (ES kararlılığı), ebced, eski sayfalar
 node test/test-guvenlik.mjs     # prototip anahtarları, enjeksiyon yükleri (kader + kura +
@@ -369,7 +394,7 @@ npm i -D playwright-core
 PW_CHROMIUM="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" node test/test-arayuz.mjs
 ```
 
-Son tam koşu: **motor 132/132, arayüz 203/203, tarayıcı 42/42, güvenlik 0 bulgu.**
+Son tam koşu: **motor 138/138, arayüz 203/203, tarayıcı 42/42, güvenlik 0 bulgu.**
 Geçmiş: `2a4d9b0` arayüz 159 · mühür ritüeli +14 · kaydırma ve 5 sekme kartı +21 · ışınsal parçalanma +9.
 
 **`kartAl()` yardımcısındaki kararsızlık — ölçüldü, düzeltildi.** Eski hâli "iki ardışık
