@@ -634,7 +634,10 @@
     var ton = tonBul(kader, c.arzu);
 
     /* — hüküm — tona göre genel havuz + konuya/tipe özel havuzlar — */
-    var konuH = (veri.konuHukum[c.konu] || {})[kader];
+    /* konuHukum TON'a göre anahtarlanır (kader.json şeması ve CI denetimi öyle),
+       tipHukum ise KADER'e göre. Burada kader ile okunuyordu: tek kesişen anahtar
+       "belirsiz" olduğu için 90 konu cümlesinin 72'si hiç seçilemiyordu. */
+    var konuH = (veri.konuHukum[c.konu] || {})[ton];
     var tipH = (veri.tipHukum[c.tip] || {})[kader];
     var tonH = (veri.hukum.ton || {})[ton];
     /* Korkulan sorularda ton havuzu ağır basar: "kovulacak mıyım" sorusuna

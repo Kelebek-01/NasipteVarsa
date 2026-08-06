@@ -221,6 +221,47 @@ for (const uc of ["?", "...", "a", "acaba", "😀", "mı", "   ", "çok çok ço
      g.every((x, i) => i === 0 || x.baslangicMs - g[i - 1].baslangicMs === (A.donemGun || 7) * 86400000));
 }
 
+/* ——— 13. Her havuz gerçekten ULAŞILABİLİR mi ———
+   Regresyon koruması. konuHukum TON'a göre anahtarlanır, tipHukum KADER'e göre;
+   kader.js bir ara konuHukum'u kader ile okuyordu ve tek kesişen anahtar
+   "belirsiz" olduğu için 90 konu cümlesinin 72'si hiç seçilemiyordu. Testler
+   bunu görmedi çünkü hiçbiri havuz isabetini ölçmüyordu. Artık ölçüyor:
+   şema anahtarı değişirse ya da okuma tarafı kayarsa burası kalır. */
+{
+  const sorular = [];
+  for (const k of ["iş", "para", "aşk", "sınav", "ev", "yol", "sağlık", "borç", "evlilik", "terfi"])
+    for (const p of ["X olacak mı", "X ne zaman olur", "X iyi gider mi", "X kaybeder miyim"])
+      sorular.push(p.replace("X", k));
+
+  const isabet = { konu: 0, tip: 0, ton: 0 };
+  const tonlar = new Set();
+  for (const s of sorular) for (let d = 0; d < 12; d++) {
+    const r = K.cevapla(s, veri, D - d);
+    if (((veri.konuHukum[r.konu] || {})[r.ton] || []).includes(r.yanit)) isabet.konu++;
+    if (((veri.tipHukum[r.tip] || {})[r.kader] || []).includes(r.yanit)) isabet.tip++;
+    if ((veri.hukum.ton[r.ton] || []).includes(r.yanit)) isabet.ton++;
+    if (r.konu !== "genel") tonlar.add(r.konu + ":" + r.ton);
+  }
+  ok("konuHukum havuzu ulaşılabilir", isabet.konu > 0, JSON.stringify(isabet));
+  ok("tipHukum havuzu ulaşılabilir", isabet.tip > 0, JSON.stringify(isabet));
+  ok("hukum.ton havuzu ulaşılabilir", isabet.ton > 0, JSON.stringify(isabet));
+  /* "belirsiz" dışındaki tonlarda da konu cümlesi çıkmalı: hatanın imzası
+     tam olarak "yalnızca belirsiz tonunda konu cümlesi görünmesi" idi. */
+  let belirsizDisi = 0;
+  for (const s of sorular) for (let d = 0; d < 12; d++) {
+    const r = K.cevapla(s, veri, D - d);
+    if (r.ton !== "belirsiz" && ((veri.konuHukum[r.konu] || {})[r.ton] || []).includes(r.yanit)) belirsizDisi++;
+  }
+  ok("konu cümlesi belirsiz dışı tonlarda da çıkıyor", belirsizDisi > 0, belirsizDisi + " isabet");
+  /* Şema anahtarları kaymasın. */
+  ok("konuHukum TON anahtarlı",
+     Object.keys(veri.konuHukum).every(k =>
+       ["mujde", "uyari", "teselli", "ferah", "belirsiz"].every(t => Array.isArray(veri.konuHukum[k][t]))));
+  ok("tipHukum KADER anahtarlı",
+     Object.keys(veri.tipHukum).every(k =>
+       ["olur", "olmaz", "belirsiz"].every(t => Array.isArray(veri.tipHukum[k][t]))));
+}
+
 console.log(`\n${gecti} geçti, ${kaldi} kaldı`);
 if (hata.length) { console.log("\nKALANLAR:"); hata.forEach(h => console.log("  ✗ " + h)); }
 console.log("mühür dağılımı:", JSON.stringify(yuzde));
