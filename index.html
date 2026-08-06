@@ -357,7 +357,7 @@ body[data-cilt="neon"] .zarf .soru-eko{font-style:normal}
 .muhur-kir:focus-visible{outline:2px solid var(--altin);outline-offset:6px;border-radius:var(--kart-yuvarlak)}
 
 .balmumu{position:relative;display:block;width:132px;height:132px;margin:0 auto}
-.balmumu-yarim{position:absolute;inset:0;display:grid;place-items:center;
+.balmumu-govde{position:absolute;inset:0;display:grid;place-items:center;
   background:radial-gradient(circle at 36% 30%, var(--muhur-acik) 0%, var(--muhur) 46%,
     color-mix(in srgb,var(--muhur) 66%,#000) 100%);
   border-radius:var(--balmumu-yuvarlak);
@@ -370,8 +370,20 @@ body[data-cilt="neon"] .zarf .soru-eko{font-style:normal}
   box-shadow:inset 0 6px 12px color-mix(in srgb,var(--muhur-acik) 55%,#fff),
              inset 0 -9px 18px color-mix(in srgb,var(--muhur) 50%,#000);
   transition:transform .5s cubic-bezier(.2,.8,.3,1),opacity .5s ease}
-.balmumu-yarim.sol{clip-path:inset(0 50% 0 0)}
-.balmumu-yarim.sag{clip-path:inset(0 0 0 50%)}
+/* Dilimler kırılma anında JS ile üretilir: sayı, açılar ve savrulma
+   rastgeledir, clip-path da öyle. Bu yüzden burada tek kural transition. */
+.balmumu-dilim{transition:transform .62s cubic-bezier(.16,.72,.28,1),opacity .62s ease}
+/* Çatlak çizgileri AYRI bir katman. Dilimler birleşikken kusursuz oturuyor
+   (paylaşılan ışın kurgusu), o yüzden dikişten çatlak görünmüyor; drop-shadow
+   da işe yaramaz — gölge dilimin ARKASINA düşer, komşu dilim üstünü örter.
+   Bu yüzden çatlak, ışınların kendi nokta dizisinden üstte çizilir. */
+.balmumu-catlak{position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;transition:opacity .34s ease;
+  /* Işınlar kutunun KÖŞESİNE gider, balmumu ise yuvarlaktır: kırpılmazsa
+     çatlak mumun dışına taşıp altın halkayı keser. */
+  clip-path:inset(0 round var(--balmumu-yuvarlak))}
+.balmumu-catlak path{fill:none;stroke:color-mix(in srgb,var(--muhur) 22%,#000);
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
 .balmumu-mm{font-family:var(--baslik-yazi);font-weight:700;font-size:2.1rem;letter-spacing:.14em;
   color:color-mix(in srgb,var(--muhur) 48%,#000);text-indent:.14em;
   text-shadow:0 1px 0 color-mix(in srgb,var(--muhur-acik) 70%,#fff)}
@@ -382,10 +394,7 @@ body[data-cilt="neon"] .zarf .soru-eko{font-style:normal}
 .balmumu-halka circle{fill:none;stroke-width:3;stroke-linecap:round}
 .balmumu-halka .iz{stroke:var(--cizgi)}
 .balmumu-halka .dolu{stroke:var(--altin)}
-.muhur-kir:active .balmumu-yarim{transform:scale(.97)}
-
-.balmumu.kirildi .balmumu-yarim.sol{transform:translate(-38px,26px) rotate(-19deg);opacity:0}
-.balmumu.kirildi .balmumu-yarim.sag{transform:translate(38px,30px) rotate(16deg);opacity:0}
+.muhur-kir:active .balmumu-govde{transform:scale(.97)}
 .balmumu.kirildi .balmumu-halka{opacity:0;transition:opacity .2s ease}
 .zarf-ipucu{display:block;margin:18px 0 0;color:var(--duman);font-size:var(--ol-2);
   font-family:var(--govde-yazi);min-height:1.5em}
@@ -393,8 +402,9 @@ body[data-cilt="neon"] .zarf .soru-eko{font-style:normal}
 
 @media (prefers-reduced-motion: reduce){
   .zarf{animation:none}
-  .balmumu-yarim{transition:none}
-  .balmumu.kirildi .balmumu-yarim{transform:none}
+  /* Azalan hareket: mühür parçalanmaz, olduğu yerde soluverir. */
+  .balmumu-govde,.balmumu-dilim{transition:none}
+  .balmumu.kirildi .balmumu-dilim{transform:none}
 }
 
 /* ——— defterin eski sayfaları ——— */
@@ -1201,6 +1211,112 @@ function sayacaBas(el, hedef){
 var SVGNS = "http://www.w3.org/2000/svg";
 var TUTMA_MS = 850, HALKA_R = 47, HALKA_CEVRE = 2 * Math.PI * HALKA_R;
 
+/* ——— balmumu parçalanması ———
+   Mühür, PARMAĞIN BASTIĞI NOKTADAN ışınsal kırılır: o noktadan kenara rastgele
+   açılarla ışınlar atılır, aralarda kalan dilimler ayrı ayrı savrulur. Köşeden
+   basınca bir büyük parça + kıymıklar, ortadan basınca dengeli dağılım çıkar.
+
+   Buradaki Math.random YALNIZCA GÖRSELDİR. Cevap sor() içinde çoktan
+   hesaplandı ve kapanışta bekliyor; kırılmanın şekli hükmü etkilemez.
+   Motor tarafında rastgelelik yok — test-guvenlik.mjs "Math.random sızmamış"
+   maddesiyle kader.js'i ayrıca denetliyor. */
+var DILIM_AZ = 4, DILIM_COK = 6;
+
+/* Basılan noktadan verilen açıda ışın atıp mühür kutusunun kenarını bulur.
+   Koordinatlar yüzde (0..100), clip-path polygon da öyle. */
+function kenarNoktasi(ox, oy, aci){
+  var dx = Math.cos(aci), dy = Math.sin(aci), t = Infinity;
+  if (dx > 1e-6) t = Math.min(t, (100 - ox) / dx);
+  if (dx < -1e-6) t = Math.min(t, (0 - ox) / dx);
+  if (dy > 1e-6) t = Math.min(t, (100 - oy) / dy);
+  if (dy < -1e-6) t = Math.min(t, (0 - oy) / dy);
+  if (!isFinite(t)) t = 0;
+  return [ox + dx * t, oy + dy * t];
+}
+
+/* Tek bir çatlak ışını: merkezden kenara, yanal sapmalarla tırtıklı.
+   Düz çizgi pasta dilimi gibi duruyor; balmumu öyle çatlamaz. */
+function catlakIsini(ox, oy, aci){
+  var son = kenarNoktasi(ox, oy, aci);
+  var dik = aci + Math.PI / 2, nokta = [];
+  for (var i = 1; i < 4; i++){
+    var t = i / 4, sapma = (Math.random() - 0.5) * 11;
+    nokta.push([ox + (son[0] - ox) * t + Math.cos(dik) * sapma,
+                oy + (son[1] - oy) * t + Math.sin(dik) * sapma]);
+  }
+  nokta.push(son);
+  return nokta;
+}
+
+/* Dilim: merkez → ışın j (dışa) → kenar yayı → ışın j+1 (içe).
+   İki komşu dilim AYNI ışın dizisini paylaşır; ayrı ayrı üretilseydi
+   aralarında boşluk ya da bindirme olurdu.
+   Kenar yayı örnekleme sıklığıyla kutu köşelerini yakalar; seyrek kalırsa
+   dilim köşeyi keser ve mühürde üçgen boşluk görünür. */
+function dilimPoligonu(ox, oy, a1, a2, isin1, isin2){
+  var y = function(p){ return p[0].toFixed(2) + "% " + p[1].toFixed(2) + "%"; };
+  var n = [y([ox, oy])];
+  isin1.forEach(function(p){ n.push(y(p)); });
+  var adet = Math.max(2, Math.ceil((a2 - a1) / (Math.PI / 12)));
+  for (var i = 1; i < adet; i++) n.push(y(kenarNoktasi(ox, oy, a1 + (a2 - a1) * (i / adet))));
+  for (var j = isin2.length - 1; j >= 0; j--) n.push(y(isin2[j]));
+  return "polygon(" + n.join(",") + ")";
+}
+
+/* Gövdeyi dilimlere böler ve savurur. ox/oy yüzde cinsinden basılan nokta. */
+function balmumuParcala(mum, govde, ox, oy){
+  var n = DILIM_AZ + Math.floor(Math.random() * (DILIM_COK - DILIM_AZ + 1));
+  var acilar = [], tam = Math.PI * 2;
+  /* Eşit aralık + sarsıntı: saf rastgele açı ara sıra kıl gibi dilim üretiyor. */
+  for (var i = 0; i < n; i++) acilar.push((i / n) * tam + (Math.random() - 0.5) * (tam / n) * 0.7);
+  acilar.sort(function(a, b){ return a - b; });
+  /* Işınlar önceden üretilir: her biri iki komşu dilim tarafından paylaşılır. */
+  var isinlar = acilar.map(function(a){ return catlakIsini(ox, oy, a); });
+
+  var dilimler = [];
+  for (var j = 0; j < n; j++){
+    var k = (j + 1) % n;
+    var a1 = acilar[j], a2 = (j === n - 1) ? acilar[0] + tam : acilar[k];
+    var d = govde.cloneNode(true);
+    d.className = "balmumu-govde balmumu-dilim";
+    d.style.clipPath = dilimPoligonu(ox, oy, a1, a2, isinlar[j], isinlar[k]);
+    var orta = (a1 + a2) / 2, uzak = 30 + Math.random() * 30;
+    d.setAttribute("data-savrul",
+      "translate(" + (Math.cos(orta) * uzak).toFixed(1) + "px," +
+                     (Math.sin(orta) * uzak + 10).toFixed(1) + "px) " +
+      "rotate(" + ((Math.random() - 0.5) * 46).toFixed(1) + "deg)");
+    mum.appendChild(d);
+    dilimler.push(d);
+  }
+  /* Çatlak katmanı: dilimlerin üstünde, ışınların kendi noktalarından. */
+  var catlak = document.createElementNS(SVGNS, "svg");
+  catlak.setAttribute("class", "balmumu-catlak");
+  catlak.setAttribute("viewBox", "0 0 100 100");
+  catlak.setAttribute("preserveAspectRatio", "none");
+  catlak.setAttribute("aria-hidden", "true");
+  isinlar.forEach(function(isin){
+    var yol = document.createElementNS(SVGNS, "path");
+    var d = "M" + ox.toFixed(2) + "," + oy.toFixed(2);
+    isin.forEach(function(p){ d += "L" + p[0].toFixed(2) + "," + p[1].toFixed(2); });
+    yol.setAttribute("d", d);
+    catlak.appendChild(yol);
+  });
+  mum.appendChild(catlak);
+
+  /* Gövde ile dilimler aynı karede yer değiştirir: göz kırpma görmez. */
+  govde.style.display = "none";
+  if (azHareket){ dilimler.forEach(function(d){ d.style.opacity = "0"; }); catlak.style.opacity = "0"; return; }
+  /* Kısa duraksama: önce çatlak görünsün, sonra parçalar düşsün.
+     Gerçek balmumu da böyle kırılır — çatlar, bir an durur, dağılır. */
+  window.setTimeout(function(){
+    dilimler.forEach(function(d){
+      d.style.transform = d.getAttribute("data-savrul");
+      d.style.opacity = "0";
+    });
+    catlak.style.opacity = "0";
+  }, 120);
+}
+
 function muhurluGoster(soru, sonuc){
   var zarf = document.createElement("div"); zarf.className = "zarf";
   var eko = document.createElement("p");
@@ -1211,13 +1327,11 @@ function muhurluGoster(soru, sonuc){
   dugme.setAttribute("aria-label", "Mührü kır ve kaydı aç");
 
   var mum = document.createElement("span"); mum.className = "balmumu";
-  function yarim(sinif){
-    var y = document.createElement("span"); y.className = "balmumu-yarim " + sinif;
-    var mm = document.createElement("span"); mm.className = "balmumu-mm";
-    mm.textContent = "NV"; mm.setAttribute("aria-hidden", "true");
-    y.appendChild(mm); return y;
-  }
-  mum.appendChild(yarim("sol")); mum.appendChild(yarim("sag"));
+  var govde = document.createElement("span"); govde.className = "balmumu-govde";
+  var mm = document.createElement("span"); mm.className = "balmumu-mm";
+  mm.textContent = "NV"; mm.setAttribute("aria-hidden", "true");
+  govde.appendChild(mm);
+  mum.appendChild(govde);
 
   var halka = document.createElementNS(SVGNS, "svg");
   halka.setAttribute("class", "balmumu-halka");
@@ -1245,6 +1359,9 @@ function muhurluGoster(soru, sonuc){
   zarf.scrollIntoView({block:"nearest", behavior: azHareket ? "auto" : "smooth"});
 
   var acildi = false, tutuyor = false, ray = 0, basSaat = 0, oran = 0, pointerYolu = false;
+  /* Kırılmanın merkezi: parmağın bastığı nokta. Klavyeyle açılınca pointer
+     yoktur, o zaman merkeze yakın rastgele bir nokta seçilir. */
+  var basX = 50, basY = 50;
 
   function ciz(p){
     /* stroke-linecap:round sıfır uzunlukta bile nokta çizer — halka boşken gizle */
@@ -1258,6 +1375,17 @@ function muhurluGoster(soru, sonuc){
     ciz(oran);
     if (oran >= 1){ tutuyor = false; kir(); return; }
     ray = requestAnimationFrame(ilerle);
+  }
+
+  /* Basılan noktayı mührün kutusuna göre yüzdeye çevirir. Kenara çok yakın
+     nokta kıl gibi dilimler ürettiği için 10–90 aralığına kısılır. */
+  function noktaAl(e){
+    var r = mum.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    var x = ((e.clientX - r.left) / r.width) * 100;
+    var y = ((e.clientY - r.top) / r.height) * 100;
+    basX = Math.max(10, Math.min(90, x));
+    basY = Math.max(10, Math.min(90, y));
   }
 
   /* Erken bırakma: halka geri sarılır, mühür sağlam kalır. */
@@ -1276,6 +1404,7 @@ function muhurluGoster(soru, sonuc){
     acildi = true; tutuyor = false;
     cancelAnimationFrame(ray); ciz(1);
     mum.className = "balmumu kirildi";
+    balmumuParcala(mum, govde, basX, basY);
     dugme.disabled = true;
     ipucu.textContent = "Mühür kırıldı.";
     kirilmaSesi();
@@ -1288,13 +1417,15 @@ function muhurluGoster(soru, sonuc){
         kart.tabIndex = -1;
         try { kart.focus({preventScroll:true}); } catch(e){ kart.focus(); }
       }
-    }, azHareket ? 0 : 420);
+      /* 640 ms: 120 ms çatlak + savrulmanın çoğu görünsün, sonra kayıt açılsın. */
+    }, azHareket ? 0 : 640);
   }
 
   dugme.addEventListener("pointerdown", function(e){
     /* Azalan hareket kipinde tutma yok: click yolu açar. */
     if (azHareket || acildi) return;
     pointerYolu = true; tutuyor = true; oran = 0; basSaat = performance.now();
+    noktaAl(e);
     try { dugme.setPointerCapture(e.pointerId); } catch(e2){}
     try { if (navigator.vibrate) navigator.vibrate(8); } catch(e2){}
     cancelAnimationFrame(ray); ray = requestAnimationFrame(ilerle);
@@ -1312,6 +1443,8 @@ function muhurluGoster(soru, sonuc){
      burada kilitlenmemeli — pointer'la gelen click zaten yukarıda işlendi. */
   dugme.addEventListener("click", function(){
     if (pointerYolu){ pointerYolu = false; return; }
+    basX = 50 + (Math.random() - 0.5) * 24;
+    basY = 50 + (Math.random() - 0.5) * 24;
     kir();
   });
 }

@@ -1,7 +1,7 @@
 # NasipteVarsa — Devir Notu (Claude Code için)
 
 Canlı: https://nasiptevarsa.com · Repo: `Kelebek-01/NasipteVarsa` · Yayın: GitHub Pages, `master` dalı kökten.
-Motor sürümü: **v3**, arayüz **v3.3**. Bu dosya `TASARIM-NOTLARI.md`'nin yerine geçer.
+Motor sürümü: **v3**, arayüz **v3.4**. Bu dosya `TASARIM-NOTLARI.md`'nin yerine geçer.
 
 ## 1. Ne bu?
 
@@ -115,7 +115,7 @@ CI'da ayrıca `.github/cilt-denetimi.mjs` her cilt bloğunda biçim token'ı ar�
 
 **Mühür kırma ritüeli (v3.3).** Kader sekmesinde cevap artık **mühürlü** gelir:
 `muhurluGoster()` bir balmumu mührü çizer, kullanıcı basılı tutar (850 ms), halka
-dolar, mühür ikiye ayrılır ve ancak o zaman `goster()` çağrılır. `goster()` hiç
+dolar, mühür parçalanır (bkz. ışınsal parçalanma) ve ancak o zaman `goster()` çağrılır. `goster()` hiç
 değişmedi — mürekkep animasyonu, sayaç, ses, eski sayfalar, paylaşım aynen çalışıyor.
 
 **Değişmez: tutma süresi kaderi DEĞİŞTİRMEZ.** Cevap `sor()` içinde hesaplanır ve
@@ -138,6 +138,34 @@ hiç çalıştırmaz, §8'deki 30 sn zaman aşımı tuzağına düşmez.
 
 `kartAl()` (test-tarayici) mühür varsa kendisi kırar — linkle gelen kayıtlar da
 mühürlü açıldığı için. Boş soruda ne mühür ne kart oluşur, §5 bunu ayrıca denetler.
+
+**Işınsal parçalanma (v3.4).** Mühür sabit bir çizgiden ikiye ayrılmıyor; **parmağın
+bastığı noktadan** kırılıyor. O noktadan kenara 4–6 rastgele açıda ışın atılıyor,
+aralarda kalan dilimler `clip-path: polygon()` ile kesilip ayrı ayrı savruluyor.
+Köşeden basınca bir büyük parça + kıymıklar, ortadan basınca dengeli dağılım çıkıyor.
+Klavyeyle açılınca pointer yok, merkeze yakın rastgele bir nokta seçiliyor.
+
+Üç şey birbirine bağlı, biri bozulursa görüntü çöker:
+
+1. **Işınlar önceden üretilir ve iki komşu dilim AYNI ışını paylaşır.** Her dilim kendi
+   kenarını ayrı üretseydi aralarında boşluk ya da bindirme olurdu.
+2. **Çatlak çizgileri ayrı bir SVG katmanı.** Dilimler birleşikken kusursuz oturduğu
+   için dikişten çatlak görünmüyor; `drop-shadow` da çare değil — gölge dilimin
+   ARKASINA düşüyor, komşu dilim üstünü örtüyor. Çizgiler ışınların kendi nokta
+   dizisinden üstte çiziliyor.
+3. **Çatlak katmanı mum şekline kırpılır** (`clip-path: inset(0 round var(--balmumu-yuvarlak))`).
+   Işınlar kutunun KÖŞESİNE gider, balmumu ise yuvarlaktır: kırpılmazsa çatlak
+   mumun dışına taşıp altın halkayı keser.
+
+Zamanlama: kırılma anında çatlak belirir, **120 ms durur**, sonra parçalar düşer;
+kayıt 640 ms sonra açılır. Duraksama gerçek balmumunun kırılma ritmi — kaldırılırsa
+çatlak hiç görülmeden parçalar uçar.
+
+**Buradaki `Math.random` yalnızca görseldir.** Cevap `sor()` içinde çoktan hesaplandı
+ve kapanışta bekliyor; kırılmanın şekli hükmü etkilemez. Motor tarafında rastgelelik
+yok, `test-guvenlik.mjs` "Math.random sızmamış" maddesiyle `kader.js`'i ayrıca
+denetliyor. `test-arayuz.mjs` §10d hem merkezin basılan noktayı izlediğini hem de
+aynı noktadan iki kırılmanın farklı desen verdiğini ölçüyor.
 
 Balmumunun **gürültü maskesi yoktur**, bilerek: `--muhur-maske` ince bir çerçeveyi
 aşındırmak için yapıldı, dolu bir diske uygulanınca yüzeyi delik deşik ediyor
@@ -322,11 +350,11 @@ node test/test-motor.mjs        # 132 test: sesbilim, gövdeleme, morfotaktik, t
                                 #           kura (ES kararlılığı), ebced, eski sayfalar
 node test/test-guvenlik.mjs     # prototip anahtarları, enjeksiyon yükleri (kader + kura +
                                 #           ebced kapılarından), dönem sınırları, CPU, tavanlar
-node test/test-arayuz.mjs       # 194 test: ciltler (renk VE biçim), cilt seçici, 5 sekme,
+node test/test-arayuz.mjs       # 203 test: ciltler (renk VE biçim), cilt seçici, 5 sekme,
                                 #           mobil kaydırma, kura, ebced, eski sayfalar,
                                 #           5 sekmenin PNG kartı, taşma, kontrast,
                                 #           gerçek görünürlük, animasyon,
-                                #           mühür kırma ritüeli (§10c)
+                                #           mühür kırma ritüeli (§10c), ışınsal parçalanma (§10d)
 node test/test-tarayici.mjs     # 42 test: akış, paylaşım linki, dönem güvenliği,
                                 #          fragment saldırıları, mobil, yedek veri, 404
 node eval/degerlendir.mjs       # ölçüm koşusu → eval/RAPOR.md
@@ -341,8 +369,8 @@ npm i -D playwright-core
 PW_CHROMIUM="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" node test/test-arayuz.mjs
 ```
 
-Son tam koşu: **motor 132/132, arayüz 194/194, tarayıcı 42/42, güvenlik 0 bulgu.**
-Geçmiş: `2a4d9b0` arayüz 159 · mühür ritüeli +14 · kaydırma ve 5 sekme kartı +21.
+Son tam koşu: **motor 132/132, arayüz 203/203, tarayıcı 42/42, güvenlik 0 bulgu.**
+Geçmiş: `2a4d9b0` arayüz 159 · mühür ritüeli +14 · kaydırma ve 5 sekme kartı +21 · ışınsal parçalanma +9.
 
 **`kartAl()` yardımcısındaki kararsızlık — ölçüldü, düzeltildi.** Eski hâli "iki ardışık
 okuma eşitse sayaç oturmuştur" varsayıyordu. Yetmiyor: sayaç `1-(1-p)³` ile yumuşadığı
