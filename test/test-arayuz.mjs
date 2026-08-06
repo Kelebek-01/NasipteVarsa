@@ -816,6 +816,61 @@ console.log("\n[10c] Mühür kırma ritüeli");
   ok("konsol temiz", konsol.length===0, konsol.join(" | "));
   await ctx.close();
 }
+/* 10d. Işınsal kırılma — merkez BASILAN NOKTA, desen rastgele */
+console.log("\n[10d] Balmumu parçalanması");
+{
+  const {ctx,p,konsol} = await sayfaAc();          /* reducedMotion YOK */
+
+  /* Basma noktasını oranla verip kırılma desenini geri okur.
+     Savrulma stille dondurulur; clip-path deseni aynen kalır. */
+  const kirVeOku = async (fx, fy) => {
+    await git(p);
+    await p.evaluate(()=>{ const g=document.getElementById("giris"); if(g) g.hidden=true; });
+    await p.addStyleTag({content:".balmumu-dilim{transition:none !important;opacity:1 !important;transform:none !important}"});
+    await p.fill("#soru","Bu yıl işimi değiştirmeli miyim?");
+    await p.click("#sor");
+    await p.waitForSelector(".muhur-kir",{timeout:9000});
+    const k = await p.locator(".balmumu").boundingBox();
+    await p.mouse.move(k.x + k.width*fx, k.y + k.height*fy);
+    await p.mouse.down(); await p.waitForTimeout(1000);
+    const d = await p.evaluate(()=>{
+      const dl = [...document.querySelectorAll(".balmumu-dilim")];
+      const cl = dl[0] ? dl[0].style.clipPath : "";
+      /* polygon(...) ilk köşesi kırılma merkezi */
+      const m = /polygon\(\s*([\d.]+)%\s+([\d.]+)%/.exec(cl);
+      return { adet: dl.length, desen: dl.map(x=>x.style.clipPath).join("|"),
+               mx: m ? +m[1] : null, my: m ? +m[2] : null,
+               catlakYol: document.querySelectorAll(".balmumu-catlak path").length,
+               govdeGizli: (document.querySelector(".balmumu-govde:not(.balmumu-dilim)")||{style:{}}).style.display };
+    });
+    await p.mouse.up();
+    return d;
+  };
+
+  const solUst = await kirVeOku(0.25, 0.25);
+  ok("mühür dilimlere ayrıldı", solUst.adet >= 4 && solUst.adet <= 6, solUst.adet + " dilim");
+  ok("her ışın için çatlak çizgisi var", solUst.catlakYol === solUst.adet,
+     solUst.catlakYol + " yol / " + solUst.adet + " dilim");
+  ok("bütün gövde gizlendi", solUst.govdeGizli === "none", solUst.govdeGizli);
+  ok("kırılma merkezi sol üstte", Math.abs(solUst.mx - 25) < 6 && Math.abs(solUst.my - 25) < 6,
+     solUst.mx + "%, " + solUst.my + "%");
+
+  const sagAlt = await kirVeOku(0.75, 0.72);
+  ok("kırılma merkezi sağ altta", Math.abs(sagAlt.mx - 75) < 6 && Math.abs(sagAlt.my - 72) < 6,
+     sagAlt.mx + "%, " + sagAlt.my + "%");
+  ok("merkez basılan yeri izliyor", Math.abs(sagAlt.mx - solUst.mx) > 30,
+     solUst.mx + "% vs " + sagAlt.mx + "%");
+
+  /* Desen rastgele: AYNI noktadan iki kırılma birebir aynı çıkmamalı.
+     Aynı çıkarsa ya açı sarsıntısı ya çatlak tırtığı ölmüş demektir. */
+  const a = await kirVeOku(0.5, 0.5), b = await kirVeOku(0.5, 0.5);
+  ok("aynı noktadan iki kırılma farklı desen veriyor", a.desen !== b.desen,
+     a.adet + " vs " + b.adet + " dilim");
+  ok("iki kırılmanın merkezi yine de aynı", Math.abs(a.mx - b.mx) < 3 && Math.abs(a.my - b.my) < 3,
+     a.mx + "," + a.my + " vs " + b.mx + "," + b.my);
+  ok("konsol temiz", konsol.length===0, konsol.join(" | "));
+  await ctx.close();
+}
 {
   /* Azalan hareket kipinde tutma yok: tek dokunuş açar, kimse kilitlenmez. */
   const {ctx,p} = await sayfaAc({reducedMotion:"reduce"});
