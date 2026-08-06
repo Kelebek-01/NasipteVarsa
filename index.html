@@ -699,7 +699,7 @@ var azHareket = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 var VERI = null, HAZIR = false, DONEM = 0, CILT = null;
 var oturumBellek = Object.create(null);
-var bekleyen = null, sesAcik = false, sonKayit = null;
+var bekleyen = null, sesAcik = false;
 
 /* paylaşılan link: #q=<soru>&d=<dönem>, ayrıca #cilt=<id> ile cilt denemesi */
 var paylasilan = null, paylasilanDonem = null, ciltZorla = null;
@@ -844,6 +844,46 @@ sekmeler.forEach(function(t){
     if (j >= 0){ e.preventDefault(); acik[j].focus(); sayfaAc(acik[j].getAttribute("data-sayfa")); }
   });
 });
+/* ═════════ mobilde sayfa çevirme (yatay kaydırma) ═════════
+   Karar touchend'de verilir ve touchmove'da preventDefault YAPILMAZ: yapılsaydı
+   dikey kaydırma kilitlenirdi. Sürükleme geri bildirimi yok, geçişi zaten
+   View Transitions yapıyor. Yön ve eşik klavye ok tuşlarıyla aynı davranır:
+   gizli sekmeler atlanır, uçtan uca dolanır. */
+(function(){
+  var ana = document.querySelector("main");
+  if (!ana) return;
+  var bx = 0, by = 0, izle = false;
+  var ESIK = 55, BASKINLIK = 1.6;    /* px · yatay hareket dikeyin kaç katı olmalı */
+
+  ana.addEventListener("touchstart", function(e){
+    izle = false;
+    if (e.touches.length !== 1) return;
+    /* Etkileşimli öğe üstünde başlayan dokunuş kaydırma değildir. Mühür de
+       buraya girer: o bir <button> ve basılı tutarken parmak kayabilir. */
+    if (e.target && e.target.closest &&
+        e.target.closest("input, textarea, select, button, a, summary, details, .olcek")) return;
+    izle = true; bx = e.touches[0].clientX; by = e.touches[0].clientY;
+  }, {passive:true});
+
+  ana.addEventListener("touchend", function(e){
+    if (!izle) return;
+    izle = false;
+    var t = e.changedTouches && e.changedTouches[0];
+    if (!t) return;
+    var dx = t.clientX - bx, dy = t.clientY - by;
+    if (Math.abs(dx) < ESIK || Math.abs(dx) < Math.abs(dy) * BASKINLIK) return;
+    var acik = sekmeler.filter(function(s){ return !s.hidden; });
+    if (acik.length < 2) return;
+    var i = -1;
+    for (var n = 0; n < acik.length; n++) if (acik[n].getAttribute("aria-selected") === "true") i = n;
+    if (i < 0) return;
+    var j = dx < 0 ? (i + 1) % acik.length : (i - 1 + acik.length) % acik.length;
+    sayfaAc(acik[j].getAttribute("data-sayfa"));
+  }, {passive:true});
+
+  ana.addEventListener("touchcancel", function(){ izle = false; }, {passive:true});
+})();
+
 /* Verisi olmayan sekme gösterilmez: yedek veriyle açıldığında boş sayfa çıkmasın. */
 function sekmeleriDenetle(){
   var ku = VERI.kura || {}, eb = VERI.ebced || {};
@@ -1162,8 +1202,6 @@ var SVGNS = "http://www.w3.org/2000/svg";
 var TUTMA_MS = 850, HALKA_R = 47, HALKA_CEVRE = 2 * Math.PI * HALKA_R;
 
 function muhurluGoster(soru, sonuc){
-  sonKayit = null;                    /* mühür kırılmadan PNG kart çizilemez */
-
   var zarf = document.createElement("div"); zarf.className = "zarf";
   var eko = document.createElement("p");
   eko.className = "soru-eko"; eko.textContent = "“" + soru + "”";
@@ -1279,7 +1317,9 @@ function muhurluGoster(soru, sonuc){
 }
 
 function goster(soru, sonuc){
-  sonKayit = {soru:soru, sonuc:sonuc};
+  var kayit = kayitYaz("“" + soru + "”", sonuc.yanit, sonuc.serh, MUHURLER[sonuc.kutup] || "KAYIT",
+                      (sonuc.kutup === "yok" || sonuc.kutup === "kapandi") ? "muhur"
+                        : (sonuc.kutup === "bekle" ? "duman" : "altin"), sonuc.no);
   var kart = document.createElement("div");
   kart.className = "kayit" + (azHareket ? "" : " sars");
 
@@ -1303,7 +1343,7 @@ function goster(soru, sonuc){
 
   var paylas = document.createElement("div"); paylas.className = "paylas";
   paylas.appendChild(kopyalaButonu(soru));
-  paylas.appendChild(kartButonu());
+  paylas.appendChild(kartButonu(kayit));
   if (navigator.share){
     var pb = document.createElement("button"); pb.type = "button"; pb.textContent = "Paylaş";
     pb.addEventListener("click", function(){
@@ -1348,11 +1388,23 @@ function eskiKopyala(metin){
 }
 
 /* ═════════ paylaşılabilir fal kartı (canvas) ═════════ */
-function kartButonu(){
+/* Fal kartının cilt-bağımsız kaydı. Beş sekme de aynı şekli doldurur, kartCiz()
+   yalnızca bunu bilir — sekmeye özel hiçbir şey tanımaz.
+   vurgu: "altin" | "muhur" | "duman" (rozetin ve çerçevesinin rengi) */
+function kayitYaz(ust, yanit, serh, rozet, vurgu, no){
+  return {ust:ust, yanit:yanit, serh:serh || "", rozet:rozet, vurgu:vurgu || "altin", no:no};
+}
+/* Kartı olan her sekme bu satırı ekler. */
+function kartSatiri(kayit){
+  var d = document.createElement("div"); d.className = "paylas";
+  d.appendChild(kartButonu(kayit));
+  return d;
+}
+function kartButonu(kayit){
   var b = document.createElement("button"); b.type = "button"; b.textContent = "Kartı İndir";
   b.addEventListener("click", function(){
     b.disabled = true; b.textContent = "Çiziliyor…";
-    kartCiz().then(function(blob){
+    kartCiz(kayit).then(function(blob){
       b.disabled = false; b.textContent = "Kartı İndir";
       if (!blob) return;
       var dosya = new File([blob], "nasiptevarsa.png", {type:"image/png"});
@@ -1398,8 +1450,8 @@ function sarLine(ctx, metin, genislik){
   if (simdi) satir.push(simdi);
   return satir;
 }
-function kartCiz(){
-  if (!sonKayit) return Promise.resolve(null);
+function kartCiz(kayit){
+  if (!kayit) return Promise.resolve(null);
   var yaz = document.fonts && document.fonts.load
     ? Promise.all([document.fonts.load('600 76px Fraunces'), document.fonts.load('italic 400 38px Fraunces'),
                    document.fonts.load('700 38px Poppins'), document.fonts.load('400 32px Poppins')])
@@ -1410,8 +1462,8 @@ function kartCiz(){
     var bg = jeton("--gece") || "#202330", kart = jeton("--gece2") || "#191c27",
         yazi = jeton("--sut") || "#f1efe8", dum = jeton("--duman") || "#9aa0b8",
         alt = jeton("--altin") || "#e3b458", muh = jeton("--muhur") || "#d4695b";
-    var s = sonKayit.sonuc;
-    var vurgu = (s.kutup === "yok" || s.kutup === "kapandi") ? muh : (s.kutup === "bekle" ? dum : alt);
+    var s = kayit;
+    var vurgu = s.vurgu === "muhur" ? muh : (s.vurgu === "duman" ? dum : alt);
 
     ctx.fillStyle = bg; ctx.fillRect(0, 0, G, Y);
     ctx.fillStyle = kart; ctx.globalAlpha = .55;
@@ -1428,13 +1480,13 @@ function kartCiz(){
     /* Önce ölç, sonra çiz: içerik dikeyde ortalansın, hiçbir şey çerçeveye binmesin. */
     var cerBas = 150, cerYuk = Y - 330;
     ctx.font = 'italic 400 38px Fraunces, Georgia, serif';
-    var qs = sarLine(ctx, "\u201C" + sonKayit.soru + "\u201D", sag).slice(0, 3);
+    var qs = sarLine(ctx, s.ust || "", sag).slice(0, 3);
     ctx.font = '600 76px Fraunces, Georgia, serif';
     var hs = sarLine(ctx, s.yanit, sag).slice(0, 5);
     ctx.font = '400 32px Poppins, sans-serif';
     var ss = sarLine(ctx, s.serh || "", sag).slice(0, 5);
     ctx.font = '700 34px Poppins, sans-serif';
-    var mt = MUHURLER[s.kutup] || "KAYIT", mtw = ctx.measureText(mt).width;
+    var mt = s.rozet || "KAYIT", mtw = ctx.measureText(mt).width;
 
     var toplam = qs.length * 52 + 30 + hs.length * 92 + 14 + ss.length * 46 + 54 + 64 + 52;
     var y = cerBas + Math.max(56, (cerYuk - toplam) / 2);
@@ -1499,8 +1551,12 @@ $("ikili-form").addEventListener("submit", function(e){
   var no = document.createElement("span"); no.className = "kayit-no"; no.textContent = "Kayıt №" + r.no;
   satir.appendChild(no);
 
+  var kayit = kayitYaz(a + " & " + b, r.yanit, r.serh, "%" + r.yuzde,
+                      r.yuzde >= 50 ? "altin" : "duman", r.no);
+
   kart.appendChild(eko); kart.appendChild(yzd); kart.appendChild(olc);
   kart.appendChild(yanit); kart.appendChild(serh); kart.appendChild(satir);
+  kart.appendChild(kartSatiri(kayit));
   c.textContent = ""; c.appendChild(kart);
   murekkeple(yanit, r.yanit);
   muhurSesi();
@@ -1541,7 +1597,11 @@ function burcGoster(id){
   var satir = document.createElement("div"); satir.className = "muhur-satir";
   var no = document.createElement("span"); no.className = "kayit-no"; no.textContent = "Kayıt №" + r.no;
   satir.appendChild(no);
+  /* burcNasibi metni `metin` alanında döner, `yanit` değil. */
+  var kayit = kayitYaz(r.burc.ad + " · bu devrin okuması", r.metin, "", r.burc.ad, "altin", r.no);
+
   kart.appendChild(eko); kart.appendChild(yanit); kart.appendChild(satir); kart.appendChild(not);
+  kart.appendChild(kartSatiri(kayit));
   var c = $("burc-cevap"); c.textContent = ""; c.appendChild(kart);
   murekkeple(yanit, r.metin);
   muhurSesi();
@@ -1587,8 +1647,12 @@ function burcGoster(id){
     satir.appendChild(no);
     var not = document.createElement("p"); not.className = "not"; not.textContent = devirNotu();
 
+    var kayit = kayitYaz(r.secenekler.length + " şık arasından", r.yanit, r.serh,
+                        r.secenekler[r.sira], "altin", r.no);
+
     kart.appendChild(eko); kart.appendChild(yanit); kart.appendChild(ul);
     kart.appendChild(serh); kart.appendChild(satir); kart.appendChild(not);
+    kart.appendChild(kartSatiri(kayit));
     c.textContent = ""; c.appendChild(kart);
     murekkeple(yanit, r.yanit);
     muhurSesi();
@@ -1627,8 +1691,11 @@ $("ebced-form").addEventListener("submit", function(e){
   var no = document.createElement("span"); no.className = "kayit-no"; no.textContent = "Kayıt №" + r.no;
   satir.appendChild(no);
 
+  var kayit = kayitYaz(ad, r.yanit, r.serh, r.toplam + " · " + r.hane + ". hane", "altin", r.no);
+
   kart.appendChild(eko); kart.appendChild(sayi); kart.appendChild(hane);
   kart.appendChild(yanit); kart.appendChild(serh); kart.appendChild(satir);
+  kart.appendChild(kartSatiri(kayit));
   c.textContent = ""; c.appendChild(kart);
   murekkeple(yanit, r.yanit);
   muhurSesi();

@@ -189,10 +189,41 @@ ebcedin kendisinden değil, ayrı adlandırılmıştır. Tohum **sayıdan** üre
 değil: aynı toplamı veren iki isim aynı sayfayı açar (ebcedde belirleyici olan sayıdır).
 Sayı devirden bağımsızdır, okuması devir döndükçe değişir.
 
-**Fal kartı (PNG).** `kartCiz()` 1080×1350 bir kart çiziyor, `toBlob` ile PNG üretiyor;
-paylaşım için `navigator.canShare({files})`, yoksa indirme. Yerleşim **ölç-sonra-çiz**:
-satırlar önce ölçülüp içerik dikeyde ortalanıyor, yoksa uzun cevaplarda çerçeveye biniyor.
-Renkler cilt token'larından okunuyor, yani kart hangi cilt açıksa ona uyuyor.
+**Fal kartı (PNG) — beş sekmede de (v3.3).** `kartCiz(kayit)` 1080×1350 bir kart çiziyor,
+`toBlob` ile PNG üretiyor; paylaşım için `navigator.canShare({files})`, yoksa indirme.
+Yerleşim **ölç-sonra-çiz**: satırlar önce ölçülüp içerik dikeyde ortalanıyor, yoksa uzun
+cevaplarda çerçeveye biniyor. Renkler cilt token'larından okunuyor, yani kart hangi cilt
+açıksa ona uyuyor.
+
+Kart kaydı **sekmeden bağımsız** tek bir şekil: `kayitYaz(ust, yanit, serh, rozet, vurgu, no)`.
+`kartCiz` yalnızca bunu tanır, hiçbir sekmeye özel alan bilmez. Rozet her sekmede kendi
+anlamını taşır: kaderde mühür (NASİP VAR…), ikilide yüzde, burçta burç adı, kurada kazanan
+şık, ebcedde `toplam · hane`.
+
+**Kayıt GLOBAL DEĞİL, düğmeye bağlı.** v3.2'de `sonKayit` global bir değişkendi ve yalnızca
+Kader sekmesi kart çiziyordu. Beş sekme aynı globali paylaşsaydı şu hata çıkardı: Kader'de
+cevap al, Burç'a geç, oku, sonra Kader kartındaki düğmeye bas → **burç kartı iner.**
+Bu yüzden kayıt `kartButonu(kayit)` → `kartCiz(kayit)` zinciriyle taşınıyor ve global
+kaldırıldı. `test-arayuz.mjs` §6 son maddesi ("her kart kendi kaydını çiziyor") tam bu
+gerilemeyi yakalar; silme.
+
+**Test tuzağı — `delete navigator.share` ÇALIŞMAZ.** Özellik `Navigator.prototype`
+üzerinde tanımlı; örnekten silinince prototipteki geri gelir ve kod paylaşım yolunu
+seçtiği için indirme hiç olmaz, test de indirme bekleyip zaman aşımına uğrar. Doğrusu
+`Object.defineProperty(Navigator.prototype, "share", {value:undefined, configurable:true})`.
+
+**Mobilde sayfa çevirme (v3.3).** `<main>` üstünde yatay kaydırma sekme değiştiriyor:
+eşik 55px, yatay hareket dikeyin en az 1,6 katı olmalı. Yön ve dolanma klavye ok
+tuşlarıyla aynı; gizli sekmeler atlanır.
+
+**`touchmove`'da `preventDefault` YAPILMIYOR ve yapılmamalı** — dinleyiciler `passive:true`.
+Yapılsaydı dikey kaydırma kilitlenirdi. Bunun bedeli sürükleme geri bildiriminin olmaması;
+karar `touchend`'de veriliyor, geçişi zaten View Transitions yapıyor. `test-arayuz.mjs`
+§2a son maddesi olayın `defaultPrevented` kalmadığını ölçüyor.
+
+Etkileşimli öğe üstünde başlayan dokunuş kaydırma sayılmıyor
+(`input, textarea, select, button, a, summary, details, .olcek`) — yoksa metin kutusunda
+imleç sürüklerken ya da **mühürü basılı tutarken parmak kayınca** sayfa değişirdi.
 
 **Araç düğmeleri: eylem / ayar ayrımı.** Eskiden "sen sor", "mühür sesi" ve "telefonu
 salla" üçü de aynı kesik çizgili çipti; hata ayıklama düğmesi gibi duruyorlardı. Artık
@@ -291,9 +322,10 @@ node test/test-motor.mjs        # 132 test: sesbilim, gövdeleme, morfotaktik, t
                                 #           kura (ES kararlılığı), ebced, eski sayfalar
 node test/test-guvenlik.mjs     # prototip anahtarları, enjeksiyon yükleri (kader + kura +
                                 #           ebced kapılarından), dönem sınırları, CPU, tavanlar
-node test/test-arayuz.mjs       # 173 test: ciltler (renk VE biçim), cilt seçici, 5 sekme,
-                                #           kura, ebced, eski sayfalar, PNG kart, taşma,
-                                #           kontrast, gerçek görünürlük, animasyon,
+node test/test-arayuz.mjs       # 194 test: ciltler (renk VE biçim), cilt seçici, 5 sekme,
+                                #           mobil kaydırma, kura, ebced, eski sayfalar,
+                                #           5 sekmenin PNG kartı, taşma, kontrast,
+                                #           gerçek görünürlük, animasyon,
                                 #           mühür kırma ritüeli (§10c)
 node test/test-tarayici.mjs     # 42 test: akış, paylaşım linki, dönem güvenliği,
                                 #          fragment saldırıları, mobil, yedek veri, 404
@@ -309,8 +341,16 @@ npm i -D playwright-core
 PW_CHROMIUM="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" node test/test-arayuz.mjs
 ```
 
-Son tam koşu (mühür ritüeli): **motor 132/132, arayüz 173/173, tarayıcı 42/42, güvenlik 0 bulgu.**
-Önceki koşu (`2a4d9b0`): arayüz 159/159, tarayıcı 41/41 — ritüel +14, boş soru denetimi +1.
+Son tam koşu: **motor 132/132, arayüz 194/194, tarayıcı 42/42, güvenlik 0 bulgu.**
+Geçmiş: `2a4d9b0` arayüz 159 · mühür ritüeli +14 · kaydırma ve 5 sekme kartı +21.
+
+**`kartAl()` yardımcısındaki kararsızlık — ölçüldü, düzeltildi.** Eski hâli "iki ardışık
+okuma eşitse sayaç oturmuştur" varsayıyordu. Yetmiyor: sayaç `1-(1-p)³` ile yumuşadığı
+için son karelerde değerler hedefin bir yanına toplanıyor ve aynı geçici rakam iki kez
+okunabiliyor. Sonuç: `no` bir eksik okundu (5439 yerine 5440) ve **"uzak dönem yok
+sayıldı" güvenlik testi sahte biçimde kaldı** — dönem kısıtında bir hata yokken.
+Artık önce 900 ms animasyon süresi bekleniyor, kararlılık ondan sonra aranıyor.
+Yeni bir zamanlama-duyarlı test yazarken aynı tuzağa dikkat.
 CI (`.github/workflows/testler.yml`) bunlardan tarayıcı gerektirmeyenleri + veri
 bütünlüğü, cümle biçimi, kura şablonu ve cilt biçim token'ı denetimlerini koşar;
 hepsi bağımlılıksız, yalnızca Node çekirdeği.
@@ -405,8 +445,7 @@ sandbox kısıtı, repo ayarı değil.
 2. Yeni konu eklemek: `konular`'a kök listesi + `konuHukum` ve `okumaKonu`'ya karşılık
    yaz. Kod değişikliği gerekmez.
 3. Kayıt numarasına dönem harfi eklemek (ör. "№1983-D31") kartın koleksiyonluk hissini artırır.
-4. Kura ve isim falı için de PNG kart üretmek — `kartCiz()` şu an yalnızca Kader sekmesinin
-   `sonKayit`'ını çiziyor.
+4. ~~Kura ve isim falı için de PNG kart üretmek~~ — **yapıldı (v3.3)**, beş sekmede de var.
 5. Masaüstünde "açık defter" (iki sayfalı) düzeni: 1200px'te içerik 620px'lik tek sütunda
    duruyor, yanlar boş. Metaforu güçlendirir ama taşma testinin geniş ekranı da ölçmesi gerekir.
 6. Arzu ekseni %59 (çoğunluk temeli %40). İyileştirmek için **üçüncü bir bağımsız ölçüm
