@@ -1,7 +1,7 @@
 # NasipteVarsa — Devir Notu (Claude Code için)
 
 Canlı: https://nasiptevarsa.com · Repo: `Kelebek-01/NasipteVarsa` · Yayın: GitHub Pages, `master` dalı kökten.
-Motor sürümü: **v3**. Bu dosya `TASARIM-NOTLARI.md`'nin yerine geçer.
+Motor sürümü: **v3**, arayüz **v3.3**. Bu dosya `TASARIM-NOTLARI.md`'nin yerine geçer.
 
 ## 1. Ne bu?
 
@@ -112,6 +112,38 @@ ile yazılır: paylaşılabilir, geçmişi kirletmez, hiçbir şey saklanmaz.
 İki denetim var, ikisini de çalıştır: `test/test-arayuz.mjs` §1b (cilt gerçekten yapı
 değiştiriyor mu — %5 eşiği) ve §9 kontrast (ana/ikincil metin ≥4.5, vurgu ve mühür ≥3).
 CI'da ayrıca `.github/cilt-denetimi.mjs` her cilt bloğunda biçim token'ı arıyor.
+
+**Mühür kırma ritüeli (v3.3).** Kader sekmesinde cevap artık **mühürlü** gelir:
+`muhurluGoster()` bir balmumu mührü çizer, kullanıcı basılı tutar (850 ms), halka
+dolar, mühür ikiye ayrılır ve ancak o zaman `goster()` çağrılır. `goster()` hiç
+değişmedi — mürekkep animasyonu, sayaç, ses, eski sayfalar, paylaşım aynen çalışıyor.
+
+**Değişmez: tutma süresi kaderi DEĞİŞTİRMEZ.** Cevap `sor()` içinde hesaplanır ve
+kapanışta bekler; mühür yalnızca *ne zaman* görüneceğini belirler. Motor deterministik
+kalır. `test/test-arayuz.mjs` §10c aynı soruyu bir kez tutarak bir kez klavyeyle açıp
+hükmün birebir aynı olduğunu doğruluyor; bu testi silme.
+
+Erişilebilirlik: mühür bir `<button>`. **Enter/Boşluk anında açar** — basılı tutamayan
+kullanıcı kilitlenmesin diye. `prefers-reduced-motion` kipinde tutma hiç yok, tek
+dokunuş açar (ipucu metni de "dokun" olur). Mühür kırılınca odak `.kayit` kartına
+taşınır, yoksa basılan düğme yok olduğu için odak `body`'ye düşer.
+
+**Test tuzağı — `page.click(".muhur-kir")` MÜHRÜ KIRMAZ.** Playwright gerçek pointer
+olayı üretir: `pointerdown` tutma yolunu açar, `pointerup` onu iptal eder, ardından
+gelen `click` bilerek yutulur (klavye ile pointer'ı ayırt etmenin yolu bu). Testler
+`muhuruKir()` yardımcısını kullanır: `focus` + `keyboard.press("Enter")`. Gerçek
+basılı tutmayı sınamak için `mouse.down()` → `waitForTimeout(1150)` → `mouse.up()`.
+`focus`'un ayrıca bir yararı var: Playwright'ın tıklama öncesi kararlılık denetimini
+hiç çalıştırmaz, §8'deki 30 sn zaman aşımı tuzağına düşmez.
+
+`kartAl()` (test-tarayici) mühür varsa kendisi kırar — linkle gelen kayıtlar da
+mühürlü açıldığı için. Boş soruda ne mühür ne kart oluşur, §5 bunu ayrıca denetler.
+
+Balmumunun **gürültü maskesi yoktur**, bilerek: `--muhur-maske` ince bir çerçeveyi
+aşındırmak için yapıldı, dolu bir diske uygulanınca yüzeyi delik deşik ediyor
+(ölçüldü, ahududuya benziyordu). El yapımı his düzensiz `--balmumu-yuvarlak`
+konturundan geliyor — o da cilde göre değişiyor: ferman kare, kâğıt tam yuvarlak,
+gece/kahve organik damla.
 
 **Sekmeler.** Kader / İki Kişilik / Burç / Kura / İsim Falı sayfaları View Transitions API ile geçiyor
 (`document.startViewTransition`, özellik denetimli). Geçişten sonra odak hedef panele
@@ -259,15 +291,26 @@ node test/test-motor.mjs        # 132 test: sesbilim, gövdeleme, morfotaktik, t
                                 #           kura (ES kararlılığı), ebced, eski sayfalar
 node test/test-guvenlik.mjs     # prototip anahtarları, enjeksiyon yükleri (kader + kura +
                                 #           ebced kapılarından), dönem sınırları, CPU, tavanlar
-node test/test-arayuz.mjs       # 159 test: ciltler (renk VE biçim), cilt seçici, 5 sekme,
+node test/test-arayuz.mjs       # 173 test: ciltler (renk VE biçim), cilt seçici, 5 sekme,
                                 #           kura, ebced, eski sayfalar, PNG kart, taşma,
-                                #           kontrast, gerçek görünürlük, animasyon
-node test/test-tarayici.mjs     # 41 test: akış, paylaşım linki, dönem güvenliği,
+                                #           kontrast, gerçek görünürlük, animasyon,
+                                #           mühür kırma ritüeli (§10c)
+node test/test-tarayici.mjs     # 42 test: akış, paylaşım linki, dönem güvenliği,
                                 #          fragment saldırıları, mobil, yedek veri, 404
 node eval/degerlendir.mjs       # ölçüm koşusu → eval/RAPOR.md
 ```
 
-Son tam koşu (`2a4d9b0`): **motor 132/132, arayüz 159/159, tarayıcı 41/41, güvenlik 0 bulgu.**
+Tarayıcı testleri `playwright-core` ister ve `executablePath`'i sabit `/opt/pw-browsers/chromium`
+yolundan okur — bu CI konteynerinin yolu, geliştirme makinesinde yoktur. `PW_CHROMIUM`
+ortam değişkeniyle sistemdeki tarayıcıya yönlendirilebilir:
+
+```bash
+npm i -D playwright-core
+PW_CHROMIUM="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" node test/test-arayuz.mjs
+```
+
+Son tam koşu (mühür ritüeli): **motor 132/132, arayüz 173/173, tarayıcı 42/42, güvenlik 0 bulgu.**
+Önceki koşu (`2a4d9b0`): arayüz 159/159, tarayıcı 41/41 — ritüel +14, boş soru denetimi +1.
 CI (`.github/workflows/testler.yml`) bunlardan tarayıcı gerektirmeyenleri + veri
 bütünlüğü, cümle biçimi, kura şablonu ve cilt biçim token'ı denetimlerini koşar;
 hepsi bağımlılıksız, yalnızca Node çekirdeği.

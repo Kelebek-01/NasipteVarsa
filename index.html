@@ -53,6 +53,7 @@
   /* biçim */
   --kart-yuvarlak:18px; --dugme-yuvarlak:14px; --cip-yuvarlak:999px;
   --muhur-yuvarlak:8px; --kart-kenar:1px solid var(--cizgi); --kart-ic:26px;
+  --balmumu-yuvarlak:52% 48% 51% 49%/49% 52% 48% 51%;
   --baslik-yazi:"Fraunces","Georgia",serif; --govde-yazi:"Poppins",-apple-system,"Segoe UI",Arial,sans-serif;
   --baslik-agirlik:600; --baslik-aralik:0em; --baslik-donusum:none; --baslik-hiza:center;
   --doku-frekans:.85; --sus:none; --kenar-cizgi:none;
@@ -67,6 +68,7 @@ body[data-cilt="kahve"]{
   /* fincan dibi: köşeler eşit değil, telve gibi dağılmış */
   --kart-yuvarlak:34px 20px 38px 22px; --dugme-yuvarlak:22px 14px 24px 16px;
   --cip-yuvarlak:999px; --muhur-yuvarlak:50% 46% 52% 44%;
+  --balmumu-yuvarlak:58% 42% 47% 53%/44% 57% 43% 56%;
   --kart-kenar:1px solid var(--cizgi); --kart-ic:28px;
   --baslik-yazi:"Fraunces","Georgia",serif; --govde-yazi:"Poppins",-apple-system,"Segoe UI",Arial,sans-serif;
   --baslik-agirlik:600; --baslik-aralik:0em; --baslik-donusum:none; --baslik-hiza:center;
@@ -81,6 +83,7 @@ body[data-cilt="ferman"]{
   --doku:.17; --kart-golge:0 2px 3px rgba(90,65,20,.18);
   /* ferman yuvarlak köşe tanımaz: keskin kenar, çift çerçeve, seyrek harf */
   --kart-yuvarlak:0; --dugme-yuvarlak:0; --cip-yuvarlak:0; --muhur-yuvarlak:0;
+  --balmumu-yuvarlak:0;
   --kart-kenar:3px double var(--cizgi); --kart-ic:32px;
   --baslik-yazi:"Fraunces","Georgia","Times New Roman",serif;
   --govde-yazi:"Fraunces","Georgia",serif;
@@ -96,6 +99,7 @@ body[data-cilt="neon"]{
   --doku:.05; --kart-golge:0 0 24px rgba(42,212,238,.10);
   /* terminal: köşeler kırpık, yazı monospace, başlıklar büyük harf */
   --kart-yuvarlak:3px; --dugme-yuvarlak:3px; --cip-yuvarlak:3px; --muhur-yuvarlak:2px;
+  --balmumu-yuvarlak:2px;
   --kart-kenar:1px solid var(--cizgi); --kart-ic:24px;
   --baslik-yazi:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
   --govde-yazi:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
@@ -111,6 +115,7 @@ body[data-cilt="kagit"]{
   /* defter kâğıdı: köşe yok denecek kadar az, solda kırmızı marj çizgisi,
      baştan sona serifli dizgi */
   --kart-yuvarlak:2px; --dugme-yuvarlak:4px; --cip-yuvarlak:4px; --muhur-yuvarlak:3px;
+  --balmumu-yuvarlak:50%;
   --kart-kenar:1px solid var(--cizgi); --kart-ic:30px;
   --baslik-yazi:"Fraunces","Georgia",serif; --govde-yazi:"Fraunces","Georgia",serif;
   --baslik-agirlik:600; --baslik-aralik:0em; --baslik-donusum:none; --baslik-hiza:center;
@@ -333,6 +338,64 @@ body[data-cilt="neon"] .kayit .soru-eko{font-style:normal}
   background:transparent;color:var(--sut);font:inherit;font-family:var(--govde-yazi);font-size:var(--ol-2);cursor:pointer;
   transition:border-color .15s ease,color .15s ease}
 .paylas button:hover{border-color:var(--altin);color:var(--altin)}
+
+/* ——— mühür kırma ritüeli ———
+   Cevap sor() anında hesaplanır ve mühürlü bekler. Tutma süresi kaderi
+   DEĞİŞTİRMEZ, yalnızca ne zaman görüneceğini belirler: motor deterministik
+   kalır. Mühür kırılınca goster() olduğu gibi çalışır. */
+.zarf{border:var(--kart-kenar);border-radius:var(--kart-yuvarlak);padding:var(--kart-ic);
+  text-align:center;animation:gel .45s ease backwards}
+.zarf .soru-eko{color:var(--duman);font-size:var(--ol-4);margin:0 0 6px;
+  font-family:var(--baslik-yazi);font-style:italic}
+body[data-cilt="neon"] .zarf .soru-eko{font-style:normal}
+.zarf-not{color:var(--duman);font-size:var(--ol-1);margin:14px 0 0}
+
+.muhur-kir{display:block;width:100%;background:transparent;border:0;padding:14px 0 4px;
+  font:inherit;color:inherit;cursor:pointer;
+  /* dokunmatikte basılı tutarken sayfa kaymasın */
+  touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.muhur-kir:focus-visible{outline:2px solid var(--altin);outline-offset:6px;border-radius:var(--kart-yuvarlak)}
+
+.balmumu{position:relative;display:block;width:132px;height:132px;margin:0 auto}
+.balmumu-yarim{position:absolute;inset:0;display:grid;place-items:center;
+  background:radial-gradient(circle at 36% 30%, var(--muhur-acik) 0%, var(--muhur) 46%,
+    color-mix(in srgb,var(--muhur) 66%,#000) 100%);
+  border-radius:var(--balmumu-yuvarlak);
+  /* Balmumu eşit dökülmez: mührün YUMUŞAK dokusu (alfa .72–1) kullanılır.
+     Sert --muhur-maske burada olmaz — o maske ince bir çerçeveyi aşındırmak
+     için yapıldı, dolu bir diske uygulanınca yüzeyi delik deşik eder. */
+  /* Kubbe: üstte ışık, altta gölge. Mührün gürültü maskesi burada KULLANILMAZ —
+     dolu bir diskte benek benek görünüp balmumunu ahududuya çeviriyor.
+     El yapımı his düzensiz --balmumu-yuvarlak konturundan geliyor. */
+  box-shadow:inset 0 6px 12px color-mix(in srgb,var(--muhur-acik) 55%,#fff),
+             inset 0 -9px 18px color-mix(in srgb,var(--muhur) 50%,#000);
+  transition:transform .5s cubic-bezier(.2,.8,.3,1),opacity .5s ease}
+.balmumu-yarim.sol{clip-path:inset(0 50% 0 0)}
+.balmumu-yarim.sag{clip-path:inset(0 0 0 50%)}
+.balmumu-mm{font-family:var(--baslik-yazi);font-weight:700;font-size:2.1rem;letter-spacing:.14em;
+  color:color-mix(in srgb,var(--muhur) 48%,#000);text-indent:.14em;
+  text-shadow:0 1px 0 color-mix(in srgb,var(--muhur-acik) 70%,#fff)}
+/* ilerleme halkası — CSS animasyonu değil, rAF ile çizilir: azalan hareket
+   kipinde de doğru davranır ve tutma bırakılınca anında geri sarılır */
+.balmumu-halka{position:absolute;inset:-11px;width:calc(100% + 22px);height:calc(100% + 22px);
+  transform:rotate(-90deg);overflow:visible;pointer-events:none}
+.balmumu-halka circle{fill:none;stroke-width:3;stroke-linecap:round}
+.balmumu-halka .iz{stroke:var(--cizgi)}
+.balmumu-halka .dolu{stroke:var(--altin)}
+.muhur-kir:active .balmumu-yarim{transform:scale(.97)}
+
+.balmumu.kirildi .balmumu-yarim.sol{transform:translate(-38px,26px) rotate(-19deg);opacity:0}
+.balmumu.kirildi .balmumu-yarim.sag{transform:translate(38px,30px) rotate(16deg);opacity:0}
+.balmumu.kirildi .balmumu-halka{opacity:0;transition:opacity .2s ease}
+.zarf-ipucu{display:block;margin:18px 0 0;color:var(--duman);font-size:var(--ol-2);
+  font-family:var(--govde-yazi);min-height:1.5em}
+.muhur-kir:hover .zarf-ipucu{color:var(--sut)}
+
+@media (prefers-reduced-motion: reduce){
+  .zarf{animation:none}
+  .balmumu-yarim{transition:none}
+  .balmumu.kirildi .balmumu-yarim{transform:none}
+}
 
 /* ——— defterin eski sayfaları ——— */
 .eski{margin:18px 0 0;border:1px solid var(--cizgi);border-radius:var(--kart-yuvarlak);background:transparent}
@@ -837,6 +900,32 @@ function carpmaSesi(){
     src.connect(f); f.connect(ng); ng.connect(sesBaglam.destination); src.start(t);
   } catch(e){}
 }
+/* Mühür kırılması: mühür sesi yumuşak bir BASKI, bu ise KIRILMA — gevrek.
+   Bant geçiren gürültü tepede, çok hızlı sönüm, altında kısa bir kopma tınısı. */
+function kirilmaSesi(){
+  if (!sesAcik) return;
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    if (!sesBaglam) sesBaglam = new AC();
+    if (sesBaglam.state === "suspended") sesBaglam.resume();
+    var t = sesBaglam.currentTime;
+    /* gevrek çatırtı */
+    var n = sesBaglam.createBuffer(1, Math.floor(sesBaglam.sampleRate * 0.09), sesBaglam.sampleRate);
+    var d = n.getChannelData(0);
+    for (var i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 4);
+    var src = sesBaglam.createBufferSource(), f = sesBaglam.createBiquadFilter(), ng = sesBaglam.createGain();
+    src.buffer = n; f.type = "bandpass"; f.frequency.value = 3100; f.Q.value = 0.9; ng.gain.value = 0.22;
+    src.connect(f); f.connect(ng); ng.connect(sesBaglam.destination); src.start(t);
+    /* kopma tınısı: kısa, düşen, mühür sesinden daha tiz */
+    var o = sesBaglam.createOscillator(), g = sesBaglam.createGain();
+    o.type = "triangle"; o.frequency.setValueAtTime(420, t);
+    o.frequency.exponentialRampToValueAtTime(96, t + 0.11);
+    g.gain.setValueAtTime(0.13, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.17);
+    o.connect(g); g.connect(sesBaglam.destination); o.start(t); o.stop(t + 0.19);
+  } catch(e){}
+}
 
 $("ses").addEventListener("click", function(){
   sesAcik = !sesAcik;
@@ -976,7 +1065,7 @@ function sor(soru, hizli){
 
   window.setTimeout(function(){
     window.clearInterval(donme);
-    goster(temiz, sonuc);
+    muhurluGoster(temiz, sonuc);
     mesgul = false; sorBtn.disabled = false; sorBtn.textContent = "Kadere Danış";
   }, (hizli || azHareket) ? 400 : 1700);
 }
@@ -1062,6 +1151,131 @@ function sayacaBas(el, hedef){
     if (p < 1) requestAnimationFrame(adim);
   }
   requestAnimationFrame(adim);
+}
+
+/* ═════════ mühür kırma ritüeli ═════════
+   Cevap sor() içinde ZATEN hesaplandı ve burada kapanışta bekliyor. Tutma
+   süresi yalnızca kaydın ne zaman açılacağını belirler; kadere dokunmaz —
+   motor deterministik kalır, aynı soru + aynı devir = aynı cevap.
+   Mühür kırılınca goster() hiç değişmeden çağrılır. */
+var SVGNS = "http://www.w3.org/2000/svg";
+var TUTMA_MS = 850, HALKA_R = 47, HALKA_CEVRE = 2 * Math.PI * HALKA_R;
+
+function muhurluGoster(soru, sonuc){
+  sonKayit = null;                    /* mühür kırılmadan PNG kart çizilemez */
+
+  var zarf = document.createElement("div"); zarf.className = "zarf";
+  var eko = document.createElement("p");
+  eko.className = "soru-eko"; eko.textContent = "“" + soru + "”";
+
+  var dugme = document.createElement("button");
+  dugme.type = "button"; dugme.className = "muhur-kir";
+  dugme.setAttribute("aria-label", "Mührü kır ve kaydı aç");
+
+  var mum = document.createElement("span"); mum.className = "balmumu";
+  function yarim(sinif){
+    var y = document.createElement("span"); y.className = "balmumu-yarim " + sinif;
+    var mm = document.createElement("span"); mm.className = "balmumu-mm";
+    mm.textContent = "NV"; mm.setAttribute("aria-hidden", "true");
+    y.appendChild(mm); return y;
+  }
+  mum.appendChild(yarim("sol")); mum.appendChild(yarim("sag"));
+
+  var halka = document.createElementNS(SVGNS, "svg");
+  halka.setAttribute("class", "balmumu-halka");
+  halka.setAttribute("viewBox", "0 0 100 100");
+  halka.setAttribute("aria-hidden", "true");
+  var iz = document.createElementNS(SVGNS, "circle"), dolu = document.createElementNS(SVGNS, "circle");
+  iz.setAttribute("class", "iz"); dolu.setAttribute("class", "dolu");
+  [iz, dolu].forEach(function(c){
+    c.setAttribute("cx", "50"); c.setAttribute("cy", "50"); c.setAttribute("r", String(HALKA_R));
+  });
+  dolu.setAttribute("stroke-dasharray", "0 " + HALKA_CEVRE); dolu.style.opacity = "0";
+  halka.appendChild(iz); halka.appendChild(dolu);
+  mum.appendChild(halka);
+
+  var ipucu = document.createElement("span"); ipucu.className = "zarf-ipucu";
+  ipucu.textContent = azHareket ? "Mührü kırmak için dokun" : "Mührü kırmak için basılı tut";
+
+  dugme.appendChild(mum); dugme.appendChild(ipucu);
+
+  var not = document.createElement("p"); not.className = "zarf-not";
+  not.textContent = "Kayıt yazıldı ve mühürlendi. Açmak sana kaldı.";
+
+  zarf.appendChild(eko); zarf.appendChild(dugme); zarf.appendChild(not);
+  cevapEl.textContent = ""; cevapEl.appendChild(zarf);
+  zarf.scrollIntoView({block:"nearest", behavior: azHareket ? "auto" : "smooth"});
+
+  var acildi = false, tutuyor = false, ray = 0, basSaat = 0, oran = 0, pointerYolu = false;
+
+  function ciz(p){
+    /* stroke-linecap:round sıfır uzunlukta bile nokta çizer — halka boşken gizle */
+    dolu.style.opacity = p > 0.001 ? "1" : "0";
+    dolu.setAttribute("stroke-dasharray", (p * HALKA_CEVRE).toFixed(2) + " " + HALKA_CEVRE.toFixed(2));
+  }
+
+  function ilerle(t){
+    if (!tutuyor) return;
+    oran = Math.min(1, (t - basSaat) / TUTMA_MS);
+    ciz(oran);
+    if (oran >= 1){ tutuyor = false; kir(); return; }
+    ray = requestAnimationFrame(ilerle);
+  }
+
+  /* Erken bırakma: halka geri sarılır, mühür sağlam kalır. */
+  function geriSar(){
+    var bas = performance.now(), basOran = oran;
+    (function adim(t){
+      if (tutuyor || acildi) return;
+      var p = Math.min(1, (t - bas) / 220);
+      oran = basOran * (1 - p); ciz(oran);
+      if (p < 1) requestAnimationFrame(adim);
+    })(performance.now());
+  }
+
+  function kir(){
+    if (acildi) return;
+    acildi = true; tutuyor = false;
+    cancelAnimationFrame(ray); ciz(1);
+    mum.className = "balmumu kirildi";
+    dugme.disabled = true;
+    ipucu.textContent = "Mühür kırıldı.";
+    kirilmaSesi();
+    try { if (navigator.vibrate) navigator.vibrate([14, 26, 52]); } catch(e){}
+    window.setTimeout(function(){
+      goster(soru, sonuc);
+      /* Odak kaybolmasın: bastığı düğme yok oldu, odağı kayda taşı. */
+      var kart = cevapEl.querySelector(".kayit");
+      if (kart){
+        kart.tabIndex = -1;
+        try { kart.focus({preventScroll:true}); } catch(e){ kart.focus(); }
+      }
+    }, azHareket ? 0 : 420);
+  }
+
+  dugme.addEventListener("pointerdown", function(e){
+    /* Azalan hareket kipinde tutma yok: click yolu açar. */
+    if (azHareket || acildi) return;
+    pointerYolu = true; tutuyor = true; oran = 0; basSaat = performance.now();
+    try { dugme.setPointerCapture(e.pointerId); } catch(e2){}
+    try { if (navigator.vibrate) navigator.vibrate(8); } catch(e2){}
+    cancelAnimationFrame(ray); ray = requestAnimationFrame(ilerle);
+  });
+  function birak(){
+    if (acildi || !tutuyor) return;
+    tutuyor = false; cancelAnimationFrame(ray);
+    ipucu.textContent = "Biraz daha uzun tut.";
+    geriSar();
+  }
+  dugme.addEventListener("pointerup", birak);
+  dugme.addEventListener("pointercancel", birak);
+
+  /* Klavye çıkışı: Enter/Boşluk anında açar. Basılı tutamayan kullanıcı
+     burada kilitlenmemeli — pointer'la gelen click zaten yukarıda işlendi. */
+  dugme.addEventListener("click", function(){
+    if (pointerYolu){ pointerYolu = false; return; }
+    kir();
+  });
 }
 
 function goster(soru, sonuc){
