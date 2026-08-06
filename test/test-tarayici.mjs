@@ -64,8 +64,13 @@ async function kartAl(sayfa) {
     if (m) { await sayfa.focus(".muhur-kir"); await sayfa.keyboard.press("Enter"); }
   }
   await sayfa.waitForSelector(".kayit", { timeout: 8000 });
-  /* Kayıt numarası sayaç animasyonuyla yerine oturuyor; kararlı hâlini bekle,
-     yoksa test animasyonun ortasındaki geçici rakamı okur. */
+  /* Kayıt numarası ~700 ms'lik sayaç animasyonuyla yerine oturuyor.
+     "İki ardışık okuma eşitse bitti" YETMEZ: animasyon 1-(1-p)³ ile yumuşadığı
+     için son karelerde değerler hedefin bir yanına toplanıyor ve aynı geçici
+     rakam iki kez okunabiliyor. Ölçüldü: no bir eksik geldi (5439 yerine 5440)
+     ve "uzak dönem yok sayıldı" testi sahte biçimde kaldı.
+     Bu yüzden önce animasyon süresi geçmeli, sonra kararlılık aranmalı. */
+  await sayfa.waitForTimeout(900);
   let onceki = null;
   for (let i = 0; i < 40; i++) {
     const simdi = await sayfa.evaluate(() => document.querySelector(".kayit-no")?.textContent || "");

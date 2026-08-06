@@ -220,6 +220,73 @@ console.log("\n[2] Defter sekmeleri");
   await ctx.close();
 }
 
+/* 2a. Mobilde yatay kaydırmayla sayfa çevirme
+   Playwright'ın touchscreen'i yalnızca tap yapabildiği için touch olayları
+   elle üretiliyor; dinleyiciler isTrusted'a bakmadığı için bu geçerli bir sınama.
+   Kritik: kaydırma touchmove'da preventDefault YAPMAMALI, yoksa dikey kaydırma
+   kilitlenir — §2a son madde bunu ölçüyor. */
+console.log("\n[2a] Mobil kaydırma");
+{
+  const {ctx,p,konsol} = await sayfaAc({viewport:{width:390,height:780}, hasTouch:true, reducedMotion:"reduce"});
+  await git(p);
+
+  /* nereden: "panel" panelin ortası, "girdi" ilk metin kutusu */
+  const kaydir = (dx, dy=0, nereden="panel") => p.evaluate(([dx,dy,nereden])=>{
+    const panel = document.querySelector('[role="tabpanel"]:not([hidden])');
+    const hedef = nereden==="girdi" ? (panel.querySelector("input,textarea") || panel) : panel;
+    const r = hedef.getBoundingClientRect();
+    const x0 = Math.max(10, r.left + 40), y0 = Math.max(10, r.top + 30);
+    const olay = (tip, x, y, sur) => {
+      const t = new Touch({identifier:1, target:hedef, clientX:x, clientY:y});
+      return new TouchEvent(tip, {bubbles:true, cancelable:true,
+        touches: sur?[t]:[], targetTouches: sur?[t]:[], changedTouches:[t]});
+    };
+    hedef.dispatchEvent(olay("touchstart", x0, y0, true));
+    const bitis = olay("touchend", x0+dx, y0+dy, false);
+    hedef.dispatchEvent(bitis);
+    return bitis.defaultPrevented;
+  }, [dx,dy,nereden]);
+
+  const acikSekme = () => p.evaluate(()=>{
+    const s = document.querySelector('[role="tabpanel"]:not([hidden])');
+    return s ? s.id : null; });
+
+  ok("başta Kader", (await acikSekme())==="s-kader");
+
+  await kaydir(-120); await p.waitForTimeout(300);
+  ok("sola kaydırma sonraki sayfaya geçti", (await acikSekme())==="s-ikili", await acikSekme());
+
+  await kaydir(-120); await p.waitForTimeout(300);
+  ok("iki kaydırma iki sayfa ilerletti", (await acikSekme())==="s-burc", await acikSekme());
+
+  await kaydir(120); await p.waitForTimeout(300);
+  ok("sağa kaydırma geri aldı", (await acikSekme())==="s-ikili", await acikSekme());
+
+  await kaydir(120); await p.waitForTimeout(300);
+  await kaydir(120); await p.waitForTimeout(300);
+  ok("baştan geriye dolandı", (await acikSekme())==="s-ebced", await acikSekme());
+
+  /* Yanlış pozitifler: bunların hiçbiri sayfa çevirmemeli. */
+  const once = await acikSekme();
+  await kaydir(-25); await p.waitForTimeout(250);
+  ok("kısa kaydırma çevirmedi", (await acikSekme())===once, await acikSekme());
+
+  await kaydir(-120, 260); await p.waitForTimeout(250);
+  ok("dikey baskın hareket çevirmedi", (await acikSekme())===once, await acikSekme());
+
+  await p.click("#t-ikili"); await p.waitForTimeout(300);
+  await kaydir(-120, 0, "girdi"); await p.waitForTimeout(250);
+  ok("metin kutusu üstünde kaydırma çevirmedi", (await acikSekme())==="s-ikili", await acikSekme());
+
+  /* Dikey kaydırma kilitlenmemeli: dinleyiciler passive, olay iptal edilmemeli. */
+  const iptal = await kaydir(-120);
+  await p.waitForTimeout(250);
+  ok("touch olayı iptal edilmiyor (dikey kaydırma serbest)", iptal===false, "defaultPrevented="+iptal);
+
+  ok("konsol temiz", konsol.length===0, konsol.join(" | "));
+  await ctx.close();
+}
+
 /* 2b. Kura */
 console.log("\n[2b] Kura");
 {
@@ -392,27 +459,73 @@ console.log("\n[5b] Defterin eski sayfaları");
 }
 
 /* 6. PNG kart üretimi */
-console.log("\n[6] Fal kartı PNG");
+/* 6. Fal kartı PNG — BEŞ sekmede de
+   Kart kaydı artık global değil, düğmeye bağlı: her kart kendi kaydını çizer.
+   Bu yüzden test kartCiz()'i doğrudan çağırmıyor, gerçek kullanıcı yolunu
+   izliyor — "Kartı İndir" düğmesine basıp inen dosyayı yakalıyor. */
+console.log("\n[6] Fal kartı PNG (5 sekme)");
 {
-  const {ctx,p} = await sayfaAc({reducedMotion:"reduce"});
+  const {ctx,p} = await sayfaAc({reducedMotion:"reduce", acceptDownloads:true});
+  /* navigator.share varsa kod paylaşım yolunu seçer ve indirme hiç olmaz;
+     testte yol deterministik olsun diye ikisi de kapatılıyor.
+     `delete navigator.share` ÇALIŞMAZ: özellik Navigator.prototype üzerinde
+     tanımlı, örnekten silinince prototipteki geri geliyor. */
+  await p.addInitScript(()=>{ try{
+    Object.defineProperty(Navigator.prototype,"canShare",{value:undefined,configurable:true});
+    Object.defineProperty(Navigator.prototype,"share",{value:undefined,configurable:true});
+  }catch(e){} });
   await git(p);
+
+  /* Beş panel de DOM'da duruyor (yalnızca hidden), bu yüzden kart düğmesi
+     PANELE göre kapsanmalı: kapsamsız seçici beş düğmeye birden çözülür. */
+  const kartCek = async (etiket, panel) => {
+    const [dl] = await Promise.all([
+      p.waitForEvent("download",{timeout:12000}),
+      p.click(panel + ' .paylas button:has-text("Kartı İndir")')
+    ]);
+    const yol = await dl.path();
+    const buf = fs.readFileSync(yol);
+    ok(etiket+" kartı indi", buf.length>10000, buf.length+" bayt");
+    ok(etiket+" geçerli PNG", buf[0]===137&&buf[1]===80&&buf[2]===78&&buf[3]===71);
+    return buf;
+  };
+
   await p.fill("#soru","Ne zaman kavuşacağım?"); await p.click("#sor"); await muhuruKir(p);
-  await p.waitForSelector(".kayit",{timeout:8000}); await p.waitForTimeout(300);
-  const veri = await p.evaluate(async ()=>{
-    const blob = await kartCiz();
-    if (!blob) return null;
-    const buf = await blob.arrayBuffer();
-    const c = document.getElementById("tuval");
-    return { boy: buf.byteLength, w:c.width, h:c.height,
-             png: Array.from(new Uint8Array(buf.slice(0,8))) };
-  });
-  ok("PNG üretildi", !!veri && veri.boy>10000, JSON.stringify(veri && {boy:veri.boy,w:veri.w,h:veri.h}));
-  ok("geçerli PNG imzası", veri && veri.png[0]===137 && veri.png[1]===80 && veri.png[2]===78 && veri.png[3]===71);
-  ok("1080x1350", veri && veri.w===1080 && veri.h===1350);
-  const buf = await p.evaluate(async ()=>{ const b=await kartCiz(); const a=new Uint8Array(await b.arrayBuffer());
-    let s=""; for (let i=0;i<a.length;i+=8192) s+=String.fromCharCode.apply(null,a.subarray(i,i+8192));
-    return btoa(s); });
-  fs.mkdirSync(KOK + "/../shots", {recursive:true}); fs.writeFileSync(KOK + "/../shots/fal-karti.png", Buffer.from(buf,"base64"));
+  const kaderBuf = await kartCek("kader", "#s-kader");
+  const olcu = await p.evaluate(()=>{ const c=document.getElementById("tuval"); return {w:c.width,h:c.height}; });
+  ok("1080x1350", olcu.w===1080 && olcu.h===1350, JSON.stringify(olcu));
+  fs.mkdirSync(KOK + "/../shots", {recursive:true});
+  fs.writeFileSync(KOK + "/../shots/fal-karti.png", kaderBuf);
+
+  await p.click("#t-ikili"); await p.waitForTimeout(250);
+  await p.fill("#ad1","Mert"); await p.fill("#ad2","Zeynep");
+  await p.click('#ikili-form button[type="submit"]');
+  await p.waitForSelector("#ikili-cevap .kayit",{timeout:9000});
+  await kartCek("ikili", "#s-ikili");
+
+  await p.click("#t-burc"); await p.waitForTimeout(250);
+  await p.click('#burc-izgara button[data-burc="aslan"]');
+  await p.waitForSelector("#burc-cevap .kayit",{timeout:9000});
+  await kartCek("burç", "#s-burc");
+
+  await p.click("#t-kura"); await p.waitForTimeout(250);
+  await p.fill("#sik1","Kahve"); await p.fill("#sik2","Çay");
+  await p.click('#kura-form button[type="submit"]');
+  await p.waitForSelector("#kura-cevap .kayit",{timeout:9000});
+  await kartCek("kura", "#s-kura");
+
+  await p.click("#t-ebced"); await p.waitForTimeout(250);
+  await p.fill("#ebced-ad","Mert");
+  await p.click('#ebced-form button[type="submit"]');
+  await p.waitForSelector("#ebced-cevap .kayit",{timeout:9000});
+  await kartCek("ebced", "#s-ebced");
+
+  /* Kayıt düğmeye bağlı olmasaydı: Kader sekmesine dönüp oradaki düğmeye
+     basınca EN SON kaydın (ebced) kartı çizilirdi. Regresyon koruması. */
+  await p.click("#t-kader"); await p.waitForTimeout(250);
+  const geri = await kartCek("kader (sonradan)", "#s-kader");
+  ok("her kart kendi kaydını çiziyor", Buffer.compare(kaderBuf, geri)===0,
+     "kader kartı ebced kaydına kaymış");
   await ctx.close();
 }
 
@@ -514,10 +627,12 @@ console.log("\n[8b] Kartta uzun kelime");
   const uzun = "a".repeat(130);
   await p.fill("#soru", uzun);
   await p.click("#sor"); await muhuruKir(p); await p.waitForSelector(".kayit",{timeout:8000});
-  const r = await p.evaluate(async ()=>{
-    const blob = await kartCiz();
+  /* Burada sınanan şey çizim, akış değil: kayıt doğrudan verilip sarLine'ın
+     harf harf bölme yolu zorlanıyor (satıra sığmayan tek kelime). */
+  const r = await p.evaluate(async (uzun)=>{
+    const blob = await kartCiz(kayitYaz("“"+uzun+"”", uzun, uzun, "NASİP VAR", "altin", 1234));
     return blob ? blob.size : 0;
-  });
+  }, uzun);
   ok("uzun kelimede kart üretiliyor", r>10000, r+" bayt");
   const tasma = await p.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
   ok("uzun kelime sayfayı taşırmıyor", tasma<=0, tasma+"px");
