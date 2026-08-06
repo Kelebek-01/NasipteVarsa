@@ -27,7 +27,7 @@ function ok(ad, kosul, detay) {
   else { kaldi++; hatalar.push(ad + (detay ? " → " + detay : "")); console.log("  ✗ " + ad + (detay ? " → " + detay : "")); }
 }
 
-const tarayici = await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const tarayici = await chromium.launch({executablePath: process.env.PW_CHROMIUM || "/opt/pw-browsers/chromium"});
 
 async function yeniSayfa(opts = {}) {
   const ctx = await tarayici.newContext(opts);
@@ -39,6 +39,16 @@ async function yeniSayfa(opts = {}) {
   return { ctx, sayfa, konsol };
 }
 
+/* Kader sekmesinde cevap MÜHÜRLÜ gelir; kart mühür kırılmadan doğmaz.
+   Klavye yolu (Enter) anında açar. sayfa.click(".muhur-kir") çalışmaz:
+   pointerdown tutma yolunu açar, pointerup iptal eder, click yutulur. */
+const muhuruKir = async (sayfa) => {
+  await sayfa.waitForSelector(".muhur-kir",{timeout:9000});
+  await sayfa.focus(".muhur-kir");
+  await sayfa.keyboard.press("Enter");
+  await sayfa.waitForSelector("#cevap .kayit",{timeout:9000});
+};
+
 let _sayac = 0;
 /* Yalnızca hash değişirse tarayıcı sayfayı yeniden yüklemez ve script tekrar
    çalışmaz — testler bayat kartı ölçer. Benzersiz sorgu ile tam gezinme zorlanır. */
@@ -47,6 +57,12 @@ async function git(sayfa, hash) {
 }
 
 async function kartAl(sayfa) {
+  /* Kader sekmesinde kart mühür kırılmadan doğmaz — linkle gelen kayıtlar dahil.
+     Kart zaten açıksa (çağıran muhuruKir'i kendisi çağırmışsa) boşuna beklenmez. */
+  if (!(await sayfa.$(".kayit"))) {
+    const m = await sayfa.waitForSelector(".muhur-kir", { timeout: 8000 }).catch(() => null);
+    if (m) { await sayfa.focus(".muhur-kir"); await sayfa.keyboard.press("Enter"); }
+  }
   await sayfa.waitForSelector(".kayit", { timeout: 8000 });
   /* Kayıt numarası sayaç animasyonuyla yerine oturuyor; kararlı hâlini bekle,
      yoksa test animasyonun ortasındaki geçici rakamı okur. */
@@ -81,7 +97,7 @@ console.log("\n[1] Temel akış");
   ok("buton etkin", await sayfa.isEnabled("#sor"));
 
   await sayfa.fill("#soru", "Zam alacak mıyım?");
-  await sayfa.click("#sor");
+  await sayfa.click("#sor"); await muhuruKir(sayfa);
   const k = await kartAl(sayfa);
   ok("hüküm var", k.yanit.length > 5, k.yanit);
   ok("şerh var", k.serh.length > 15, k.serh);
@@ -99,7 +115,7 @@ console.log("\n[1] Temel akış");
 
   /* aynı soru tekrar → aynı cevap */
   await sayfa.fill("#soru", "zam ALACAK mıyım");
-  await sayfa.click("#sor");
+  await sayfa.click("#sor"); await muhuruKir(sayfa);
   await sayfa.waitForTimeout(2200);
   const k2 = await kartAl(sayfa);
   ok("oturum içi sabit", k2.yanit === k.yanit && k2.no === k.no, `${k2.no} vs ${k.no}`);
@@ -183,7 +199,7 @@ console.log("\n[4] prefers-reduced-motion");
   await sayfa.goto(URL_, { waitUntil: "networkidle" });
   ok("intro hiç açılmadı", !(await sayfa.isVisible("#giris")));
   await sayfa.fill("#soru", "Sınavı geçecek miyim?");
-  await sayfa.click("#sor");
+  await sayfa.click("#sor"); await muhuruKir(sayfa);
   const k = await kartAl(sayfa);
   ok("cevap geldi", k.yanit.length > 5, k.yanit);
   ok("konsol temiz", konsol.length === 0, konsol.join(" | "));
@@ -195,10 +211,11 @@ console.log("\n[5] Boş soru");
 {
   const { ctx, sayfa } = await yeniSayfa({ reducedMotion: "reduce" });
   await sayfa.goto(URL_, { waitUntil: "networkidle" });
-  await sayfa.click("#sor");
+  await sayfa.click("#sor");             /* boş soru: ne mühür ne kart oluşmalı */
   await sayfa.waitForTimeout(300);
   ok("uyarı gösterildi", (await sayfa.textContent("#hata")).includes("Sormadan"));
   ok("kart oluşmadı", (await sayfa.locator(".kayit").count()) === 0);
+  ok("mühür de oluşmadı", (await sayfa.locator(".muhur-kir").count()) === 0);
   await ctx.close();
 }
 
@@ -208,7 +225,7 @@ console.log("\n[6] Mobil 390px");
   const { ctx, sayfa } = await yeniSayfa({ viewport: { width: 390, height: 780 }, reducedMotion: "reduce" });
   await sayfa.goto(URL_, { waitUntil: "networkidle" });
   await sayfa.fill("#soru", "Yurtdışına taşınıp orada evlenebilecek miyim acaba diye çok düşünüyorum");
-  await sayfa.click("#sor");
+  await sayfa.click("#sor"); await muhuruKir(sayfa);
   await kartAl(sayfa);
   const tasma = await sayfa.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   ok("yatay taşma yok", tasma <= 0, "taşma " + tasma + "px");
@@ -225,7 +242,7 @@ console.log("\n[7] kader.json engellendiğinde");
   await sayfa.route("**/kader.json", r => r.abort());
   await sayfa.goto(URL_, { waitUntil: "networkidle" });
   await sayfa.fill("#soru", "Bu iş olacak mı?");
-  await sayfa.click("#sor");
+  await sayfa.click("#sor"); await muhuruKir(sayfa);
   const k = await kartAl(sayfa);
   ok("yedek veriyle cevap verdi", k.yanit.length > 5, k.yanit);
   ok("günün nasibi yine dolu", (await sayfa.textContent("#gun-nasip")).length > 10);
@@ -250,7 +267,7 @@ console.log("\n[8] Yükleme yarışı");
   const { ctx, sayfa } = await yeniSayfa({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });
   await sayfa.goto(URL_, { waitUntil: "networkidle" });
   await sayfa.fill("#soru", "Ne zaman kavuşacağım?");
-  await sayfa.click("#sor");
+  await sayfa.click("#sor"); await muhuruKir(sayfa);
   await kartAl(sayfa);
   await sayfa.screenshot({ path: KOK + "/../shots/v2-masaustu.png", fullPage: true });
   await ctx.close();

@@ -18,7 +18,7 @@ const U = "http://127.0.0.1:8098/";
 let gecti=0, kaldi=0; const hatalar=[];
 const ok=(a,k,d)=>{ if(k){gecti++;console.log("  ✓ "+a);} else {kaldi++;hatalar.push(a+(d?" → "+d:""));console.log("  ✗ "+a+(d?" → "+d:""));} };
 
-const tarayici = await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});
+const tarayici = await chromium.launch({executablePath: process.env.PW_CHROMIUM || "/opt/pw-browsers/chromium"});
 let sayac=0;
 async function sayfaAc(opts={}){
   const ctx = await tarayici.newContext(opts);
@@ -30,6 +30,20 @@ async function sayfaAc(opts={}){
   return {ctx,p,konsol};
 }
 const git = (p,hash="") => p.goto(U+"?t="+(++sayac)+hash,{waitUntil:"networkidle"});
+
+/* Kader sekmesinde cevap artık MÜHÜRLÜ gelir; kart mühür kırılmadan doğmaz.
+   Toplu testler klavye yolunu kullanır (Enter anında açar) — 850 ms'lik
+   basılı tutma her çağrıda tekrarlanmasın. Ritüelin kendisi §11'de,
+   gerçek basılı tutmayla ayrıca sınanır.
+   DİKKAT: p.click(".muhur-kir") ÇALIŞMAZ. Playwright gerçek pointer olayı
+   üretir, pointerdown "tutma" yolunu açar, pointerup onu iptal eder ve
+   ardından gelen click bilerek yutulur — mühür sağlam kalır. */
+const muhuruKir = async (p) => {
+  await p.waitForSelector(".muhur-kir",{timeout:9000});
+  await p.focus(".muhur-kir");
+  await p.keyboard.press("Enter");
+  await p.waitForSelector("#cevap .kayit",{timeout:9000});
+};
 
 /* 1. Ciltler */
 console.log("\n[1] Cilt sistemi");
@@ -64,7 +78,7 @@ console.log("\n[1b] Ciltler biçimi de değiştiriyor");
   const parmakIzi = async (p, c) => {
     await git(p, "#cilt="+c);
     await p.fill("#soru","Bu yıl işimi değiştirmeli miyim?");
-    await p.click("#sor");
+    await p.click("#sor"); await muhuruKir(p);
     await p.waitForSelector("#cevap .kayit",{timeout:9000});
     await p.waitForTimeout(250);
     return p.evaluate(()=>[...document.body.querySelectorAll("*")]
@@ -325,7 +339,7 @@ console.log("\n[5] Kader akışı");
   const {ctx,p,konsol} = await sayfaAc({reducedMotion:"reduce"});
   await git(p);
   await p.fill("#soru","Zam alacak mıyım?");
-  await p.click("#sor");
+  await p.click("#sor"); await muhuruKir(p);
   await p.waitForSelector(".kayit",{timeout:8000});
   await p.waitForTimeout(400);
   const k = await p.evaluate(()=>({
@@ -351,7 +365,7 @@ console.log("\n[5b] Defterin eski sayfaları");
   const {ctx,p,konsol} = await sayfaAc({reducedMotion:"reduce"});
   await git(p);
   const gecmisAl = async (soru) => {
-    await p.fill("#soru", soru); await p.click("#sor");
+    await p.fill("#soru", soru); await p.click("#sor"); await muhuruKir(p);
     await p.waitForSelector("#cevap .kayit",{timeout:8000}); await p.waitForTimeout(300);
     return p.evaluate(()=>[...document.querySelectorAll(".eski-liste li")].map(l=>({
       tarih:l.querySelector(".eski-tarih").textContent,
@@ -382,7 +396,7 @@ console.log("\n[6] Fal kartı PNG");
 {
   const {ctx,p} = await sayfaAc({reducedMotion:"reduce"});
   await git(p);
-  await p.fill("#soru","Ne zaman kavuşacağım?"); await p.click("#sor");
+  await p.fill("#soru","Ne zaman kavuşacağım?"); await p.click("#sor"); await muhuruKir(p);
   await p.waitForSelector(".kayit",{timeout:8000}); await p.waitForTimeout(300);
   const veri = await p.evaluate(async ()=>{
     const blob = await kartCiz();
@@ -408,7 +422,7 @@ console.log("\n[7] Araç düğmeleri");
   const {ctx,p,konsol} = await sayfaAc({reducedMotion:"reduce"});
   await git(p);
   await p.click("#rastgele");
-  await p.waitForSelector(".kayit",{timeout:8000});
+  await muhuruKir(p);                    /* "sen sor" da sor() çağırır: mühürlü gelir */
   ok("'sen sor' cevap üretti", (await p.inputValue("#soru")).length>3);
   /* Ayar düğmesinin ETİKETİ sabit, yalnızca durum rozeti değişir. */
   ok("ses etiketi sabit", (await p.textContent("#ses")).includes("Mühür sesi"));
@@ -437,7 +451,7 @@ console.log("\n[8] Mobil taşma (320/360/390px, üç sekme)");
     const tasmaOlc = () => p.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
 
     await p.fill("#soru","Yurtdışına taşınıp orada evlenebilecek miyim acaba diye çok düşünüyorum");
-    await p.click("#sor"); await p.waitForSelector("#cevap .kayit",{timeout:8000});
+    await p.click("#sor"); await muhuruKir(p); await p.waitForSelector("#cevap .kayit",{timeout:8000});
     ok("kader sekmesi taşmıyor ("+w+"px)", (await tasmaOlc())<=0, (await tasmaOlc())+"px");
 
     await p.click("#t-ikili"); await p.waitForTimeout(250);
@@ -485,7 +499,7 @@ console.log("\n[8] Mobil taşma (320/360/390px, üç sekme)");
     const {ctx,p} = await sayfaAc({viewport:{width:390,height:820}, reducedMotion:"reduce"});
     await git(p,"#cilt="+c);
     await p.fill("#soru","Yurtdışına taşınıp orada evlenebilecek miyim acaba diye çok düşünüyorum");
-    await p.click("#sor"); await p.waitForSelector(".kayit",{timeout:8000});
+    await p.click("#sor"); await muhuruKir(p); await p.waitForSelector(".kayit",{timeout:8000});
     const t = await p.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
     ok("taşma yok ("+c+")", t<=0, t+"px");
     await ctx.close();
@@ -499,7 +513,7 @@ console.log("\n[8b] Kartta uzun kelime");
   await git(p);
   const uzun = "a".repeat(130);
   await p.fill("#soru", uzun);
-  await p.click("#sor"); await p.waitForSelector(".kayit",{timeout:8000});
+  await p.click("#sor"); await muhuruKir(p); await p.waitForSelector(".kayit",{timeout:8000});
   const r = await p.evaluate(async ()=>{
     const blob = await kartCiz();
     return blob ? blob.size : 0;
@@ -548,14 +562,14 @@ console.log("\n[10] Dayanıklılık");
   const {ctx,p} = await sayfaAc({reducedMotion:"reduce"});
   await p.route("**/kader.json", r=>r.abort());
   await git(p);
-  await p.fill("#soru","Bu iş olacak mı?"); await p.click("#sor");
+  await p.fill("#soru","Bu iş olacak mı?"); await p.click("#sor"); await muhuruKir(p);
   await p.waitForSelector(".kayit",{timeout:8000});
   ok("kader.json engellenince yedekle çalıştı", (await p.textContent("#cevap .yanit")).length>5);
   await p.unroute("**/kader.json");
   await git(p);
   const link = await p.evaluate(()=>tamBaglanti("Zam alacak mıyım?"));
   await p.goto(U+"?t=paylas"+link.slice(link.indexOf("#")), {waitUntil:"networkidle"});
-  await p.waitForSelector(".kayit",{timeout:8000});
+  await muhuruKir(p);                    /* linkle gelen kayıt da mühürlü açılır */
   ok("paylaşım linki çalışıyor", (await p.textContent("#cevap .yanit")).length>5);
   const r404 = await p.goto(U+"olmayan", {waitUntil:"domcontentloaded"});
   ok("404 sayfası", (await p.content()).includes("nasip"), "durum "+r404.status());
@@ -571,7 +585,7 @@ console.log("\n[10b] Animasyon açıkken metin");
   const {ctx,p,konsol} = await sayfaAc();          /* reducedMotion YOK */
   await git(p);
   await p.evaluate(()=>{ const g=document.getElementById("giris"); if(g) g.hidden=true; });
-  await p.fill("#soru","Zam alacak mıyım?"); await p.click("#sor");
+  await p.fill("#soru","Zam alacak mıyım?"); await p.click("#sor"); await muhuruKir(p);
   await p.waitForSelector("#cevap .kayit",{timeout:9000}); await p.waitForTimeout(1600);
   const k = await p.evaluate(()=>{ const y=document.querySelector("#cevap .yanit");
     return {t:y.textContent, g:y.innerText, sp:y.querySelectorAll("span.kel").length}; });
@@ -621,7 +635,7 @@ console.log("\n[10b] Animasyon açıkken metin");
   ok("ebced sayısı etikete yapışmıyor", /^\d+\s/.test(e2.sayiT), JSON.stringify(e2.sayiT.slice(0,30)));
 
   await p.click("#t-kader"); await p.waitForTimeout(400);
-  await p.fill("#soru","Zam alacak mıyım?"); await p.click("#sor");
+  await p.fill("#soru","Zam alacak mıyım?"); await p.click("#sor"); await muhuruKir(p);
   await p.waitForSelector("#cevap .kayit",{timeout:9000}); await p.waitForTimeout(1500);
   await p.click("details.eski > summary"); await p.waitForTimeout(700);
   const es = await p.evaluate(()=>[...document.querySelectorAll(".eski-liste li")].map(l=>({
@@ -633,13 +647,82 @@ console.log("\n[10b] Animasyon açıkken metin");
   await ctx.close();
 }
 
+/* 10c. Mühür kırma ritüeli
+   Toplu testler klavye yolunu kullanıyor; burada GERÇEK basılı tutma sınanır.
+   Kritik değişmez: tutma süresi kaderi DEĞİŞTİRMEZ. Cevap sor() anında
+   hesaplanır, mühür yalnızca ne zaman görüneceğini belirler — kısa tutup
+   sonra uzun tutmak ya da klavyeyle açmak hep aynı hükmü vermeli. */
+console.log("\n[10c] Mühür kırma ritüeli");
+{
+  const {ctx,p,konsol} = await sayfaAc();          /* reducedMotion YOK: gerçek yol */
+  await git(p);
+  await p.evaluate(()=>{ const g=document.getElementById("giris"); if(g) g.hidden=true; });
+  await p.fill("#soru","Zam alacak mıyım?"); await p.click("#sor");
+  await p.waitForSelector(".muhur-kir",{timeout:9000});
+
+  ok("cevap mühürlü geldi, kart yok", !(await p.isVisible("#cevap .kayit")));
+  ok("mühür görünür", await p.isVisible(".balmumu"));
+  ok("mühür düğmesi erişilebilir",
+     (await p.getAttribute(".muhur-kir","aria-label") || "").length > 10);
+
+  /* Kısa dokunuş açmamalı — ritüel bir kazayla atlanmamalı. */
+  const kutu = await p.locator(".balmumu").boundingBox();
+  const mx = kutu.x + kutu.width/2, my = kutu.y + kutu.height/2;
+  await p.mouse.move(mx,my); await p.mouse.down(); await p.waitForTimeout(180); await p.mouse.up();
+  await p.waitForTimeout(400);
+  ok("kısa dokunuş mührü kırmadı", !(await p.isVisible("#cevap .kayit")));
+  ok("ipucu daha uzun tutmayı söyledi",
+     /uzun/.test(await p.textContent(".zarf-ipucu")), await p.textContent(".zarf-ipucu"));
+  const halka = await p.getAttribute(".balmumu-halka .dolu","stroke-dasharray");
+  ok("halka geri sarıldı", parseFloat(halka) < 30, halka);
+
+  /* Gerçek basılı tutma açmalı. */
+  await p.mouse.down(); await p.waitForTimeout(1150); await p.mouse.up();
+  const acildi = await p.waitForSelector("#cevap .kayit",{timeout:9000}).then(()=>true,()=>false);
+  ok("basılı tutma mührü kırdı", acildi);
+  ok("zarf kalktı", !(await p.isVisible(".zarf")));
+  const tutarak = await p.evaluate(()=>{
+    const y=document.querySelector("#cevap .yanit"), m=document.querySelector("#cevap .muhur");
+    return { yanit: y?y.textContent.trim():"", muhur: m?m.textContent.trim():"" }; });
+  ok("hüküm geldi", tutarak.yanit.length > 5, tutarak.yanit);
+
+  /* Odak kaybolmamalı: bastığı düğme yok oldu. */
+  ok("odak kayda taşındı",
+     await p.evaluate(()=>document.activeElement && document.activeElement.classList.contains("kayit")));
+
+  /* Aynı soru, bu kez klavyeyle — hüküm birebir aynı olmalı. */
+  await p.fill("#soru","Zam alacak mıyım?"); await p.click("#sor"); await muhuruKir(p);
+  const klavye = await p.evaluate(()=>{
+    const y=document.querySelector("#cevap .yanit"), m=document.querySelector("#cevap .muhur");
+    return { yanit: y?y.textContent.trim():"", muhur: m?m.textContent.trim():"" }; });
+  ok("tutma süresi kaderi değiştirmiyor",
+     klavye.yanit===tutarak.yanit && klavye.muhur===tutarak.muhur,
+     JSON.stringify(klavye)+" vs "+JSON.stringify(tutarak));
+  ok("konsol temiz", konsol.length===0, konsol.join(" | "));
+  await ctx.close();
+}
+{
+  /* Azalan hareket kipinde tutma yok: tek dokunuş açar, kimse kilitlenmez. */
+  const {ctx,p} = await sayfaAc({reducedMotion:"reduce"});
+  await git(p);
+  await p.evaluate(()=>{ const g=document.getElementById("giris"); if(g) g.hidden=true; });
+  await p.fill("#soru","Zam alacak mıyım?"); await p.click("#sor");
+  await p.waitForSelector(".muhur-kir",{timeout:9000});
+  ok("azalan harekette ipucu 'dokun' diyor",
+     /dokun/.test(await p.textContent(".zarf-ipucu")), await p.textContent(".zarf-ipucu"));
+  await p.click(".muhur-kir");
+  ok("azalan harekette tek dokunuş açtı",
+     await p.waitForSelector("#cevap .kayit",{timeout:9000}).then(()=>true,()=>false));
+  await ctx.close();
+}
+
 /* 11. Ekran görüntüleri */
 {
   for (const c of ["gece","kahve","ferman","neon","kagit"]){
     const {ctx,p} = await sayfaAc({viewport:{width:1180,height:1000}});
     await git(p,"#cilt="+c);
     await p.evaluate(()=>{ const g=document.getElementById("giris"); if(g) g.hidden=true; });
-    await p.fill("#soru","İşten kovulacak mıyım?"); await p.click("#sor");
+    await p.fill("#soru","İşten kovulacak mıyım?"); await p.click("#sor"); await muhuruKir(p);
     await p.waitForSelector(".kayit",{timeout:9000}); await p.waitForTimeout(1700);
     await p.screenshot({path:KOK + "/../shots/cilt-"+c+".png", fullPage:true});
     await ctx.close();
