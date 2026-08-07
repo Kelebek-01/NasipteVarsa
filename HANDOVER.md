@@ -477,7 +477,11 @@ Kapatılmayan, bilinen kalıntılar:
 * **Gövdeleme sözlüksüz.** Yüksek frekanslı çekim ekleri elle listelenmiştir; nadir
   kelimelerde yanlış soyabilir. Türetim ekleri (`li/lu/ci/cu/gi/gu/si/su`) bilerek listede
   **yok** — "okulu" → "oku" gibi hataya yol açıyorlardı. Yeni ek eklerken bu tuzağa dikkat.
-* **Kısa konu kökleri (<4 harf) yalnızca birebir eşleşir.** "zam" kökünün "zaman"
+* **Kısa konu kökleri (<4 harf) yalnızca birebir eşleşir** — bu yüzden türemiş
+  biçimi ayrıca kök olarak yazmak gerekebilir. Ölçüldü: "Küslüğümüz bitecek mi?"
+  gövdesi `kusluk` çıkıyor, kök `küs` ise 3 harf olduğu için önek eşleşmesine
+  girmiyordu ve soru `genel`'e düşüyordu; `küslük` kökü eklenince eşleşti.
+  Yeni konu yazarken kısa kökün uzun akrabalarını da listele. "zam" kökünün "zaman"
   jetonunu yakalaması bu yüzden engellendi. Kural `kader.js` → `konuBul` içinde.
 * **Gerçek kullanıcı sorularıyla ölçülmedi.** Gövdeleme ve konu isabeti yalnızca testteki
   ~40 örnek soruda doğrulandı; saha isabeti bilinmiyor. İddia edilen bir doğruluk oranı yok.
@@ -513,7 +517,10 @@ sandbox kısıtı, repo ayarı değil.
 
 1. İçerik büyütme: `konuHukum` ve `tavsiye` havuzları en çok görülen yerler, en çok onlar
    büyümeli. Kutup oranını (~33/30/35) koru. `kura.hukum` ve `ebced.hane` de yeni ve dar.
-2. Yeni konu eklemek: `konular`'a kök listesi + `konuHukum` ve `okumaKonu`'ya karşılık
+2. **Konu sayısı 8** (ask, para, is, saglik, egitim, yol, **aile**, **arkadaslik**).
+   Aile ve arkadaşlık v3.4'te eklendi; `genel`'e düşen soru oranı **%44'ten %11'e**
+   indi. Eksik kalan bariz alanlar: ev/taşınma, hukuk/dava, kayıp eşya, hayvan.
+   Yeni konu eklemek: `konular`'a kök listesi + `konuHukum` ve `okumaKonu`'ya karşılık
    yaz. Kod değişikliği gerekmez.
 3. Kayıt numarasına dönem harfi eklemek (ör. "№1983-D31") kartın koleksiyonluk hissini artırır.
 4. ~~Kura ve isim falı için de PNG kart üretmek~~ — **yapıldı (v3.3)**, beş sekmede de var.
