@@ -484,6 +484,65 @@
         "dostluk",
         "arkadaşlık"
       ]
+    },
+    "ev": {
+      "ad": "dam",
+      "kokler": [
+        "ev",
+        "konut",
+        "kiracı",
+        "tapu",
+        "daire",
+        "emlak",
+        "apartman",
+        "bina",
+        "oda",
+        "mutfak",
+        "bahçe",
+        "mülk",
+        "arsa",
+        "inşaat",
+        "tadilat",
+        "mobilya",
+        "eşya",
+        "mahalle",
+        "yuva",
+        "depozito",
+        "aidat",
+        "müteahhit",
+        "dam"
+      ]
+    },
+    "hukuk": {
+      "ad": "terazi",
+      "kokler": [
+        "dava",
+        "mahkeme",
+        "avukat",
+        "hakim",
+        "savcı",
+        "ceza",
+        "hapis",
+        "tazminat",
+        "icra",
+        "temyiz",
+        "dilekçe",
+        "duruşma",
+        "suç",
+        "şikayet",
+        "noter",
+        "veraset",
+        "dolandır",
+        "adalet",
+        "yasa",
+        "kanun",
+        "hukuk",
+        "tutuklu",
+        "beraat",
+        "itiraz",
+        "terazi",
+        "hüküm"
+      ]
     }
   },
   "_arzuNotu": "Arzu ekseni mührün anlamını düzeltir. 'İşten kovulacak mıyım?' sorusuna 'NASİP VAR' basmak tonu ters çevirir. korkuKokler soranın olmasından çekindiği olayları, istekKokler umduğu olayları listeler. Olumsuz çekim (-mA-) ekseni kendiliğinden ters çevirir.",
@@ -1606,6 +1665,150 @@
         "Bu bağ tartılıyor, hüküm yok.",
         "Ne yakın ne uzak; arada duruyor."
       ]
+    },
+    "ev": {
+      "mujde": [
+        "Bu dam senin üstüne yazılmış.",
+        "Anahtar sana geçiyor.",
+        "Aradığın yer bulunuyor.",
+        "Bu kapı senin adına açılıyor.",
+        "Yuva kuruluyor; defter yer ayırmış.",
+        "Beklediğin haber tapudan geliyor.",
+        "Bu devre çatın sağlamlaşıyor.",
+        "Uzun aramanın karşılığı bu sayfada.",
+        "Bu eşik sana uğurlu gelecek.",
+        "Yerleşme yazılmış; huzurla otur.",
+        "Aradığın fiyat karşına çıkıyor.",
+        "Bu ev seni bekliyormuş."
+      ],
+      "uyari": [
+        "Bu evde bir aksama çıkacak.",
+        "Kira meselesi seni zorlayacak.",
+        "Korktuğun taşınma kapıda.",
+        "Bu anlaşma düşündüğün gibi yürümüyor.",
+        "Beklenmedik bir masraf bu çatının altında.",
+        "Bu yer sana dar gelecek.",
+        "Sözleşmeyi iyi oku; ince yazı var.",
+        "Bu eşik bu devre kapanıyor.",
+        "Yerleşmen gecikecek.",
+        "Bu evin sıkıntısı senden kaynaklanmıyor, ama sana kalıyor.",
+        "Bu bina sandığın kadar sağlam değil.",
+        "Aceleyle imza atma; pişmanlık yazılı."
+      ],
+      "teselli": [
+        "Bu ev sana nasip olmuyor.",
+        "Aradığın yer bu sayfada yok.",
+        "Beklediğin anahtar bu devre gelmiyor.",
+        "O kapı sana açılmıyor; başka eşik var.",
+        "Bu fiyat bu devre denk gelmiyor.",
+        "Yerleşme gecikiyor; kaybın yok.",
+        "Bu dam senin damın değilmiş.",
+        "İstediğin oldu sayılmaz ama zararın da yok.",
+        "Bu arama biraz daha sürecek.",
+        "Bu mahalle sana göre değil.",
+        "Umduğun taşınma bu sayfada yazmıyor.",
+        "Bu defa olmadı; olmaması da bir işaret."
+      ],
+      "ferah": [
+        "Korktuğun tahliye yazılmamış.",
+        "Bu çatı üstünde duruyor.",
+        "Kaygılandığın zam gelmiyor.",
+        "Bu evden çıkmıyorsun.",
+        "Beklediğin masraf çıkmayacak.",
+        "Bu bina sağlam; endişeni bırak.",
+        "Kaybedeceğini sandığın yer yerinde.",
+        "Bu sayfada taşınma zorunluluğu yok.",
+        "İçin rahat olsun; kapın kapanmıyor.",
+        "O sorun büyümeden çözülüyor.",
+        "Bu eşikte kötü haber yok.",
+        "Uykunu bu yüzden bölme; dam yerinde."
+      ],
+      "belirsiz": [
+        "Bu adresin kararı henüz verilmemiş.",
+        "Anahtar ortada; sahibi belli değil.",
+        "Ne taşınma yazılmış ne kalmak.",
+        "Defter bu adresi boş bırakmış.",
+        "Bu satır bir imzayı bekliyor.",
+        "Kader burada fiyata karışmıyor.",
+        "Bu kapı aralık; itmek de çekmek de sende.",
+        "Arama sürüyor; sonuç yazılmadı.",
+        "Bu sayfa bir görüşmeden sonra dolacak.",
+        "Yer var ama tarih yok.",
+        "Bu dam tartılıyor, hüküm yok.",
+        "Acele etme; bu satır bekler."
+      ]
+    },
+    "hukuk": {
+      "mujde": [
+        "Terazi senden yana eğiliyor.",
+        "Bu dava lehine sonuçlanıyor.",
+        "Hakkın teslim ediliyor.",
+        "Beklediğin karar çıkıyor.",
+        "Bu dosya senin adına kapanıyor.",
+        "Adalet gecikti ama geliyor.",
+        "Bu kapıdan alnın ak çıkacaksın.",
+        "Aradığın belge yerini buluyor.",
+        "Bu devre kâğıtlar senin elinde.",
+        "Karşı taraf geri adım atıyor.",
+        "Bu satır seni haklı yazmış.",
+        "Uzun bekleyiş sonuç veriyor."
+      ],
+      "uyari": [
+        "Bu dosya sandığından uzun sürecek.",
+        "Karar bu devre lehine çıkmıyor.",
+        "Korktuğun süreç başlıyor.",
+        "Bu iş mahkemeye düşecek.",
+        "Bir belge eksik; onu bulmadan girme.",
+        "Karşı taraf hazırlıklı geliyor.",
+        "Bu yükün altında bir süre kalacaksın.",
+        "Masraf büyüyecek; şimdiden ayır.",
+        "Aceleyle imza atma; bu satır seni bağlıyor.",
+        "Bu hak kolay teslim edilmiyor.",
+        "Bir gecikme yazılmış; sabrını ona göre ölç.",
+        "Bu kapıdan çıkmak girmekten zor olacak."
+      ],
+      "teselli": [
+        "Bu dava senin lehine dönmüyor.",
+        "Beklediğin karar çıkmıyor.",
+        "Aradığın hak bu sayfada teslim edilmiyor.",
+        "Bu dosya bu devre kapanmıyor.",
+        "Haklıydın; defter bunu ayrı yazdı, kararı ayrı.",
+        "Bu kapı bu sefer açılmıyor.",
+        "Umduğun tazminat yazılmamış.",
+        "Bu mücadele boşa değildi ama sonuç bu devre yok.",
+        "Beklediğin özür de karar da gelmiyor.",
+        "Bu terazi bu sefer öbür yana eğildi.",
+        "İstediğin olmadı; onurun yerinde.",
+        "Bu satır sana ders yazmış, zafer değil."
+      ],
+      "ferah": [
+        "Korktuğun ceza yazılmamış.",
+        "Bu dosya sana dokunmuyor.",
+        "Kaygılandığın dava açılmayacak.",
+        "Terazi seni sarsmadan geçiyor.",
+        "Bu suçlama tutmuyor.",
+        "Endişen gerçeğinden büyük çıktı.",
+        "Bu kapıya gitmeyeceksin.",
+        "Beklediğin kötü karar gelmiyor.",
+        "İçin rahat olsun; hakkın korunuyor.",
+        "Bu iş mahkemeye düşmeden çözülüyor.",
+        "Kaybedeceğini sandığın şey yerinde.",
+        "Bu sayfada ceza yok."
+      ],
+      "belirsiz": [
+        "Terazi ortada duruyor.",
+        "Bu dosya henüz karara bağlanmadı.",
+        "Defter bu davayı beklemeye almış.",
+        "Ne lehte yazılmış ne aleyhte.",
+        "Bu satırı bir belge tamamlayacak.",
+        "Kader burada hâkimin yerine geçmez.",
+        "Karar bir masada bekliyor.",
+        "Bu sayfa duruşmadan sonra dolacak.",
+        "Hak var ama teslim tarihi yok.",
+        "Bu iş uzlaşmayla da biter, kararla da.",
+        "Bu terazi tartılıyor; hüküm yok.",
+        "Acele etme; bu dosya sabır ister."
+      ]
     }
   },
   "_tipNotu": "tipHukum KADER'e göre ayrılır (olur/olmaz/belirsiz) ve TONDAN BAĞIMSIZ yazılmalıdır: 'Sandığından erken' cümlesi hem beklenen hem korkulan olay için çalışır.",
@@ -1894,6 +2097,26 @@
       "Bu soru bir masanın etrafından geliyor.",
       "Vefa soruluyor; defterin ölçmesi en zor şeyi.",
       "Bu satırda bir isim var, akrabalık yok."
+    ],
+    "ev": [
+      "Dam meselesi; defterin en sabit sayfası.",
+      "Bu satır bir adresin üstünde duruyor.",
+      "Ev soruluyor; dört duvar en eski nasiptir.",
+      "Bu sayfa anahtarla açılır.",
+      "Barınma meselesi; kader burada aceleci değil.",
+      "Bu soru bir eşiğin önünden geliyor.",
+      "Yuva soruluyor; kurmak yıkmaktan zordur.",
+      "Bu satırda bir çatı var, bir de altındakiler."
+    ],
+    "hukuk": [
+      "Terazi meselesi; defterin en ağır sayfası.",
+      "Bu satır bir dosyanın içinde duruyor.",
+      "Hak soruluyor; kader burada avukatın yerine geçmez.",
+      "Bu sayfa kâğıtla yazılır, kalemle değil.",
+      "Adalet meselesi; en yavaş yürüyen sayfa budur.",
+      "Bu soru bir masanın karşısından geliyor.",
+      "Hüküm soruluyor; defter de hüküm yazar ama aynısı değil.",
+      "Bu satırda iki taraf var, biri sensin."
     ]
   },
   "tavsiye": {

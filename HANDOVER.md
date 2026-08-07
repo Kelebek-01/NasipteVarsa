@@ -517,10 +517,10 @@ sandbox kısıtı, repo ayarı değil.
 
 1. İçerik büyütme: `konuHukum` ve `tavsiye` havuzları en çok görülen yerler, en çok onlar
    büyümeli. Kutup oranını (~33/30/35) koru. `kura.hukum` ve `ebced.hane` de yeni ve dar.
-2. **Konu sayısı 8** (ask, para, is, saglik, egitim, yol, **aile**, **arkadaslik**).
-   Aile ve arkadaşlık v3.4'te eklendi; `genel`'e düşen soru oranı **%44'ten %11'e**
-   indi. Eksik kalan bariz alanlar: ev/taşınma, hukuk/dava, kayıp eşya, hayvan.
-   Yeni konu eklemek: `konular`'a kök listesi + `konuHukum` ve `okumaKonu`'ya karşılık
+2. **Konu sayısı 10** (ask, para, is, saglik, egitim, yol, aile, arkadaslik, ev, hukuk).
+   Dördü v3.4'te eklendi. Ölçüm (88 soru): `genel`'e düşen soru **%55 → %27 → %5**,
+   konuya özel hüküm **%14 → %19 → %26**. Eksik kalan alanlar: kayıp eşya, hayvan,
+   askerlik, teknoloji. Yeni konu eklemek: `konular`'a kök listesi + `konuHukum` ve `okumaKonu`'ya karşılık
    yaz. Kod değişikliği gerekmez.
 3. Kayıt numarasına dönem harfi eklemek (ör. "№1983-D31") kartın koleksiyonluk hissini artırır.
 4. ~~Kura ve isim falı için de PNG kart üretmek~~ — **yapıldı (v3.3)**, beş sekmede de var.
