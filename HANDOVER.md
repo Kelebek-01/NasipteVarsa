@@ -347,19 +347,37 @@ hiçbiri diğerini devre dışı bırakmaz.
 
 | havuz | anahtar | ağırlık | hücre başına |
 |---|---|---|---|
-| `hukum.ton[ton]` | TON | `tonAgirlik` 3 · korkulan soruda `tonAgirlikKorku` 6 | 12 |
+| `hukum.ton[ton]` | TON | `tonAgirlik` **2** · korkulan soruda `tonAgirlikKorku` 6 | 20 |
 | `tipHukum[tip][kader]` | KADER | `tipAgirlik` 3 (havuz boşsa 0) | 3 |
 | `konuHukum[konu][ton]` | TON | `konuAgirlik` 3 | 12 |
 
-Bir "aşk" evet/hayır sorusunda: ton 12×3 = 36, konu 12×3 = 36, tip 0
+Bir "aşk" evet/hayır sorusunda: ton 20×2 = 40, konu 12×3 = 36, tip 0
 (`evet_hayir` ve `acik` `tipHukum`'da **yok**, bilerek — o havuz tondan bağımsız
 yazılmak zorunda ve evet/hayır soruları tam da tonun en kritik olduğu yer).
 
 **Ölçülmüş etkisi.** `konuHukum` hücre başına 3 iken konuya özel hüküm 48 sorunun
 yalnızca %8'inde çıkıyordu; 12'ye çıkarılınca **%38**. Cevapların monotonlaşması
 buradan geliyordu: neredeyse her hüküm tona göre 12 cümlelik genel havuzdan
-geliyordu. Havuz büyütürken bu tabloya bak — dar havuza cümle eklemek payı da
-büyütür, geniş havuza eklemek çeşitliliği artırır ama payı değiştirmez.
+geliyordu.
+
+**Havuz büyütmek dengeyi kaydırır — bu tuzağa bir kere düşüldü.** Aşama 2'de
+`hukum.ton` 12'den 20'ye çıkarılınca genel havuzun payı da büyüdü ve konuya özel
+hüküm %38'den **%25'e düştü**; çeşitlilik arttı ama asıl istenen konu duygusu
+zayıfladı. `tonAgirlik` 3→2 ile geri alındı. Ölçüm (48 soru):
+
+| `tonAgirlik` | konuya özel | farklı hüküm | aynı soru 30 devirde |
+|---|---|---|---|
+| 3 | %25 | 44/48 | 26,3 |
+| **2** | **%29** | **45/48** | **26,0** |
+| 1 | %35 | 45/48 | 25,3 |
+
+Tekrar çeşitliliği ağırlıktan neredeyse bağımsız, yani konu payını artırmanın
+bedeli yok. Daha çok konu duygusu istenirse 1'e çekilebilir.
+
+**`tonAgirlikKorku` 6 kalmalı.** Korkulan sorularda genel ton havuzunun ağır
+basması bilinçli bir güvenlik payı: kötü habere kutlama basılmasın diye. Konu
+havuzu da tona göre anahtarlı olduğu için teknik olarak güvenli, ama bu payı
+düşürmek ayrı bir gerekçe ister.
 
 **`konuHukum` TON'a, `tipHukum` KADER'e göre anahtarlanır.** Bu ikisi karıştı bir
 kere: `cevapla()` `konuHukum`'u kader ile okuyordu, tek kesişen anahtar `belirsiz`
