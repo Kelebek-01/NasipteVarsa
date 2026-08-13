@@ -252,3 +252,88 @@ Kalan uyumsuzluk doğrudan arzu sınıflandırma hatasından gelir — mimariden
 - 8.400 üretim (140 soru × 60 devir), **bozuk çıktı: 0**
 - farklı hüküm cümlesi: **142**, farklı şerh: **2229**
 - şerh çeşitliliği 248% (kuramsal üst sınır: ton × okuma × tavsiye bileşimleri)
+
+---
+
+## 7. Arzu ekseni: üçüncü set, iki hipotez, iki ret
+
+`eval/test3.json` — 118 soru, on bir konu, arzu dengesi 51/41/26, çoğunluk temel
+çizgisi **%43,2**. Ölçümden **önce** commit edilip donduruldu (`7cdad57`).
+
+**Bağımsızlık uyarısı:** bu seti motoru yazan ajan yazdı, `test2.json` gibi ayrı bir
+ajanın ürünü değil. Etiketler motor hiç çalıştırılmadan konuldu, ama yine de tam
+bağımsız bir set kadar güçlü değildir.
+
+### 7.1 Temel çizgi tekrarlandı
+
+| set | doğruluk | makro F1 | notr geri çağırma |
+|---|---:|---:|---:|
+| `test2` (100 soru, bağımsız) | %59,0 | 0,576 | 0,37 |
+| `test3` (118 soru, yeni) | **%59,3** | 0,524 | 0,19 |
+
+İki set birbirini doğruluyor: arzu ~%59'da duruyor, temel çizginin ~16 puan üstünde.
+
+### 7.2 Karışıklık matrisi (`test3`, satır = gerçek)
+
+| | istenen | korkulan | notr |
+|---|---:|---:|---:|
+| **istenen** | 40 | 10 | 1 |
+| **korkulan** | 13 | 25 | 3 |
+| **notr** | 17 | 4 | 5 |
+
+`notr` fiilen ölü: 26 sorunun 5'i doğru, 17'si `istenen`'e kaçıyor. Sebep kodda
+görünür — kanıt bulunamayınca `birinciSahis ? "istenen" : "notr"`, sorular ise
+çoğunlukla birinci şahıs.
+
+### 7.3 Hipotez 1 — bağlama bağlı fiilleri sözlükten çıkar · **REDDEDİLDİ**
+
+Hata analizinde net bir mekanizma göründü: arzu sözlüklerinde tek başına yön
+taşımayan genel fiiller var ve yüklem 3× ağırlıklı olduğu için bunlar cevabı
+domine ediyor.
+
+- `al` — "zam almak" istenen, "ceza almak" korkulan
+- `art` — "maaş artmak" istenen, "borç artmak" korkulan
+- `bit` — "borç bitmek" istenen, "ilişki bitmek" korkulan
+- `çık`, `aç`, `kal`, `gel`, `gir` — aynı biçimde
+- `öl` — **katlanınca `ol` ile aynı jetona düşüyor**, yani "olmak" fiilinin geçtiği
+  her soru korku puanı alıyor ("çocuğum olacak mı", "mezun olabilecek miyim")
+
+Dokuz kök çıkarıldı. Sonuç: **%59,3 → %54,2**, makro F1 0,524 → 0,488. Geri alındı.
+
+Mekanizma gerçek ama düzeltme yönü yanlış: o fiiller bağlama bağlı olsa da net
+olarak sinyal taşıyormuş; çıkarmak sinyali yok etti, yerine bir şey koymadı.
+
+### 7.4 Hipotez 2 — ağırlık ve geri düşüş ayarı · **REDDEDİLDİ**
+
+`test2` üzerinde tarandı (o set zaten harcanmış; `test3` bu tarama için hiç
+kullanılmadı):
+
+| ayar | doğruluk | makro F1 | notr R |
+|---|---:|---:|---:|
+| şu an (yüklem 3, 1. şahıs → istenen) | %59,0 | 0,576 | 0,37 |
+| yüklem 2 | %59,0 | 0,576 | 0,37 |
+| yüklem 1 (isim = fiil) | %59,0 | **0,586** | 0,43 |
+| geri düşüş hep `notr` | %50,0 | 0,498 | 0,67 |
+| yüklem 1 + geri düşüş `notr` | %50,0 | 0,494 | 0,73 |
+
+Hiçbir ayar anlamlı kazanç vermiyor. En iyisi makro F1'de +0,010 — gürültü seviyesi.
+
+### 7.5 Çıkarım
+
+**Arzu ~%59, sözlük yaklaşımının yapısal tavanı.** Yön tek tek kelimelerde değil,
+**eşdizimde** yaşıyor:
+
+```
+ceza + al   → korkulan        zam + al     → istenen
+sınıfta+kal → korkulan        hamile + kal → istenen
+işten + çık → korkulan        tayin + çık  → istenen
+dava + aç   → korkulan        kapı + aç    → istenen
+```
+
+Sonraki adım ayar değil, mekanizma değişikliği: **komşu gövde çiftlerine bakan
+küçük bir eşdizim tablosu**. Veri tarafı `kader.json`'a eklenir, kod tarafı
+`arzuBul` içinde bir çift denetimi olur. `test2` üzerinde geliştirilir, `test3`
+tek seferlik nihai hüküm için saklanır.
+
+**`test3` bu noktadan sonra kısmen harcanmıştır:** hipotez 1 onun üzerinde ölçüldü.
+Temiz bir iddia için dördüncü bir set gerekir.
