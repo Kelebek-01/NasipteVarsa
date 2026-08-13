@@ -21,6 +21,7 @@ kader.js     Kader motoru — saf fonksiyonlar, DOM'a dokunmaz, Node'da da çal�
 kader.json   Tüm içerik ve ayarlar (kod bilmeden düzenlenebilir)
 404.html     "Bu sayfa nasip olmadı."
 fonts/       Fraunces + Poppins, self-host woff2 (OFL). Google Fonts'a bağımlılık yok.
+             TÜRKÇE ALT KÜMESİNE KIRPILMIŞ — 197 KB'den 100 KB'ye. Ayrıntı §3c.
 og.png       1200×630 paylaşım görseli · favicon.svg · apple-touch-icon.png
 CNAME        nasiptevarsa.com
 test/        Regresyon ve güvenlik testleri (Node; yayına dahil değil)
@@ -302,6 +303,40 @@ denetiminde. Bu döngüyü tek bağlama geri çevirme.
 
 **CSP notu:** `img-src` artık `data:` ve `blob:` de kabul ediyor — sırasıyla kâğıt dokusu
 (gömülü SVG) ve fal kartı (canvas blob) için. Başka gevşetme yok.
+
+## 3c. Font kırpma (v3.4)
+
+Ölçüldü: sayfa 260 KB iniyordu, **fontlar bunun %76'sı** (197 KB). `kader.json`
+5,5 KB'ydi — yani içerik büyütmenin boyut maliyeti fontların yanında gürültü.
+
+Fontlar Türkçe alt kümesine kırpıldı (`pyftsubset`), Fraunces'in `wght` ekseni
+400–700'e daraltıldı (`fonttools varLib.instancer`). Sonuç **197 KB → 100 KB, %48**.
+
+| dosya | önce | sonra |
+|---|---:|---:|
+| fraunces latin normal | 36.620 | 31.328 |
+| fraunces latin italic | 45.656 | 39.312 |
+| fraunces latin-ext normal | 33.584 | **3.628** |
+| fraunces latin-ext italic | 40.528 | **3.372** |
+| poppins latin ×3 | 23.700 | 21.768 |
+| poppins latin-ext ×3 | 16.600 | **3.228** |
+
+`latin-ext` dosyaları %80–92 küçüldü: Türkçe o bloktan yalnızca `ğĞİşŞ` istiyor,
+gerisi Lehçe/Çekçe/Vietnamca içindi ve hiç kullanılmıyordu.
+
+**Karakter kümesi kaynaklardan üretildi**, tahminle değil: `index.html`, `404.html`
+ve `kader.json`'daki bütün karakterler + ASCII + Latin-1 + Türkçe özel harfler =
+224 glif. Latin-1'i tümüyle tutmak bilinçli: **kullanıcının yazdığı soru sayfada
+yankılanıyor**, "café" yazan biri tofu görmemeli.
+
+Doğrulandı: kırpma sırasında sayfada geçen **hiçbir karakter düşmedi** (yedekle
+karşılaştırıldı) ve üç yazı tipinde de Türkçe harflerin hepsi çiziliyor.
+`№ → ✓ ♈` zaten fontlarda yoktu, sistem fontuna düşüyorlar — bu kırpmayla
+değişmedi.
+
+**Yeniden kırparken:** `fonts.css` içindeki `font-weight: 400 700` fvar aralığıyla
+uyumlu olmalı. Aralığı 500'e çekersen `.soru-eko` (font-weight belirtmiyor, 400'e
+düşüyor) sessizce kalınlaşır.
 
 ## 4. kader.json şeması (v3)
 
