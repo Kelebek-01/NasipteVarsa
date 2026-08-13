@@ -262,6 +262,47 @@ for (const uc of ["?", "...", "a", "acaba", "😀", "mı", "   ", "çok çok ço
        ["olur", "olmaz", "belirsiz"].every(t => Array.isArray(veri.tipHukum[k][t]))));
 }
 
+/* ——— 14. Eşdizim tablosu (arzu yönü kelime ÇİFTİNDE) ———
+   "ceza al" korkulan ama "zam al" istenen; tek tek bakınca ikisi de "al"
+   fiiline düşer ve yüklem 3× ağırlıklı olduğu için yanlış taraf kazanırdı.
+   Ölçüldü: bu tablo korkulan tespitini test3'te %74,6'dan %87,3'e çıkardı. */
+{
+  const cift = [
+    ["Ceza alacak mıyım?", "korkulan"], ["Zam alacak mıyım?", "istenen"],
+    ["Sınıfta kalacak mıyım?", "korkulan"], ["Hamile kalabilecek miyim?", "istenen"],
+    ["Borcum artacak mı?", "korkulan"], ["Maaşım artacak mı?", "istenen"],
+    ["Bu ilişki bitecek mi?", "korkulan"], ["Borcum bitecek mi?", "istenen"],
+    ["Çocuğum olacak mı?", "istenen"], ["Kilo alacak mıyım?", "korkulan"],
+    ["Kilo verebilecek miyim?", "istenen"]
+  ];
+  let d = 0;
+  for (const [s, b] of cift) if (K.coz(s, veri).arzu === b) d++;
+  ok("eşdizim çiftleri doğru yön veriyor", d === cift.length, d + "/" + cift.length);
+
+  /* Anahtar kullanıcı girdisinden türüyor: tablo Object.create(null) olmalı,
+     yoksa "constructor" yazan ziyaretçi Object.prototype'ı yakalar. */
+  ok("eşdizim tablosu prototipsiz",
+     Object.getPrototypeOf(veri._esKorku) === null && Object.getPrototypeOf(veri._esIstek) === null);
+  ok("prototip anahtarları sızmıyor",
+     veri._esKorku["constructor"] === undefined && veri._esIstek["toString"] === undefined);
+
+  /* Aynı çift iki listede olamaz: yön belirsizleşir ve ağırlıklar birbirini yer. */
+  const es = veri.esdizim || {};
+  const ortak = (es.korkulan || []).filter(c => (es.istenen || []).includes(c));
+  ok("hiçbir çift iki listede birden değil", ortak.length === 0, ortak.join(", "));
+
+  /* Anahtarlar motorun ÜRETTİĞİ gövde biçiminde olmalı, sözlük biçiminde değil:
+     "zam" gövdelenince "za" olur, "zam al" yazan anahtar hiç eşleşmez. */
+  const olu = [];
+  for (const liste of [es.korkulan || [], es.istenen || []])
+    for (const c of liste) {
+      const p = c.split(" ");
+      if (p.length !== 2) { olu.push(c + " (iki gövde değil)"); continue; }
+      if (p.some(x => K.katla(K.duzle(x)) !== x)) olu.push(c + " (katlanmamış yazılmış)");
+    }
+  ok("eşdizim anahtarları katlanmış gövde biçiminde", olu.length === 0, olu.slice(0, 5).join(" | "));
+}
+
 console.log(`\n${gecti} geçti, ${kaldi} kaldı`);
 if (hata.length) { console.log("\nKALANLAR:"); hata.forEach(h => console.log("  ✗ " + h)); }
 console.log("mühür dağılımı:", JSON.stringify(yuzde));

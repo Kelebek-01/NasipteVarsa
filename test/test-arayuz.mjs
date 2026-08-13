@@ -830,6 +830,14 @@ console.log("\n[10d] Balmumu parçalanması");
     await p.fill("#soru","Bu yıl işimi değiştirmeli miyim?");
     await p.click("#sor");
     await p.waitForSelector(".muhur-kir",{timeout:9000});
+    /* muhurluGoster() zarfı behavior:"smooth" ile kaydırıyor. Bu blok azalan
+       hareket olmadan koştuğu için kaydırma tıklama anında hâlâ sürebiliyor:
+       X doğru çıkar, Y kayar. Ölçmeden önce kaydırmanın durmasını bekle. */
+    await p.waitForFunction(() => {
+      const y = Math.round(window.scrollY);
+      if (window.__sonY === y) return true;
+      window.__sonY = y; return false;
+    }, null, {polling:100, timeout:5000}).catch(()=>{});
     const k = await p.locator(".balmumu").boundingBox();
     await p.mouse.move(k.x + k.width*fx, k.y + k.height*fy);
     await p.mouse.down(); await p.waitForTimeout(1000);

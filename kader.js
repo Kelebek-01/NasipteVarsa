@@ -420,6 +420,14 @@
     veri._korku = kokKumesi(veri.korkuKokler);
     veri._istek = kokKumesi(veri.istekKokler);
     veri._notr = kokKumesi(veri.notrKokler);
+    /* Eşdizim tabloları. Anahtar KULLANICI GİRDİSİNDEN türer (gövde çifti), bu
+       yüzden düz {} olamaz: "constructor" yazan ziyaretçi Object.prototype'ı
+       yakalar ve her soru korkulan/istenen çıkar. */
+    veri._esKorku = Object.create(null);
+    veri._esIstek = Object.create(null);
+    var _es = veri.esdizim || {};
+    (_es.korkulan || []).forEach(function (c) { veri._esKorku[c] = 1; });
+    (_es.istenen || []).forEach(function (c) { veri._esIstek[c] = 1; });
 
     /* Durak ve özel sorular */
     var durak = Object.create(null), dl = veri.durak || [];
@@ -517,6 +525,18 @@
       if (kokEsler(govdeler[i], veri._korku)) korku += w;
       if (kokEsler(govdeler[i], veri._istek)) istek += w;
       if (kokEsler(govdeler[i], veri._notr)) notrKanit += w;
+    }
+    /* Eşdizim: yön çoğu zaman tek kelimede değil ÇİFTTE yaşar. "ceza al"
+       korkulan ama "zam al" istenen; tek tek bakınca ikisi de "al" fiiline
+       düşer ve yüklem 3× ağırlıklı olduğu için yanlış taraf kazanır.
+       Çift eşleşmesi tek kelimeden daha özgül, o yüzden ağır basar. */
+    var ES_AGIRLIK = 8;
+    for (var a = 0; a < govdeler.length; a++) {
+      for (var b = a + 1; b < govdeler.length; b++) {
+        var cift = govdeler[a] + " " + govdeler[b];
+        if (veri._esKorku[cift]) korku += ES_AGIRLIK;
+        if (veri._esIstek[cift]) istek += ES_AGIRLIK;
+      }
     }
     var a;
     if (notrKanit > 0 && notrKanit >= korku && notrKanit >= istek) a = "notr";

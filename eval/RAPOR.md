@@ -337,3 +337,36 @@ tek seferlik nihai hüküm için saklanır.
 
 **`test3` bu noktadan sonra kısmen harcanmıştır:** hipotez 1 onun üzerinde ölçüldü.
 Temiz bir iddia için dördüncü bir set gerekir.
+
+### 7.6 Hipotez 3 — eşdizim tablosu · **KABUL**
+
+Yön tek kelimede değil çiftte yaşıyor. `kader.json`'a `esdizim` tablosu eklendi
+(47 korkulan + 51 istenen çift), `arzuBul` komşu olmayan gövde çiftlerini de
+tarıyor ve eşleşme 8 ağırlık ekliyor.
+
+Tablo **yalnızca `test2` üzerinde** geliştirildi; `test3` bu geliştirme sırasında
+hiç açılmadı ve sonda tek kez ölçüldü.
+
+| | test2 (geliştirme) | test3 (nihai hüküm) |
+|---|---:|---:|
+| 3 sınıf doğruluk | %59,0 → **%63,0** | %59,3 → **%72,0** |
+| makro F1 | 0,576 → 0,610 | 0,524 → 0,628 |
+
+**Ürün için asıl sayı `korkulan` tespiti.** `tonBul` içinde `notr` ile `istenen`
+aynı işlenir — ikisi de aynı tonu verir. Yani üç sınıflı doğruluk değil, "kötü
+habere kutlama basıyor muyuz" sorusu önemlidir:
+
+| | test2 | test3 |
+|---|---:|---:|
+| öncesi | %76,0 · F1 0,625 | %74,6 · F1 0,625 |
+| sonrası | **%80,0** · F1 0,667 | **%87,3** · F1 0,815 |
+
+**`notr` hâlâ kırık** (F1 0,29, geri çağırma 0,19) ve eşdizim onu düzeltmiyor —
+sebep `birinciSahis ? "istenen" : "notr"` geri düşüşü. Ama `notr` yanlışının
+çıktıya etkisi yok: aynı tonu üretiyor. Düzeltmenin değeri ölçüme yansır,
+kullanıcıya yansımaz.
+
+**Anahtar biçimi tuzağı:** eşdizim anahtarları motorun ÜRETTİĞİ gövdelerdir,
+sözlük biçimi değil — `zam`→`za`, `tayin`→`tay`, `hasta`→`has`. Sözlük biçiminde
+yazılan anahtar hiç eşleşmez ve sessizce ölür. `test-motor.mjs` §14 anahtarların
+katlanmış olduğunu denetliyor.
