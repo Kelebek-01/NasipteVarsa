@@ -339,6 +339,41 @@ body[data-cilt="neon"] .kayit .soru-eko{font-style:normal}
   transition:border-color .15s ease,color .15s ease}
 .paylas button:hover{border-color:var(--altin);color:var(--altin)}
 
+/* ——— açık defter (masaüstü, iki sayfa) ———
+   Sarmalayıcılar her zaman DOM'da ama dar ekranda display:contents ile
+   yokmuş gibi davranırlar: mobil yerleşim, taşma testleri ve DOM sırası
+   değişmez. Yalnızca ≥1180px'te ızgaraya dönüşürler. */
+.defter-sol,.defter-sag{display:contents}
+
+@media (min-width:1180px){
+  /* .sayfa 620px'e sabit; kart ondan taşarak ortalanır.
+     50% burada kabın (620px) yarısıdır, viewport'un değil. */
+  #cevap .kayit{
+    --defter-en:1040px;
+    width:var(--defter-en);
+    margin-left:calc(50% - var(--defter-en) / 2);
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    column-gap:calc(var(--kart-ic) * 2.2);
+    align-items:start;
+  }
+  .defter-sol,.defter-sag{display:block;min-width:0}
+  /* Dikiş: iki sayfa arasındaki cilt payı. */
+  .defter-sag{position:relative}
+  .defter-sag::before{
+    content:"";position:absolute;left:calc(var(--kart-ic) * -1.1);top:-6px;bottom:-6px;
+    width:1px;background:linear-gradient(to bottom,transparent,var(--cizgi) 12%,
+      var(--cizgi) 88%,transparent)}
+  /* Sol sayfa sorunun sayfası: hüküm sağda olduğu için burada punto düşer. */
+  #cevap .kayit .soru-eko{font-size:var(--ol-3);margin-bottom:16px}
+  #cevap .kayit .not{margin-bottom:0}
+  #cevap .kayit .yanit{font-size:var(--ol-6)}
+  /* Eski sayfalar da defter genişliğinde dursun, kartın altında dar kalmasın. */
+  #cevap .eski{
+    width:var(--defter-en,1040px);
+    margin-left:calc(50% - var(--defter-en,1040px) / 2)}
+}
+
 /* ——— mühür kırma ritüeli ———
    Cevap sor() anında hesaplanır ve mühürlü bekler. Tutma süresi kaderi
    DEĞİŞTİRMEZ, yalnızca ne zaman görüneceğini belirler: motor deterministik
@@ -1487,9 +1522,18 @@ function goster(soru, sonuc){
     paylas.appendChild(pb);
   }
 
-  kart.appendChild(eko); kart.appendChild(yanit);
-  if (sonuc.serh) kart.appendChild(serh);
-  kart.appendChild(satir); kart.appendChild(not); kart.appendChild(paylas);
+  /* Açık defter: geniş ekranda kart iki sayfaya ayrılır. Sarmalayıcılar HER ZAMAN
+     var ama dar ekranda `display:contents` ile görünmezler — yani mobil yerleşim
+     ve DOM sırası birebir eskisi gibi kalır, yalnızca ≥1180px'te ızgara olurlar.
+     Sol sayfa soruyu ve şerhi taşır, sağ sayfa hükmü ve mührü: göz soldan sağa
+     "soruldu → hükmedildi" diye okur. */
+  var sol = document.createElement("div"); sol.className = "defter-sol";
+  var sag = document.createElement("div"); sag.className = "defter-sag";
+  sol.appendChild(eko);
+  if (sonuc.serh) sol.appendChild(serh);
+  sol.appendChild(not);
+  sag.appendChild(yanit); sag.appendChild(satir); sag.appendChild(paylas);
+  kart.appendChild(sol); kart.appendChild(sag);
   cevapEl.textContent = ""; cevapEl.appendChild(kart);
   var eski = eskiSayfalar(soru);
   if (eski) cevapEl.appendChild(eski);

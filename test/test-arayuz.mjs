@@ -640,6 +640,50 @@ console.log("\n[8b] Kartta uzun kelime");
 }
 
 /* 9. Erişilebilirlik: kontrast */
+/* 8c. Açık defter — masaüstünde iki sayfa, dar ekranda hiç yokmuş gibi
+   Sarmalayıcılar HER ZAMAN DOM'da; dar ekranda display:contents ile yerleşimden
+   çekilirler. Bu testin asıl işi o geri düşüşü korumak: contents bozulursa
+   mobilde kart iki kutuya bölünür ve taşma testleri bunu yakalamaz. */
+console.log("\n[8c] Açık defter düzeni");
+{
+  const kur = async (w, h) => {
+    const {ctx, p} = await sayfaAc({viewport:{width:w, height:h}, reducedMotion:"reduce"});
+    await git(p);
+    await p.evaluate(()=>{ const g=document.getElementById("giris"); if(g) g.hidden=true; });
+    await p.fill("#soru","Bu yıl işimi değiştirmeli miyim?");
+    await p.click("#sor"); await muhuruKir(p); await p.waitForTimeout(250);
+    const d = await p.evaluate(()=>{
+      const k=document.querySelector("#cevap .kayit");
+      const s=document.querySelector(".defter-sol"), g=document.querySelector(".defter-sag");
+      const r=x=>x.getBoundingClientRect(); const kr=r(k), sr=r(s), gr=r(g);
+      return { kartGen:Math.round(kr.width), solDisplay:getComputedStyle(s).display,
+        yanYana: sr.width>0 && Math.abs(sr.top-gr.top)<60 && gr.left >= sr.right-6,
+        tasma: document.documentElement.scrollWidth-document.documentElement.clientWidth,
+        /* DOM sırası her iki kipte de aynı olmalı */
+        sira:[...k.querySelectorAll(".soru-eko,.yanit,.serh,.muhur-satir,.not,.paylas")]
+              .map(e=>e.className.split(" ")[0]).join(">"),
+        dikis: getComputedStyle(g,"::before").width };
+    });
+    await ctx.close(); return d;
+  };
+
+  const genis = await kur(1400, 1100);
+  ok("geniş ekranda kart 620px'i aşıyor", genis.kartGen > 900, genis.kartGen+"px");
+  ok("iki sayfa yan yana", genis.yanYana, JSON.stringify(genis));
+  ok("geniş ekranda yatay taşma yok", genis.tasma <= 0, genis.tasma+"px");
+  ok("dikiş çizgisi çiziliyor", genis.dikis !== "auto" && genis.dikis !== "0px", genis.dikis);
+
+  const dar = await kur(390, 900);
+  ok("dar ekranda sarmalayıcı display:contents", dar.solDisplay === "contents", dar.solDisplay);
+  ok("dar ekranda tek sütun", !dar.yanYana);
+  ok("dar ekranda yatay taşma yok", dar.tasma <= 0, dar.tasma+"px");
+  ok("kart dar ekranda kaba sığıyor", dar.kartGen <= 390, dar.kartGen+"px");
+
+  /* Sarmalayıcı eklemek okuma sırasını bozmamalı: ekran okuyucu ve kopyala-yapıştır
+     her iki kipte de aynı sırayı görmeli. */
+  ok("DOM sırası iki kipte de aynı", genis.sira === dar.sira, genis.sira+"  vs  "+dar.sira);
+}
+
 console.log("\n[9] Kontrast (WCAG AA)");
 {
   const {ctx,p} = await sayfaAc({reducedMotion:"reduce"});

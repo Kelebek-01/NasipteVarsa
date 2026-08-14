@@ -174,6 +174,18 @@ aşındırmak için yapıldı, dolu bir diske uygulanınca yüzeyi delik deşik 
 konturundan geliyor — o da cilde göre değişiyor: ferman kare, kâğıt tam yuvarlak,
 gece/kahve organik damla.
 
+**Açık defter (v3.4).** ≥1180px'te Kader kartı iki sayfaya ayrılır: solda soru
+ve şerh, sağda hüküm ve mühür. Göz soldan sağa "soruldu → hükmedildi" okur.
+Kart `.sayfa`nın 620px'lik kabından taşıp ortalanır (`margin-left: calc(50% - en/2)`;
+buradaki %50 KABIN yarısıdır, viewport'un değil).
+
+**`display:contents` bilinçli.** `.defter-sol` / `.defter-sag` sarmalayıcıları
+HER ZAMAN DOM'da; dar ekranda `display:contents` ile yerleşimden çekilirler, yani
+mobil görünüm ve DOM sırası birebir eskisi gibi kalır. Bu geri düşüş bozulursa
+mobilde kart iki kutuya bölünür ve **taşma testleri bunu yakalamaz** — o yüzden
+`test-arayuz.mjs` §8c ayrıca `display` değerini ve iki kipte DOM sırasının aynı
+kaldığını denetliyor. Silme.
+
 **Sekmeler.** Kader / İki Kişilik / Burç / Kura / İsim Falı sayfaları View Transitions API ile geçiyor
 (`document.startViewTransition`, özellik denetimli). Geçişten sonra odak hedef panele
 taşınıyor — bu erişilebilirlik için zorunlu, kaldırma.
