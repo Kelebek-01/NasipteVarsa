@@ -776,6 +776,65 @@
     };
   }
 
+  /* ═══════════ 13b. İki burç arası açı ═══════════
+     Burçlar arası klasik açı EFEMERİS GEREKTİRMEZ: iki burcun zodyaktaki
+     indeks uzaklığı × 30° zaten açının kendisidir. Doğum saati, yeri, gezegen
+     konumu — hiçbiri gerekmez. Bu yüzden sitenin statik/deterministik
+     sözleşmesini bozmadan eklenebiliyor.
+
+       uzaklık 0 → 0°   kavuşum      uzaklık 4 → 120° üçgen
+       uzaklık 2 → 60°  altmışlık    uzaklık 6 → 180° karşıtlık
+       uzaklık 3 → 90°  kare         uzaklık 1 ve 5 → klasik açı YOK
+
+     Uzaklık 1 ve 5'in adı uydurma değil: klasik gelenekte bu iki burç
+     birbirini "görmez" (aversion). Türkçesi yüz çevirme.
+
+     Kaynak: Ptolemaios, Tetrabiblos I.13; Lilly, Christian Astrology I. kitap.
+     Modern minör açılar (Kepler kökenli) bilerek YOK — klasik beşli kullanılıyor.
+
+     ÖLÇÜM ile YORUM ayrımı: açının kendisi ölçümdür, "bu ilişki uyumludur"
+     ise defterin kendi sözüdür. Kart bunu açıkça söyler; havuzlar da
+     hiçbir açıyı "kötü" diye yazmaz. */
+
+  var ACI_ADI = ["kavusum", "yuzcevirme", "altmislik", "kare", "ucgen", "yuzcevirme", "karsitlik"];
+
+  function burcAcisi(i, j) {
+    var d = Math.abs((i | 0) - (j | 0)) % 12;
+    if (d > 6) d = 12 - d;
+    return { uzaklik: d, ad: ACI_ADI[d], derece: d * 30 };
+  }
+
+  function burcIkili(veri, burcA, burcB, donem) {
+    hazirla(veri);
+    var liste = veri.burclar || [];
+    var a = burcBul(veri, burcA), b = burcBul(veri, burcB);
+    if (!a || !b) return null;
+    var ia = -1, ib = -1;
+    for (var i = 0; i < liste.length; i++) {
+      if (liste[i].id === a.id) ia = i;
+      if (liste[i].id === b.id) ib = i;
+    }
+    if (ia < 0 || ib < 0) return null;
+
+    var aci = burcAcisi(ia, ib);
+    /* Sıra fark etmez: A+B ile B+A aynı kaydı verir (ikiliNasip'teki desen). */
+    var cekirdek = [a.id, b.id].sort().join("+");
+    var tohum = karistir((hashle("burcikili:" + cekirdek) ^ karistir(((donem | 0) * 2654435761) | 0)) >>> 0);
+
+    var bi = veri.burcIkili || {};
+    var h = kararliSec(altTohum(tohum, "bi-hukum"),
+      adaylastir([{ liste: (bi.hukum || {})[aci.ad] || [], agirlik: 1 }]));
+    var s = kararliSec(altTohum(tohum, "bi-serh"),
+      adaylastir([{ liste: bi.serh || [], agirlik: 1 }]));
+
+    return {
+      a: a, b: b, aci: aci.ad, derece: aci.derece, uzaklik: aci.uzaklik,
+      ayniElement: a.element === b.element,
+      yanit: h ? h.deger : "", serh: s ? s.deger : "",
+      no: 1000 + (tohum % 9000), donem: donem
+    };
+  }
+
   /* ═══════════ 14. İki kişilik nasip ═══════════ */
 
   var IKILI_BANT = [
@@ -953,7 +1012,8 @@
     esAnahtar: esAnahtar, kararliSec: kararliSec, adaylastir: adaylastir,
     tonBul: tonBul, MUHUR_TON: MUHUR_TON,
     ciltSec: ciltSec, bugununBurcu: bugununBurcu, burcBul: burcBul,
-    burcNasibi: burcNasibi, ikiliNasip: ikiliNasip,
+    burcNasibi: burcNasibi, burcAcisi: burcAcisi, burcIkili: burcIkili,
+    ikiliNasip: ikiliNasip,
     kuraSec: kuraSec, ebcedDeger: ebcedDeger, ebcedNasip: ebcedNasip,
     gecmisSayfalar: gecmisSayfalar
   };

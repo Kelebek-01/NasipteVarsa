@@ -287,6 +287,51 @@ console.log("\n[2a] Mobil kaydırma");
   await ctx.close();
 }
 
+/* 3b. İki burç arası açı */
+console.log("\n[3b] İki burç arası açı");
+{
+  const {ctx,p,konsol} = await sayfaAc({reducedMotion:"reduce"});
+  await git(p);
+  await p.click("#t-burc"); await p.waitForTimeout(250);
+  ok("iki seçici de 12 burçla dolu",
+     (await p.locator("#bi-a option").count())===12 && (await p.locator("#bi-b option").count())===12);
+
+  const bak = async (a,b) => {
+    await p.selectOption("#bi-a",a); await p.selectOption("#bi-b",b);
+    await p.click('#burcikili-form button[type="submit"]');
+    await p.waitForSelector("#bi-cevap .kayit",{timeout:9000}); await p.waitForTimeout(200);
+    return p.evaluate(()=>({
+      rozet:document.querySelector("#bi-cevap .aci-rozet").innerText.replace(/\s+/g," ").trim(),
+      yanit:document.querySelector("#bi-cevap .yanit").textContent.trim(),
+      serh:document.querySelector("#bi-cevap .serh").textContent.trim(),
+      no:document.querySelector("#bi-cevap .kayit-no").textContent,
+      kart:!!document.querySelector('#bi-cevap .paylas button')}));
+  };
+
+  const k = await bak("koc","terazi");
+  ok("karşıt burçlar KARŞITLIK 180°", /KARŞITLIK/.test(k.rozet) && /180°/.test(k.rozet), k.rozet);
+  ok("hüküm geldi", k.yanit.length>5, k.yanit.slice(0,40));
+  ok("şerh geldi", k.serh.length>10);
+  ok("kayıt no var", /Kayıt №\d{4}/.test(k.no), k.no);
+  ok("PNG kart düğmesi var", k.kart);
+
+  const u = await bak("koc","aslan");
+  ok("aynı element ÜÇGEN 120°", /ÜÇGEN/.test(u.rozet) && /120°/.test(u.rozet), u.rozet);
+
+  /* Uzaklık 1 ve 5'te klasik açı YOKTUR. Rozete "30°" yazmak "açı var"
+     izlenimi verir ve ölçümü çarpıtır — bu yüzden derece bilerek yazılmıyor. */
+  const y = await bak("koc","boga");
+  ok("yüz çevirmede derece yazılmıyor",
+     /YÜZ ÇEVİRME/.test(y.rozet) && /klasik açı yok/.test(y.rozet) && !/°/.test(y.rozet), y.rozet);
+
+  /* Sıra bağımsızlığı arayüzde de görünmeli. */
+  const t1 = await bak("boga","akrep"), t2 = await bak("akrep","boga");
+  ok("sıra bağımsız (arayüz)", t1.yanit===t2.yanit && t1.no===t2.no, t1.no+" vs "+t2.no);
+
+  ok("konsol temiz", konsol.length===0, konsol.join(" | "));
+  await ctx.close();
+}
+
 /* 2b. Kura */
 console.log("\n[2b] Kura");
 {

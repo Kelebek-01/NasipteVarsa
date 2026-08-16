@@ -1,7 +1,7 @@
 # NasipteVarsa — Devir Notu (Claude Code için)
 
 Canlı: https://nasiptevarsa.com · Repo: `Kelebek-01/NasipteVarsa` · Yayın: GitHub Pages, `master` dalı kökten.
-Motor sürümü: **v3**, arayüz **v3.4**. Bu dosya `TASARIM-NOTLARI.md`'nin yerine geçer.
+Motor sürümü: **v3**, arayüz **v3.5**. Bu dosya `TASARIM-NOTLARI.md`'nin yerine geçer.
 
 ## 1. Ne bu?
 
@@ -350,6 +350,47 @@ değişmedi.
 uyumlu olmalı. Aralığı 500'e çekersen `.soru-eko` (font-weight belirtmiyor, 400'e
 düşüyor) sessizce kalınlaşır.
 
+## 3d. İki burç arası açı (v3.5)
+
+Burç sekmesinde iki burç seçilip aralarındaki **klasik açıya** bakılıyor.
+
+**Efemeris gerektirmiyor, bu yüzden eklenebildi.** İki burç arası açı, zodyaktaki
+indeks uzaklığı × 30°'dir — doğum saati, yeri, gezegen konumu hiçbiri gerekmez.
+Site statik ve deterministik kalıyor.
+
+```
+uzaklık 0 → 0°   kavuşum      uzaklık 4 → 120° üçgen
+uzaklık 2 → 60°  altmışlık    uzaklık 6 → 180° karşıtlık
+uzaklık 3 → 90°  kare         uzaklık 1 ve 5 → klasik açı YOK
+```
+
+Uzaklık 1 ve 5'in adı uydurma değil: klasik gelenekte bu iki burç birbirini
+**görmez** (aversion), Türkçesi yüz çevirme. Rozette derece **bilerek yazılmıyor**
+— "30°" yazmak "açı var" izlenimi verir ve ölçümü çarpıtır.
+
+Kaynak: Ptolemaios *Tetrabiblos* I.13; Lilly *Christian Astrology* I. kitap.
+Yönetici gezegenler (`burclar[].yonetici`): *Tetrabiblos* I.17, Lilly CA s.104.
+Modern minör açılar (Kepler kökenli) bilerek yok.
+
+**Nereden geldi.** `/Users/mert/astro` (ayrı bir horary uygulaması) incelendi.
+Makinesi kullanılamadı — FastAPI + Swiss Ephemeris + doğum verisi istiyor. Alınan
+şey tablolar ve bir **karar**: o projenin `synastry.py` dosyası sinastri için
+kaynaklı kural olmadığı gerekçesiyle yorum üretmeyi reddediyor ("Venüs'ün Mars'a
+60° olması bir ÖLÇÜMDÜR; bu ilişki uyumludur bir İDDİADIR").
+
+NasipteVarsa'nın sözleşmesi farklı — burası açıkça bir kader defteri, astroloji
+motoru değil; yorumu üretebilir. Ama **ölçüm/yorum ayrımı korunuyor**: kart açıyı
+ölçü olarak gösterir, şerh havuzu ise defterin yorum ürettiğini açıkça söyler
+("Açı ölçüdür, yorum defterin sözü"). O şerhleri havuzdan çıkarma — ebcedin
+"yaklaşık ebced" uyarısıyla aynı işi görüyor.
+
+**Hiçbir açı "kötü" yazılmaz.** Kare sürtünmedir, karşıtlık aynalamadır,
+yüz çevirme yabancılıktır. `ikili.hukum`'un "hiçbiri aşağılayıcı olamaz"
+kuralıyla aynı gerekçe.
+
+`test-motor.mjs` §15 144 burç çiftinin hepsinde açıyı, sarmalanmayı (Koç↔Balık
+30°, 330° değil), sıra bağımsızlığını ve altı havuzun doluluğunu denetliyor.
+
 ## 4. kader.json şeması (v3)
 
 | Alan | İşlevi |
@@ -435,7 +476,7 @@ da okuma tarafı kayarsa orası kalır. Silme.
 ## 5. Testler
 
 ```bash
-node test/test-motor.mjs        # 138 test: sesbilim, gövdeleme, morfotaktik, tip/arzu,
+node test/test-motor.mjs        # 158 test: sesbilim, gövdeleme, morfotaktik, tip/arzu,
                                 #           determinizm, kararlılık, dağılım, uç durumlar,
                                 #           kura (ES kararlılığı), ebced, eski sayfalar
 node test/test-guvenlik.mjs     # prototip anahtarları, enjeksiyon yükleri (kader + kura +
@@ -459,7 +500,7 @@ npm i -D playwright-core
 PW_CHROMIUM="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" node test/test-arayuz.mjs
 ```
 
-Son tam koşu: **motor 138/138, arayüz 203/203, tarayıcı 42/42, güvenlik 0 bulgu.**
+Son tam koşu: **motor 158/158, arayüz 222/222, tarayıcı 42/42, güvenlik 0 bulgu.**
 Geçmiş: `2a4d9b0` arayüz 159 · mühür ritüeli +14 · kaydırma ve 5 sekme kartı +21 · ışınsal parçalanma +9.
 
 **`kartAl()` yardımcısındaki kararsızlık — ölçüldü, düzeltildi.** Eski hâli "iki ardışık

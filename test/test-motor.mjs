@@ -303,6 +303,60 @@ for (const uc of ["?", "...", "a", "acaba", "😀", "mı", "   ", "çok çok ço
   ok("eşdizim anahtarları katlanmış gövde biçiminde", olu.length === 0, olu.slice(0, 5).join(" | "));
 }
 
+/* ——— 15. İki burç arası açı ———
+   Açı EFEMERİS GEREKTİRMEZ: zodyak indeks uzaklığı × 30° açının kendisidir.
+   Kaynak: Ptolemaios Tetrabiblos I.13. Uzaklık 1 ve 5'te klasik açı yoktur
+   (aversion / yüz çevirme) — bunu "30° açı var" diye yazmak uydurma olurdu. */
+{
+  const bekle = {0:["kavusum",0], 1:["yuzcevirme",30], 2:["altmislik",60], 3:["kare",90],
+                 4:["ucgen",120], 5:["yuzcevirme",150], 6:["karsitlik",180]};
+  let yanlis = [];
+  for (let i = 0; i < 12; i++) for (let j = 0; j < 12; j++) {
+    let d = Math.abs(i - j); if (d > 6) d = 12 - d;
+    const a = K.burcAcisi(i, j);
+    if (a.uzaklik !== d || a.ad !== bekle[d][0] || a.derece !== bekle[d][1])
+      yanlis.push(`${i}↔${j}: ${JSON.stringify(a)} ≠ ${JSON.stringify(bekle[d])}`);
+  }
+  ok("144 burç çiftinin hepsinde açı doğru", yanlis.length === 0, yanlis.slice(0, 3).join(" | "));
+  ok("zodyak sarmalanıyor (Koç↔Balık = 30°, 330° değil)",
+     K.burcAcisi(0, 11).derece === 30 && K.burcAcisi(0, 11).uzaklik === 1);
+  ok("açı simetrik", [...Array(12)].every((_, i) => [...Array(12)].every((_, j) =>
+     K.burcAcisi(i, j).ad === K.burcAcisi(j, i).ad)));
+
+  const ilk = veri.burclar[0].id, karsit = veri.burclar[6].id, ucgenli = veri.burclar[4].id;
+  const p = K.burcIkili(veri, ilk, karsit, D);
+  ok("burcIkili kayıt üretiyor", !!p && p.yanit.length > 5 && p.serh.length > 5, JSON.stringify(p && p.aci));
+  ok("karşıt burçlar karşıtlık veriyor", p.aci === "karsitlik" && p.derece === 180, p && p.aci);
+  ok("aynı element üçgen veriyor", K.burcIkili(veri, ilk, ucgenli, D).aci === "ucgen");
+  ok("aynı burç kavuşum veriyor", K.burcIkili(veri, ilk, ilk, D).aci === "kavusum");
+
+  /* Sıra fark etmemeli: A+B ile B+A aynı kayıt (ikiliNasip'teki sözleşme). */
+  const q = K.burcIkili(veri, karsit, ilk, D);
+  ok("sıra bağımsız (A+B = B+A)", p.yanit === q.yanit && p.serh === q.serh && p.no === q.no,
+     p.no + " vs " + q.no);
+  ok("deterministik", K.burcIkili(veri, ilk, ucgenli, D).no === K.burcIkili(veri, ilk, ucgenli, D).no);
+  ok("devre bağlı", K.burcIkili(veri, ilk, ucgenli, D).no !== K.burcIkili(veri, ilk, ucgenli, D - 1).no);
+  ok("bilinmeyen burç null döndürür",
+     K.burcIkili(veri, "yokboyle", ilk, D) === null && K.burcIkili(veri, ilk, "", D) === null);
+
+  /* Altı açı kovasının hepsi dolu olmalı; biri boşsa o çift sessizce boş hüküm alır. */
+  const bi = veri.burcIkili || {};
+  const bos = ["kavusum","altmislik","kare","ucgen","karsitlik","yuzcevirme"]
+    .filter(x => !((bi.hukum || {})[x] || []).length);
+  ok("altı açı havuzunun hepsi dolu", bos.length === 0, bos.join(", "));
+  ok("şerh havuzu dolu", (bi.serh || []).length > 0);
+  ok("her burcun yöneticisi var",
+     veri.burclar.every(b => typeof b.yonetici === "string" && b.yonetici.length > 1));
+
+  /* 12×12'nin tamamı gerçekten cevap üretmeli — hiçbir çift boşa düşmesin. */
+  let boslar = 0;
+  for (const a of veri.burclar) for (const b of veri.burclar) {
+    const r = K.burcIkili(veri, a.id, b.id, D);
+    if (!r || !r.yanit || !r.serh) boslar++;
+  }
+  ok("144 çiftin hepsi hüküm ve şerh alıyor", boslar === 0, boslar + " boş");
+}
+
 console.log(`\n${gecti} geçti, ${kaldi} kaldı`);
 if (hata.length) { console.log("\nKALANLAR:"); hata.forEach(h => console.log("  ✗ " + h)); }
 console.log("mühür dağılımı:", JSON.stringify(yuzde));

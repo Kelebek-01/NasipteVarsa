@@ -695,7 +695,8 @@
       "simge": "♈",
       "element": "ates",
       "bas": "03-21",
-      "bit": "04-19"
+      "bit": "04-19",
+      "yonetici": "Mars"
     },
     {
       "id": "boga",
@@ -703,7 +704,8 @@
       "simge": "♉",
       "element": "toprak",
       "bas": "04-20",
-      "bit": "05-20"
+      "bit": "05-20",
+      "yonetici": "Venüs"
     },
     {
       "id": "ikizler",
@@ -711,7 +713,8 @@
       "simge": "♊",
       "element": "hava",
       "bas": "05-21",
-      "bit": "06-21"
+      "bit": "06-21",
+      "yonetici": "Merkür"
     },
     {
       "id": "yengec",
@@ -719,7 +722,8 @@
       "simge": "♋",
       "element": "su",
       "bas": "06-22",
-      "bit": "07-22"
+      "bit": "07-22",
+      "yonetici": "Ay"
     },
     {
       "id": "aslan",
@@ -727,7 +731,8 @@
       "simge": "♌",
       "element": "ates",
       "bas": "07-23",
-      "bit": "08-22"
+      "bit": "08-22",
+      "yonetici": "Güneş"
     },
     {
       "id": "basak",
@@ -735,7 +740,8 @@
       "simge": "♍",
       "element": "toprak",
       "bas": "08-23",
-      "bit": "09-22"
+      "bit": "09-22",
+      "yonetici": "Merkür"
     },
     {
       "id": "terazi",
@@ -743,7 +749,8 @@
       "simge": "♎",
       "element": "hava",
       "bas": "09-23",
-      "bit": "10-22"
+      "bit": "10-22",
+      "yonetici": "Venüs"
     },
     {
       "id": "akrep",
@@ -751,7 +758,8 @@
       "simge": "♏",
       "element": "su",
       "bas": "10-23",
-      "bit": "11-21"
+      "bit": "11-21",
+      "yonetici": "Mars"
     },
     {
       "id": "yay",
@@ -759,7 +767,8 @@
       "simge": "♐",
       "element": "ates",
       "bas": "11-22",
-      "bit": "12-21"
+      "bit": "12-21",
+      "yonetici": "Jüpiter"
     },
     {
       "id": "oglak",
@@ -767,7 +776,8 @@
       "simge": "♑",
       "element": "toprak",
       "bas": "12-22",
-      "bit": "01-19"
+      "bit": "01-19",
+      "yonetici": "Satürn"
     },
     {
       "id": "kova",
@@ -775,7 +785,8 @@
       "simge": "♒",
       "element": "hava",
       "bas": "01-20",
-      "bit": "02-18"
+      "bit": "02-18",
+      "yonetici": "Satürn"
     },
     {
       "id": "balik",
@@ -783,7 +794,8 @@
       "simge": "♓",
       "element": "su",
       "bas": "02-19",
-      "bit": "03-20"
+      "bit": "03-20",
+      "yonetici": "Jüpiter"
     }
   ],
   "burcOkuma": {
@@ -2436,6 +2448,116 @@
       "cocuk yap",
       "yuva kur",
       "hayal kur"
+    ]
+  },
+  "_burcIkiliNotu": "İki burç arası klasik açı EFEMERİS GEREKTİRMEZ: zodyak indeks uzaklığı × 30° açının kendisidir. Uzaklık 0/2/3/4/6 → kavuşum/altmışlık/kare/üçgen/karşıtlık; 1 ve 5'te klasik açı yoktur, gelenekte bu iki burç birbirini görmez (aversion) — yüz çevirme. Kaynak: Ptolemaios, Tetrabiblos I.13; Lilly, Christian Astrology I. kitap. Modern minör açılar bilerek yok. ÖLÇÜM ile YORUM ayrı: açı ölçümdür, yorum defterin kendi sözüdür. Hiçbir açı 'kötü' yazılmaz — kare sürtünmedir, karşıtlık aynalamadır.",
+  "burcIkili": {
+    "kaynak": "Klasik açılar: Ptolemaios, Tetrabiblos I.13 · Lilly, Christian Astrology I. kitap. Yönetici gezegenler: Tetrabiblos I.17, Lilly CA s.104.",
+    "aciAdi": {
+      "kavusum": "Kavuşum",
+      "altmislik": "Altmışlık",
+      "kare": "Kare",
+      "ucgen": "Üçgen",
+      "karsitlik": "Karşıtlık",
+      "yuzcevirme": "Yüz çevirme"
+    },
+    "hukum": {
+      "kavusum": [
+        "Aynı sayfadasınız; bu hem kolaylık hem tuzak.",
+        "İkiniz de aynı yerden bakıyorsunuz, kör noktanız da ortak.",
+        "Bu bir ayna; sevdiğini de sevmediğini de kendinde göreceksin.",
+        "Aynı burç, aynı huy: anlaşmak kolay, ayrışmak zor.",
+        "Birbirinizi anlatmanıza gerek yok, bilmek yeter.",
+        "Bu yakınlık büyütür — iyisini de fazlasını da.",
+        "Aynı hızda yürüyorsunuz; kimse kimseyi beklemiyor.",
+        "Ortak dil hazır geldi; ortak sınır kurulacak.",
+        "Aynı sayfada iki imza var, ikisi de senin elinden.",
+        "Fazla benzemek de bir mesafe biçimidir.",
+        "Bu eşleşme tekrar sever; yenilik dışarıdan gelecek.",
+        "Birbirinizin tekrarısınız; sorun da çözüm de burada."
+      ],
+      "altmislik": [
+        "Aranızda açık bir kapı var; itmesi kolay.",
+        "Bu bağ zorlamadan yürür ama kendiliğinden de yürümez.",
+        "Fırsat kurulmuş; adımı biriniz atacak.",
+        "Birbirinizi rahat bırakıyorsunuz, bu iyi bir şey.",
+        "Bu eşleşme destekler; sürüklemez.",
+        "Kolaylık var ama kolaylığı fark etmek gerekiyor.",
+        "Aranızdaki mesafe tam konuşmaya yetecek kadar.",
+        "Birbirinize iyi geliyorsunuz, farkında olmadan.",
+        "Bu bağ küçük jestlerle büyür.",
+        "Ne çok yakın ne uzak; rahat bir açı.",
+        "Teklif senden gelirse karşılığı hazır.",
+        "Bu sayfa kavgayla değil, ihmalle bozulur."
+      ],
+      "kare": [
+        "Aranızda sürtünme var; sürtünme aynı zamanda ısıdır.",
+        "Bu eşleşme rahat değil ama uyuşuk da değil.",
+        "Birbirinizi zorluyorsunuz; zorlanan büyür.",
+        "Aynı şeyi farklı yerden istiyorsunuz.",
+        "Bu bağ sizi değiştirir — ikinizi de.",
+        "Anlaşmak emek ister; emek verilirse tutar.",
+        "Birbirinizin kolay yanı değilsiniz, bunu bilerek girin.",
+        "Bu açı kıvılcım verir; ateşi kimin taşıyacağı ayrı mesele.",
+        "Uyum kendiliğinden gelmez, kurulur.",
+        "Birbirinize ayna değil, çakmaktaşısınız.",
+        "Bu gerilim boşuna değil; bir şeyi kımıldatıyor.",
+        "Kolay olmayan bağlar bazen en çok öğreten olur."
+      ],
+      "ucgen": [
+        "Su gibi akıyor; kimse kürek çekmiyor.",
+        "Bu eşleşme kendiliğinden anlaşır.",
+        "Aynı elementten geliyorsunuz, dil ortak.",
+        "Rahatlık var; rahatlığın tembelliğe dönmemesi sizde.",
+        "Birbirinizi yormuyorsunuz.",
+        "Bu bağ kolay kurulur, kolay ihmal edilir.",
+        "Aranızda tercüman gerekmiyor.",
+        "Uyum hazır geldi; bundan sonrası niyet meselesi.",
+        "Bu sayfa yumuşak yazılmış.",
+        "Zorlanmadan yürüyen şeyin kıymeti sonra anlaşılır.",
+        "Birbirinizin doğal hâlisiniz.",
+        "Akış güzel ama akıntı yön de belirler; yönü siz seçin."
+      ],
+      "karsitlik": [
+        "Karşı karşıya duruyorsunuz; bu uzaklık değil, hizadır.",
+        "Birinizde eksik olan ötekinde fazla.",
+        "Bu bağ denge arar, denge de sürekli ayarlanır.",
+        "Birbirinizin tamamlayanı da sınavısınız.",
+        "En uzak burç en çok şeyi gösterir.",
+        "Çekim güçlü; çekimin yönü ikinizde.",
+        "Bu eşleşme iki uçtan tutuyor, ip ortada.",
+        "Birbirinize benzemiyorsunuz — asıl mesele de bu.",
+        "Karşındaki sana kendi öteki yarını gösteriyor.",
+        "Bu gerilim kopmak için değil, gerilmek için.",
+        "İkiniz de haklısınız, aynı anda.",
+        "Aynadaki tersi görmek, görmemekten iyidir."
+      ],
+      "yuzcevirme": [
+        "Klasik gelenekte bu iki burç birbirini görmez; bakmak niyet ister.",
+        "Aranızda hazır bir köprü yok, kurulanı sağlam olur.",
+        "Bu bağ kendiliğinden anlaşmaz; anlaşmak seçilir.",
+        "Birbirinizin dilini sonradan öğreneceksiniz.",
+        "Ne çekim ne çatışma; sadece farklı yerlere bakıyorsunuz.",
+        "Bu eşleşme merak ister, benzerlik değil.",
+        "Yabancılık kötü değil; öğrenilecek çok şey var demek.",
+        "Aranızdaki boşluğu ortak bir şey doldurur.",
+        "Görmemek uzaklık değil, sadece açı meselesi.",
+        "Bu sayfa boş geldi; ne yazılacağı ikinize kalmış.",
+        "Birbirinize doğal gelmiyorsunuz — bu bir eksiklik değil.",
+        "Bakmayı seçenler için burada da yol var."
+      ]
+    },
+    "serh": [
+      "Açı ölçüdür, yorum defterin sözü; ikisini karıştırma.",
+      "Burçlar arası açı doğum saatine bakmaz, yalnız burca bakar — kaba bir çerçevedir.",
+      "Bu sayfa iki kişiyi değil iki burcu okur; kişiler burçlarından büyüktür.",
+      "Klasik açı geometridir; ilişki geometriden ibaret değildir.",
+      "Defter açıyı söyler, kararı söylemez.",
+      "İyi açı garanti değil, zor açı kader değil.",
+      "Bu okuma bir başlangıç noktası, bir hüküm değil.",
+      "Aynı açı iki çiftte aynı şeyi doğurmaz.",
+      "Burç uyumu bir bahane, asıl mesele niyet.",
+      "Geometriye bakıp insanı unutma."
     ]
   }
 }

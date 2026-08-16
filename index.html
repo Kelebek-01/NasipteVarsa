@@ -471,6 +471,23 @@ body[data-cilt="neon"] .zarf .soru-eko{font-style:normal}
   font:inherit;font-family:var(--govde-yazi);font-size:var(--ol-3);
   color:var(--sut);background:var(--gece2);border:1px solid var(--cizgi);border-radius:var(--dugme-yuvarlak)}
 @media (max-width:560px){ .ikili-form,.kura-form,.ebced-form{grid-template-columns:1fr} }
+/* ——— iki burç arası açı ——— */
+.bi-kapak{margin-top:34px;padding-top:26px;border-top:1px dashed var(--cizgi)}
+.bi-kapak h2{font-family:var(--baslik-yazi);font-weight:var(--baslik-agirlik);
+  font-size:var(--ol-4);letter-spacing:var(--baslik-aralik);margin:0 0 8px}
+#burcikili-form select{min-width:0;width:100%;min-height:52px;padding:12px 16px;
+  font:inherit;font-family:var(--govde-yazi);font-size:var(--ol-3);
+  color:var(--sut);background:var(--gece2);border:1px solid var(--cizgi);
+  border-radius:var(--dugme-yuvarlak)}
+#burcikili-form button{grid-column:1/-1}
+/* Açı rozeti: derecesiyle birlikte, ölçüm olduğu belli olsun. */
+.aci-rozet{display:inline-flex;align-items:baseline;gap:8px;margin:0 0 12px;
+  padding:5px 12px;border:1px solid currentColor;border-radius:var(--cip-yuvarlak);
+  color:var(--altin);font-family:var(--govde-yazi);font-size:var(--ol-1);
+  letter-spacing:.08em}
+.aci-rozet b{font-weight:700;letter-spacing:.1em}
+.aci-derece{font-variant-numeric:tabular-nums;opacity:.75}
+.bi-yonetici{color:var(--duman);font-size:var(--ol-1);margin:0 0 14px}
 .ikili-form button,.kura-form button[type="submit"],.ebced-form button{grid-column:1/-1;min-height:52px;border:0;
   border-radius:var(--dugme-yuvarlak);background:var(--altin);color:var(--gece);font:inherit;
   font-family:var(--govde-yazi);font-weight:700;font-size:var(--ol-3);cursor:pointer;
@@ -633,6 +650,21 @@ body[data-cilt="neon"]::after{
       </div>
       <div class="burc-izgara" id="burc-izgara"></div>
       <section id="burc-cevap" aria-live="polite"></section>
+
+      <div class="kapak bi-kapak">
+        <h2>İki burç arası açı</h2>
+        <p>İki burç seç, aralarındaki klasik açıya bak. Açı ölçüdür — doğum saati
+           istemez, zodyaktaki uzaklıktan çıkar. Yorum defterin kendi sözüdür.</p>
+      </div>
+      <form class="ikili-form" id="burcikili-form" novalidate>
+        <label class="sr-only" for="bi-a">Birinci burç</label>
+        <select id="bi-a"></select>
+        <label class="sr-only" for="bi-b">İkinci burç</label>
+        <select id="bi-b"></select>
+        <button type="submit">Açıya Bak</button>
+      </form>
+      <p id="bi-hata" class="hata" role="status"></p>
+      <section id="bi-cevap" aria-live="polite"></section>
     </section>
 
     <section id="s-kura" role="tabpanel" aria-labelledby="t-kura" tabindex="-1" hidden>
@@ -768,6 +800,7 @@ function veriyiKur(v, yedekMi){
   geriSayimBaslat();
   ornekleriBaslat();
   burclariKur();
+  burcIkiliKur();
   sekmeleriDenetle();
   if (bekleyen){ var b = bekleyen; bekleyen = null; sor(b.soru, b.hizli); }
 }
@@ -1783,6 +1816,66 @@ function burcGoster(id){
   murekkeple(yanit, r.metin);
   muhurSesi();
 }
+
+/* ═════════ iki burç arası açı ═════════ */
+function burcIkiliKur(){
+  var liste = VERI.burclar || [];
+  var f = $("burcikili-form");
+  if (!liste.length){ f.hidden = true; $("bi-hata").hidden = true; return; }
+  ["bi-a","bi-b"].forEach(function(id, n){
+    var s = $(id); s.textContent = "";
+    liste.forEach(function(b, i){
+      var o = document.createElement("option");
+      o.value = b.id;
+      /* U+FE0E: simge renkli emoji değil metin olarak çizilsin, cilt rengini alsın */
+      o.textContent = b.simge + "︎  " + b.ad;
+      if (i === (n === 0 ? 0 : 6)) o.selected = true;   /* varsayılan: karşıt bir çift */
+      s.appendChild(o);
+    });
+  });
+}
+$("burcikili-form").addEventListener("submit", function(e){
+  e.preventDefault();
+  var h = $("bi-hata"), c = $("bi-cevap");
+  if (!HAZIR){ h.textContent = "Defter henüz açılmadı, bir saniye."; return; }
+  var r = Kader.burcIkili(VERI, $("bi-a").value, $("bi-b").value, DONEM);
+  if (!r){ h.textContent = "Bu burçlar okunamadı."; return; }
+  h.textContent = "";
+
+  var bi = VERI.burcIkili || {};
+  var aciAd = (bi.aciAdi || {})[r.aci] || r.aci;
+
+  var kart = document.createElement("div"); kart.className = "kayit" + (azHareket ? "" : " sars");
+  var eko = document.createElement("p"); eko.className = "soru-eko";
+  eko.textContent = r.a.simge + "︎ " + r.a.ad + "  ·  " + r.b.simge + "︎ " + r.b.ad;
+
+  var rozet = document.createElement("p"); rozet.className = "aci-rozet";
+  var rb = document.createElement("b"); rb.textContent = aciAd.toLocaleUpperCase("tr");
+  var rd = document.createElement("span"); rd.className = "aci-derece";
+  /* Yüz çevirmede klasik açı yoktur; dereceyi yazmak "açı var" izlenimi verir. */
+  rd.textContent = r.aci === "yuzcevirme" ? "klasik açı yok" : r.derece + "°";
+  rozet.appendChild(rb); rozet.appendChild(rd);
+
+  var yon = document.createElement("p"); yon.className = "bi-yonetici";
+  yon.textContent = "Yöneticiler: " + r.a.yonetici + " · " + r.b.yonetici +
+    (r.ayniElement ? "  ·  aynı element (" + r.a.element + ")" : "");
+
+  var yanit = document.createElement("p"); yanit.className = "yanit";
+  var serh = document.createElement("p"); serh.className = "serh"; serh.textContent = r.serh;
+  var satir = document.createElement("div"); satir.className = "muhur-satir";
+  var no = document.createElement("span"); no.className = "kayit-no"; no.textContent = "Kayıt №" + r.no;
+  satir.appendChild(no);
+  var not = document.createElement("p"); not.className = "not"; not.textContent = devirNotu();
+
+  var kayit = kayitYaz(r.a.ad + " · " + r.b.ad, r.yanit, r.serh, aciAd, "altin", r.no);
+
+  kart.appendChild(eko); kart.appendChild(rozet); kart.appendChild(yon);
+  kart.appendChild(yanit); kart.appendChild(serh); kart.appendChild(satir);
+  kart.appendChild(not); kart.appendChild(kartSatiri(kayit));
+  c.textContent = ""; c.appendChild(kart);
+  murekkeple(yanit, r.yanit);
+  muhurSesi();
+});
 
 /* ═════════ kura ═════════ */
 (function(){
