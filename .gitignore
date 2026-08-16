@@ -2,3 +2,4 @@ node_modules/
 package-lock.json
 package.json
 shots/
+.claude/settings.local.json

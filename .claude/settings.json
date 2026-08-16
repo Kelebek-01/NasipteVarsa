@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node test/test-motor.mjs)",
+      "Bash(node test/test-guvenlik.mjs)",
+      "Bash(node test/test-arayuz.mjs)",
+      "Bash(node test/test-tarayici.mjs)",
+      "Bash(node .github/cilt-denetimi.mjs)",
+      "Bash(node eval/degerlendir.mjs)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(gzip:*)",
+      "Bash(wc:*)",
+      "Bash(grep:*)"
+    ]
+  }
+}
