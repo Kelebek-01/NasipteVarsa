@@ -35,7 +35,5 @@ düzeltme olarak girer ve commit mesajında bildiren kişiye teşekkür edilir.
 
 ## Kapsam dışı
 
-- `project/` klasörü: 2019 tarihli, artık kullanılmayan Vue kaynağıdır.
-  Yayınlanan sayfa tarafından yüklenmez.
 - Sayfanın ürettiği fal metinleri eğlence amaçlıdır; içeriğe dair şikâyetler
   güvenlik bildirimi olarak değerlendirilmez.

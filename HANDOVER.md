@@ -26,8 +26,9 @@ og.png       1200×630 paylaşım görseli · favicon.svg · apple-touch-icon.pn
 CNAME        nasiptevarsa.com
 test/        Regresyon ve güvenlik testleri (Node; yayına dahil değil)
 eval/        Ölçüm koşusu, bağımsız değerlendirme setleri, RAPOR.md
-project/     Eski Vue kaynağı. Yayına dahil değil, tarihsel; silinebilir.
 ```
+
+Eski Vue kaynağı (`project/`) **silindi** — `eski-site` dalında ve git geçmişinde duruyor.
 
 ## 3. Kader motoru v3 (kader.js)
 
@@ -552,11 +553,16 @@ Bağımsız bir inceleme yapıldı ve bulgular giderildi. Bozulmaması gerekenle
   çalışmaz; GitHub Pages başlık koyduramadığı için clickjacking'e karşı koruma yoktur
   (sitede oturum/işlem olmadığı için kabul edilmiş kalıntı risk).
 
+Kapatılan kalıntı:
+
+* ~~`project/` klasörü `https://nasiptevarsa.com/project/` altında yayında~~ —
+  **silindi.** Sır içermiyordu ama gereksiz yüzey ve eski bağımlılık listesini
+  ifşa ediyordu. Silmeden önce doğrulandı: repoda hiçbir kod, HTML ya da CI adımı
+  ona referans vermiyor, ve ağacın hash'i `eski-site` dalındakiyle birebir aynı
+  (`d27a825`) — yani içerik olduğu gibi duruyor.
+
 Kapatılmayan, bilinen kalıntılar:
 
-* `project/` klasörü `https://nasiptevarsa.com/project/` altında yayında. Sır içermiyor
-  ama gereksiz yüzey ve eski bağımlılık listesini ifşa ediyor. Silinmesi öneriliyor;
-  içerik zaten `eski-site` dalında ve git geçmişinde duruyor.
 * Sorunun kendisi paylaşım linkinde açık metin taşınır. Fragment sunucuya gitmez ve
   `Referer`'a girmez, ama linki alan kişi soruyu görür — tasarım gereği.
 

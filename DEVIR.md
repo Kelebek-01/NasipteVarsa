@@ -121,8 +121,8 @@ Bunları "bilinmiyor" diye taşı, "muhtemelen iyidir" diye değil.
 * **Ton tavanı.** `tonBul(kader, arzu)` içinde arzu yalnızca soruya bağlı olduğu için tek
   bir soru asla beş tonun üçünden fazlasını üretemez. Tasarım kararı, ama bilinen sınır.
 * **İsim falının ebcedi yaklaşıktır.** Latin→Arap harf eşlemesi kayıplı (s = sin/sad/se).
-* **`project/` klasörü hâlâ yayında** (`nasiptevarsa.com/project/`), altı yıllık eski iş.
-  Silinip silinmeyeceği kullanıcının kararı, soruldu, karar çıkmadı.
+* ~~**`project/` klasörü hâlâ yayında**~~ — **silindi.** Karar çıktı. İçerik
+  `eski-site` dalında birebir duruyor (ağaç hash'i aynı).
 
 ## 6. Sıradaki işler
 
