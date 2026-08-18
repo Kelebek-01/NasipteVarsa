@@ -15,7 +15,7 @@ Canlı: nasiptevarsa.com · GitHub Pages, `master` kökten (push = yayın).
 node test/test-motor.mjs      # 158 · saf Node
 node test/test-guvenlik.mjs   #     · saf Node
 node .github/cilt-denetimi.mjs
-PW_CHROMIUM="$PW_CHROMIUM" node test/test-arayuz.mjs     # 222 · playwright-core
+PW_CHROMIUM="$PW_CHROMIUM" node test/test-arayuz.mjs     # 223 · playwright-core
 PW_CHROMIUM="$PW_CHROMIUM" node test/test-tarayici.mjs   #  42
 ```
 
@@ -86,6 +86,12 @@ Arzu ekseni ~%59'da; iki hipotez ölçülüp reddedildi (bkz. `eval/RAPOR.md` §
 - Sayaç animasyonu bitmeden kayıt numarası okunursa geçici rakam gelir.
 - `display:contents` bozulursa mobil düzen bozulur ama **taşma testleri yakalamaz**.
 - Testleri hep `reducedMotion:"reduce"` ile koşma; animasyonlu yoldaki hatalar kaçar.
+- **Cilt adını teste sabit yazma.** Cildi devir seçer (`ciltler[dönem % 5]`), yani
+  sabit bir ad 5 haftada bir devrin kendi cildine denk gelir. `test-arayuz.mjs` §1c
+  sabit `"ferman"` yazdığı için dönem 137'de (18 Ağustos 2026) çöktü: devrin cildine
+  basmak sapma sayılmadığından "Devre dön" haklı olarak gizli kalıyor, test görünmesini
+  bekliyordu. Önizleme cildini devrinkinden **türet**. Aynı sebeple `theme-color`'ı
+  sabit hex ile karşılaştırma — uygulanan cildin `--gece` token'ından oku.
 
 ## 7. Çalışma alışkanlığı
 

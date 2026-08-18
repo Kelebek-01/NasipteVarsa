@@ -482,7 +482,7 @@ node test/test-motor.mjs        # 158 test: sesbilim, gövdeleme, morfotaktik, t
                                 #           kura (ES kararlılığı), ebced, eski sayfalar
 node test/test-guvenlik.mjs     # prototip anahtarları, enjeksiyon yükleri (kader + kura +
                                 #           ebced kapılarından), dönem sınırları, CPU, tavanlar
-node test/test-arayuz.mjs       # 203 test: ciltler (renk VE biçim), cilt seçici, 5 sekme,
+node test/test-arayuz.mjs       # 223 test: ciltler (renk VE biçim), cilt seçici, 5 sekme,
                                 #           mobil kaydırma, kura, ebced, eski sayfalar,
                                 #           5 sekmenin PNG kartı, taşma, kontrast,
                                 #           gerçek görünürlük, animasyon,
@@ -501,7 +501,20 @@ npm i -D playwright-core
 PW_CHROMIUM="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" node test/test-arayuz.mjs
 ```
 
-Son tam koşu: **motor 158/158, arayüz 222/222, tarayıcı 42/42, güvenlik 0 bulgu.**
+Son tam koşu: **motor 158/158, arayüz 223/223, tarayıcı 42/42, güvenlik 0 bulgu.**
+(18 Ağustos 2026, dönem 137. Arayüz 222→223: §1c'ye "önizleme cildi devrinkinden
+farklı" iddiası eklendi.)
+
+**Takvime bağlı test tuzağı — ölçüldü.** §1c önizleme cildi olarak sabit `"ferman"`
+yazıyordu. Cildi devir seçtiği için (`ciltSec` = `ciltler[dönem % 5]`) bu ad 5 haftada
+bir devrin KENDİ cildine denk geliyor; o hafta ferman'a basmak bir sapma olmadığından
+`index.html` `onizleme` bayrağını false bırakıyor, etiket "Bu devrin cildi ·" kalıyor
+ve "Devre dön" düğmesi doğru davranıp gizli kalıyor. Test ikisini de bekleyip gizli
+düğmeye tıklamaya çalışıyor ve 30 sn'de patlıyordu. Dönem 137'de (18 Ağustos 2026)
+tam bu oldu; tertemiz ağaçta da yeniden üretildi, yani gerileme değil doğuştan hata.
+Artık önizleme cildi devrinkinden türetiliyor ve `theme-color` sabit hex yerine
+uygulanan cildin `--gece` token'ıyla karşılaştırılıyor (beş cildin `--gece`'si farklı,
+iddia boş geçmiyor). Yeni cilt testi yazarken cilt adını sabitleme.
 Geçmiş: `2a4d9b0` arayüz 159 · mühür ritüeli +14 · kaydırma ve 5 sekme kartı +21 · ışınsal parçalanma +9.
 
 **`kartAl()` yardımcısındaki kararsızlık — ölçüldü, düzeltildi.** Eski hâli "iki ardışık

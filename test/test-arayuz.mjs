@@ -123,18 +123,36 @@ console.log("\n[1c] Cilt seçici");
   ok("5 cilt düğmesi", (await p.locator("#cilt-secici button[data-cilt]").count())===5);
   ok("devre-dön başta gizli", !(await p.isVisible("#cilt-secici button.devre")));
 
-  await p.click('#cilt-secici button[data-cilt="ferman"]'); await p.waitForTimeout(300);
-  const secili = await p.evaluate(()=>({
+  /* ÖNİZLEME CİLDİ DEVRİN KENDİ CİLDİ OLAMAZ — burası sabit "ferman" yazıyordu ve
+     5 haftada bir kırılıyordu. Cildi devir seçer (`ciltSec` = ciltler[dönem % 5]);
+     devrin cildi zaten ferman olduğunda ferman'a basmak bir SAPMA değildir, yani
+     index.html `onizleme` bayrağını false bırakır: etiket "Bu devrin cildi ·" kalır
+     ve "Devre dön" düğmesi doğru davranıp gizli kalır. Test ikisini de beklediği için
+     patlıyordu (dönem 137, 18 Ağustos 2026 — ölçüldü). Artık devrin cildinden farklı
+     olan ilk cilt seçiliyor. */
+  const devrinCilt = await p.evaluate(()=>document.body.getAttribute("data-cilt"));
+  const onizleme = ["ferman","neon","kagit","kahve","gece"].find(c=>c!==devrinCilt);
+  ok("önizleme cildi devrinkinden farklı", !!onizleme && onizleme!==devrinCilt,
+     "devir="+devrinCilt+" önizleme="+onizleme);
+
+  await p.click('#cilt-secici button[data-cilt="'+onizleme+'"]'); await p.waitForTimeout(300);
+  /* theme-color SABİT HEX ile karşılaştırılamaz: index.html onu uygulanan cildin
+     hesaplanmış `--gece` token'ından okuyor, yani beklenen değer cilde göre değişir.
+     Aynı kaynaktan okuyup karşılaştırıyoruz. */
+  const secili = await p.evaluate((id)=>({
     cilt: document.body.getAttribute("data-cilt"),
     etiket: document.getElementById("cilt-etiket").textContent,
-    basili: document.querySelector('#cilt-secici button[data-cilt="ferman"]').getAttribute("aria-pressed"),
+    basili: document.querySelector('#cilt-secici button[data-cilt="'+id+'"]').getAttribute("aria-pressed"),
     tema: document.querySelector('meta[name="theme-color"]').content,
-    hash: location.hash }));
-  ok("ferman uygulandı", secili.cilt==="ferman", JSON.stringify(secili));
+    zemin: getComputedStyle(document.body).getPropertyValue("--gece").trim(),
+    hash: location.hash }), onizleme);
+  ok(onizleme+" uygulandı", secili.cilt===onizleme, JSON.stringify(secili));
   ok("önizleme etiketi", /^Cilt ·/.test(secili.etiket.trim()), secili.etiket.trim());
   ok("seçili düğme işaretli", secili.basili==="true");
-  ok("theme-color güncellendi", secili.tema.toLowerCase()==="#e4d6b3", secili.tema);
-  ok("URL paylaşılabilir", secili.hash==="#cilt=ferman", secili.hash);
+  ok("theme-color güncellendi",
+     !!secili.zemin && secili.tema.toLowerCase()===secili.zemin.toLowerCase(),
+     "tema="+secili.tema+" --gece="+secili.zemin);
+  ok("URL paylaşılabilir", secili.hash==="#cilt="+onizleme, secili.hash);
   ok("devre-dön göründü", await p.isVisible("#cilt-secici button.devre"));
   /* Geçmiş kirletilmemeli: replaceState kullanılıyor, tek adım geri repoya değil testin
      kendi başlangıcına dönmeli. Burada yalnızca giriş sayısını denetliyoruz. */
